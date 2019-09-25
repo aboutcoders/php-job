@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "title": "A RFC-4122 conform uuid",
+      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    },
+    "type": {
+      "type": "string",
+      "title": "The job type",
+      "enum": [
+        "Job",
+        "Batch",
+        "Sequence"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "title": "The job name",
+      "minLength": 3,
+      "maxLength": 20
+    },
+    "data": {
+      "type": "string",
+      "title": "Job input or output"
+    },
+    "allowFailure": {
+      "type": "boolean",
+      "default": "false"
+    },
+    "job": {
+      "type": "object",
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "const": "Job"
+        },
+        "name": {
+          "$ref": "#/definitions/name"
+        },
+        "input": {
+          "$ref": "#/definitions/data"
+        },
+        "allowFailure": {
+          "$ref": "#/definitions/allowFailure"
+        },
+        "externalId": {
+          "$ref": "#/definitions/uuid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "job_collection": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "The job type",
+          "enum": [
+            "Batch",
+            "Sequence"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/data"
+        },
+        "allowFailure": {
+          "$ref": "#/definitions/allowFailure"
+        },
+        "externalId": {
+          "$ref": "#/definitions/uuid"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/job"
+              },
+              {
+                "$ref": "#/definitions/job_collection"
+              }
+            ]
+          },
+          "minItems": 2
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/job"
+    },
+    {
+      "$ref": "#/definitions/job_collection"
+    }
+  ]
+}

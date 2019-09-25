@@ -1,0 +1,505 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ABC Job API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/job": {
+            "get": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Returns the result of a job",
+                "operationId": "Abc\\Job\\HttpServer::index",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "The unique id of the job",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "The status of the job",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "waiting",
+                                "scheduled",
+                                "running",
+                                "complete",
+                                "failed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "The name of the job",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "externalId",
+                        "in": "query",
+                        "description": "The external id of the job",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Result"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "In case invalid parameters were provided",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Processes a job",
+                "operationId": "Abc\\Job\\HttpServer::process",
+                "responses": {
+                    "201": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Result"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "In case invalid parameters were provided",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/job/{id}": {
+            "get": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Returns the result of a job",
+                "operationId": "Abc\\Job\\HttpServer::result",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The unique id of the job",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Result"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "In case the job with the given id is not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Deletes a job",
+                "operationId": "Abc\\Job\\HttpServer::delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The unique id of the job",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "In case the job with the given id is not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/job/{id}/restart": {
+            "put": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Restarts a job",
+                "operationId": "Abc\\Job\\HttpServer::restart",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The unique id of the job",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Result"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "In case the job with the given id is not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/job/{id}/cancel": {
+            "put": {
+                "tags": [
+                    "Job"
+                ],
+                "description": "Cancels a job",
+                "operationId": "Abc\\Job\\HttpServer::cancel",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The unique id of the job",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "In case the job with the given id is not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "In case the job could not be cancelled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "In case of an internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiProblem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Job": {
+                "description": "The job to be processed",
+                "properties": {
+                    "type": {
+                        "description": "The job type",
+                        "type": "string",
+                        "enum": [
+                            "Job",
+                            "Batch",
+                            "Sequence"
+                        ]
+                    },
+                    "name": {
+                        "description": "The job name",
+                        "type": "string"
+                    },
+                    "input": {
+                        "description": "The job input",
+                        "type": "string"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Job"
+                        }
+                    },
+                    "allowFailure": {
+                        "description": "Whether a job in a Sequence or Batch may fail",
+                        "type": "boolean"
+                    },
+                    "externalId": {
+                        "description": "An external identifier of the job",
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "type": "object"
+            },
+            "Result": {
+                "description": "The result of a job",
+                "properties": {
+                    "type": {
+                        "description": "The job type",
+                        "type": "string",
+                        "enum": [
+                            "Job",
+                            "Batch",
+                            "Sequence"
+                        ]
+                    },
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "description": "The job name",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "The job type",
+                        "type": "string",
+                        "enum": [
+                            "waiting",
+                            "scheduled",
+                            "running",
+                            "complete",
+                            "failed",
+                            "cancelled"
+                        ]
+                    },
+                    "input": {
+                        "description": "The job input",
+                        "type": "string"
+                    },
+                    "output": {
+                        "description": "The job output",
+                        "type": "string"
+                    },
+                    "allowFailure": {
+                        "description": "Whether a job in a Sequence or Batch may fail",
+                        "type": "boolean"
+                    },
+                    "processingTime": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "externalId": {
+                        "description": "An external identifier of the job",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Result"
+                        }
+                    },
+                    "completed": {
+                        "description": "The datetime the job completed",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated": {
+                        "description": "The datetime the job was updated",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created": {
+                        "description": "The datetime the job was created",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiProblem": {
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "instance": {
+                        "type": "string"
+                    },
+                    "invalidParams": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApiProblem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "InvalidParameter": {
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
