@@ -158,8 +158,6 @@ class JobConsumer implements Processor
         string $jobId,
         string $jobName
     ): string {
-        $sendReplyCallback(new Reply(Result::FAILED, null, $processingTime));
-
         $this->logger->error(sprintf('[JobConsumer] Exception thrown by processor %s while processing job "%s" with id %s: %s at line %s', get_class($processor), $jobName, $jobId, $exception->getMessage(), $exception->getLine()));
 
         return Result::FAILED;

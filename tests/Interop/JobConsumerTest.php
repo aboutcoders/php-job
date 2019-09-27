@@ -121,8 +121,8 @@ class JobConsumerTest extends TestCase
      */
     public function sendsReplyOnProcessorException()
     {
-        $message = $this->createMessage('jobId', 'jobName', 'messageBody', 'replyQueue');
         $context = $this->createMock(Context::class);
+        $message = $this->createMessage('jobId', 'jobName', 'messageBody', 'replyQueue');
 
         $processor = $this->createMock(ProcessorInterface::class);
         $this->registry->expects($this->atLeastOnce())->method('get')->with('jobName')->willReturn($processor);
@@ -135,8 +135,6 @@ class JobConsumerTest extends TestCase
         ]);
 
         $this->assertSendsMessage($context, 'jobId', $expectedReplies);
-
-        $this->expectException(\Exception::class);
 
         $this->subject->process($message, $context);
     }
@@ -239,7 +237,7 @@ class JobConsumerTest extends TestCase
         $producer = $this->createMock(Producer::class);
         $context->expects($this->any())->method('createProducer')->willReturn($producer);
 
-        $producer->expects($this->exactly(2))->method('send')->with($replyQueue, $replyMessage);
+        $producer->expects($this->exactly($expectedRepliesStack->count()))->method('send')->with($replyQueue, $replyMessage);
 
         $replyMessage->expects($this->any())->method('setCorrelationId')->with($expectedCorrelationId);
         $replyMessage->expects($this->any())->method('setTimestamp')->with($this->greaterThanOrEqual(time()));
