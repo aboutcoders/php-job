@@ -2,6 +2,8 @@
 
 A PHP library for asynchronous distributed job processing using [php-enqueue](https://github.com/php-enqueue) as transport layer.
 
+[![Build Status](https://travis-ci.org/aboutcoders/php-job.png?branch=master)](https://travis-ci.org/aboutcoders/php-job)
+
 **Note: This project is still in an experimental phase!**
 
 ## Installation
