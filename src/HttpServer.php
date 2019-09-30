@@ -66,7 +66,7 @@ class HttpServer
      * @OA\Get(
      *     path="/job",
      *     tags={"Job"},
-     *     description="Returns the result of a job",
+     *     description="Returns index of job results",
      *     @OA\Parameter(
      *         description="The unique id of the job",
      *         in="query",
