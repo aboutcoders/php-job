@@ -3,7 +3,7 @@
 namespace Abc\Job\Tests;
 
 use Abc\ApiProblem\InvalidParameter;
-use Abc\Job\HttpServer;
+use Abc\Job\HttpJobServer;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Result;
@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 use Ramsey\Uuid\Uuid;
 
-class HttpServerTest extends TestCase
+class JobHttpServerTest extends TestCase
 {
     /**
      * @var ServerInterface|MockObject
@@ -30,7 +30,7 @@ class HttpServerTest extends TestCase
     private $validatorMock;
 
     /**
-     * @var HttpServer
+     * @var HttpJobServer
      */
     private $subject;
 
@@ -38,10 +38,10 @@ class HttpServerTest extends TestCase
     {
         $this->serverMock = $this->createMock(ServerInterface::class);
         $this->validatorMock = $this->createMock(ValidatorInterface::class);
-        $this->subject = new HttpServer($this->serverMock, $this->validatorMock, new NullLogger());
+        $this->subject = new HttpJobServer($this->serverMock, $this->validatorMock, new NullLogger());
     }
 
-    public function testIndexSuccess()
+    public function testAllSuccess()
     {
         $queryString = 'foo=bar';
 
@@ -51,7 +51,7 @@ class HttpServerTest extends TestCase
 
         $this->serverMock->expects($this->once())->method('find')->willReturn([$result]);
 
-        $response = $this->subject->index($queryString, 'requestUri');
+        $response = $this->subject->all($queryString, 'requestUri');
 
         $this->assertStatusCode(200, $response);
         $this->assertStdJsonResponseHeader($response);
@@ -63,7 +63,7 @@ class HttpServerTest extends TestCase
         $this->assertJsonResult($result, $data[0]);
     }
 
-    public function testIndexValidatorError()
+    public function testAllValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $queryString = 'foo=bar';
@@ -72,12 +72,12 @@ class HttpServerTest extends TestCase
 
         $this->serverMock->expects($this->never())->method('find');
 
-        $response = $this->subject->index($queryString, 'requestUri');
+        $response = $this->subject->all($queryString, 'requestUri');
 
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testIndexServerError()
+    public function testAllServerError()
     {
         $queryString = 'foo=bar';
 
@@ -85,7 +85,7 @@ class HttpServerTest extends TestCase
 
         $this->serverMock->expects($this->once())->method('find')->willThrowException(new \Exception());
 
-        $response = $this->subject->index($queryString, 'requestUri');
+        $response = $this->subject->all($queryString, 'requestUri');
 
         $this->assertServerErrorResponse($response);
     }
@@ -248,7 +248,7 @@ class HttpServerTest extends TestCase
         $this->assertProblemJsonResponseHeader($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpServer::TYPE_URL.'cancellation-failed', $data['type']);
+        $this->assertEquals(HttpJobServer::TYPE_URL.'cancellation-failed', $data['type']);
         $this->assertEquals('Job Cancellation Failed', $data['title']);
         $this->assertEquals(406, $data['status']);
         $this->assertEquals('Cancellation of job "jobId" failed', $data['detail']);
@@ -342,7 +342,7 @@ class HttpServerTest extends TestCase
         $this->assertProblemJsonResponseHeader($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpServer::TYPE_URL.'invalid-parameters', $data['type']);
+        $this->assertEquals(HttpJobServer::TYPE_URL.'invalid-parameters', $data['type']);
         $this->assertEquals('Your request parameters didn\'t validate.', $data['title']);
         $this->assertEquals(400, $data['status']);
         $this->assertEquals('One or more parameters are invalid.', $data['detail']);
@@ -358,7 +358,7 @@ class HttpServerTest extends TestCase
         $this->assertProblemJsonResponseHeader($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpServer::TYPE_URL.'resource-not-found', $data['type']);
+        $this->assertEquals(HttpJobServer::TYPE_URL.'resource-not-found', $data['type']);
         $this->assertEquals('Resource Not Found', $data['title']);
         $this->assertEquals(404, $data['status']);
         $this->assertEquals('Job with id "jobId" not found', $data['detail']);
@@ -371,7 +371,7 @@ class HttpServerTest extends TestCase
         $this->assertProblemJsonResponseHeader($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpServer::TYPE_URL.'internal-error', $data['type']);
+        $this->assertEquals(HttpJobServer::TYPE_URL.'internal-error', $data['type']);
         $this->assertEquals('Internal Server Error', $data['title']);
         $this->assertEquals(500, $data['status']);
         $this->assertEquals('An internal server error occurred', $data['detail']);

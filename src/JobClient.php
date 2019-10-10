@@ -11,11 +11,11 @@ use InvalidArgumentException;
 class Client implements ServerInterface
 {
     /**
-     * @var HttpClient
+     * @var HttpJobClient
      */
     private $client;
 
-    public function __construct(HttpClient $client)
+    public function __construct(HttpJobClient $client)
     {
         $this->client = $client;
     }
@@ -111,7 +111,7 @@ class Client implements ServerInterface
         try {
             $apiProblem = ApiProblem::fromJson($e->getResponse()->getBody());
         } catch (InvalidArgumentException $invalidArgumentException) {
-            $apiProblem = new ApiProblem(HttpServer::TYPE_URL.'/'.'internal-error', 'Internal Server Error', 500, 'An internal server error occurred', $e->getRequest()->getUri());
+            $apiProblem = new ApiProblem(HttpJobServer::TYPE_URL.'/'.'internal-error', 'Internal Server Error', 500, 'An internal server error occurred', $e->getRequest()->getUri());
         }
 
         return new ApiProblemException($apiProblem);
