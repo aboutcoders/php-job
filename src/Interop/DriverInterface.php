@@ -13,10 +13,7 @@ interface DriverInterface
 {
     public function getContext(): Context;
 
-    /**
-     * Creates all required queues, exchanges, topics, bindings etc.
-     */
-    public function setupBroker(LoggerInterface $logger = null): void;
-
     public function sendMessage(Message $message): void;
+
+    public function declareQueue(string $queue, LoggerInterface $logger = null);
 }

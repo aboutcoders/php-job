@@ -5,24 +5,28 @@ namespace Abc\Job;
 interface JobSubscriberInterface
 {
     /**
-     * The result maybe either:
+     * The result may be either:
      *
-     * 'aJobName'
-     *
-     * or
-     *
-     * ['aJobName', 'anotherJobName']
+     * [
+     *   'job' => 'aJobName',
+     *   'queue' => 'aQueueName',
+     *   'replyTo' => 'aReplyToQueueName',
+     * ],
      *
      * or
      *
      * [
      *   [
-     *     'job' => 'aSubscribedJob',
+     *     'job' => 'aJobName',
+     *     'queue' => 'aQueueName',
+     *     'replyTo' => 'aReplyToQueueName',
      *     'processor' => 'aProcessorName',
      *   ],
      *   [
-     *     'job' => 'aSubscribedJob',
-     *     'processor' => 'aProcessorName',
+     *     'job' => 'anotherJobName',
+     *     'queue' => 'anotherQueueName',
+     *     'replyTo' => 'anotherReplyToQueueName',
+     *     'processor' => 'anotherProcessorName',
      *   ]
      * ]
      *

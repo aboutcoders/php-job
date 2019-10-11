@@ -81,17 +81,8 @@ class JobConsumer implements Processor
             $this->logger->debug(sprintf('[JobConsumer] Requeue job "%s" due to processing limited to jobNames "%s"', $jobName, json_encode($this->jobNames)));
         }
 
-        $serializeCallback = function (Reply $reply): string {
-            return json_encode((object) [
-                'status' => $reply->getStatus(),
-                'output' => $reply->getOutput(),
-                'processingTime' => $reply->getProcessingTime(),
-                'createdTimestamp' => $reply->getCreatedTimestamp(),
-            ]);
-        };
-
-        $sendReplyCallback = function (Reply $reply) use ($message, $context, $serializeCallback, $logger) {
-            $replyMessage = $context->createMessage($serializeCallback($reply));
+        $sendReplyCallback = function (Reply $reply) use ($message, $context, $logger) {
+            $replyMessage = $context->createMessage($reply->toJson());
             $replyMessage->setMessageId(Uuid::uuid4());
             $replyMessage->setCorrelationId($message->getCorrelationId());
             $replyMessage->setTimestamp(time());

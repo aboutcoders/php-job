@@ -3,7 +3,7 @@
 namespace Abc\Job\Tests\Broker;
 
 use Abc\Job\Broker\Route;
-use Abc\Job\Broker\RouteCollection;
+use Abc\Job\Broker\RouteRegistry;
 use PHPUnit\Framework\TestCase;
 
 class RouteCollectionTest extends TestCase
@@ -13,7 +13,7 @@ class RouteCollectionTest extends TestCase
         $route_A = new Route('jobNameA', 'queueName', 'replyTo');
         $route_B = new Route('jobNameB', 'queueName', 'replyTo');
 
-        $subject = new RouteCollection([$route_A]);
+        $subject = new RouteRegistry([$route_A]);
         $subject->add($route_B);
 
         $this->assertEquals([$route_A, $route_B], $subject->all());
@@ -24,7 +24,7 @@ class RouteCollectionTest extends TestCase
         $route_A = new Route('jobNameA', 'queueName', 'replyTo');
         $route_B = new Route('jobNameB', 'queueName', 'replyTo');
 
-        $subject = new RouteCollection([$route_A, $route_B]);
+        $subject = new RouteRegistry([$route_A, $route_B]);
 
         $this->assertSame($route_A, $subject->get($route_A->getJobName()));
     }
@@ -34,8 +34,8 @@ class RouteCollectionTest extends TestCase
         $route_A = new Route('jobNameA', 'queueName', 'replyTo');
         $route_B = new Route('jobNameB', 'queueName', 'replyTo');
 
-        $subject = new RouteCollection([$route_A, $route_B]);
+        $subject = new RouteRegistry([$route_A, $route_B]);
 
-        $this->assertEquals($subject, RouteCollection::fromArray($subject->toArray()));
+        $this->assertEquals($subject, RouteRegistry::fromArray($subject->toArray()));
     }
 }

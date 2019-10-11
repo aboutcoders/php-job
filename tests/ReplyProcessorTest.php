@@ -2,7 +2,7 @@
 
 namespace Abc\Job\Tests;
 
-use Abc\Job\Server;
+use Abc\Job\JobServer;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManagerInterface;
@@ -18,7 +18,7 @@ use Psr\Log\NullLogger;
 class ReplyProcessorTest extends TestCase
 {
     /**
-     * @var Server|MockObject
+     * @var JobServer|MockObject
      */
     private $jobServer;
 
@@ -34,7 +34,7 @@ class ReplyProcessorTest extends TestCase
 
     public function setUp(): void
     {
-        $this->jobServer = $this->createMock(Server::class);
+        $this->jobServer = $this->createMock(JobServer::class);
         $this->entityManager = $this->createMock(JobManagerInterface::class);
         $this->subject = new ReplyProcessor($this->jobServer, $this->entityManager, new NullLogger());
     }

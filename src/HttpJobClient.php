@@ -2,74 +2,43 @@
 
 namespace Abc\Job;
 
-use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class HttpClient
+class HttpJobClient extends BaseHttpClient
 {
-    protected static $basePath = 'job';
+    private static $endpoint = 'job';
 
-    /**
-     * @var string
-     */
-    private $baseUrl;
-
-    /**
-     * @var ClientInterface
-     */
-    private $client;
-
-    /**
-     * @var array
-     */
-    private $defaultOptions;
-
-    public function __construct($baseUrl, ClientInterface $client, array $defaultOptions)
+    public function all(array $queryParams = [], array $options = []): ResponseInterface
     {
-        $this->baseUrl = $baseUrl;
-        $this->client = $client;
-        $this->defaultOptions = array_merge([
-            'http_errors' => false,
-            'headers' => [
-                'content-type' => 'application/json'
-            ]
-        ], $defaultOptions);
-    }
+        $options['query'] = $queryParams;
 
-    public function find(array $options = []): ResponseInterface
-    {
-        return $this->client->request('get', static::$basePath, $this->buildOptions($options));
+        return $this->request('get', static::$endpoint, $options);
     }
 
     public function process(string $json, array $options = []): ResponseInterface
     {
-        $options = array_merge($this->buildOptions($options), ['body' => $json]);
+        $options['body'] = $json;
 
-        return $this->client->request('create', static::$basePath, $options);
+        return $this->request('post', static::$endpoint, $options);
     }
 
     public function restart(string $id, array $options = []): ResponseInterface
     {
-        return $this->client->request('put', sprintf('%s/%s/restart', static::$basePath, $id), $this->buildOptions($options));
+        return $this->request('put', sprintf('%s/%s/restart', static::$endpoint, $id), $options);
     }
 
     public function cancel(string $id, array $options = []): ResponseInterface
     {
-        return $this->client->request('put', sprintf('%s/%s/cancel', static::$basePath, $id), $this->buildOptions($options));
+        return $this->request('put', sprintf('%s/%s/cancel', static::$endpoint, $id), $options);
     }
 
     public function result(string $id, array $options = []): ResponseInterface
     {
-        return $this->client->request('get', sprintf('%s/%s', static::$basePath, $id), $this->buildOptions($options));
+        return $this->request('get', sprintf('%s/%s', static::$endpoint, $id), $options);
     }
 
     public function delete(string $id, array $options = []): ResponseInterface
     {
-        return $this->client->request('delete', sprintf('%s/%s', static::$basePath, $id), $this->buildOptions($options));
-    }
-
-    private function buildOptions(array $options): array
-    {
-        return array_merge($this->defaultOptions, $options);
+        return $this->request('delete', sprintf('%s/%s', static::$endpoint, $id), $options);
     }
 }

@@ -14,11 +14,6 @@ class ProcessorRegistry
      */
     private $fallback;
 
-    public function __construct(ProcessorInterface $fallback = null)
-    {
-        $this->fallback = $fallback;
-    }
-
     public function add(string $jobName, ProcessorInterface $processor): void
     {
         if ($this->exists($jobName) && $processor !== $this->processors[$jobName]) {

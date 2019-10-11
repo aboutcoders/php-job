@@ -2,6 +2,7 @@
 
 namespace Abc\Job\Tests\Validator;
 
+use Abc\Job\Broker\Route;
 use Abc\Job\Filter;
 use Abc\Job\Job;
 use Abc\Job\Type;
@@ -19,6 +20,12 @@ class ValidatorTest extends TestCase
     public function setUp(): void
     {
         $this->subject = new Validator();
+    }
+
+    public function testValidWithInvalidClass()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->subject->validate('json', \stdClass::class);
     }
 
     /**
@@ -64,6 +71,26 @@ class ValidatorTest extends TestCase
         $json = json_encode((object) $data);
 
         $errors = $this->subject->validate($json, Filter::class);
+        $this->assertNotEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideValidRoute
+     */
+    public function testValidRoute($route)
+    {
+        $json = json_encode($route);
+        $errors = $this->subject->validate($json, Route::class);
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideInvalidRoute
+     */
+    public function testInvalidRoute($route)
+    {
+        $json = json_encode($route);
+        $errors = $this->subject->validate($json, Route::class);
         $this->assertNotEmpty($errors);
     }
 
@@ -280,6 +307,140 @@ class ValidatorTest extends TestCase
             [http_build_query(['name' => ['aa', 'bb']])],
             ['status=undefined'],
             [http_build_query(['status' => ['undefined']])],
+        ];
+    }
+
+    public function provideValidRoute(): array
+    {
+        return [
+            [
+                (object) [
+                    'jobName' => 'abc',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'a.bc',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'a.b1',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'a.b_c',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => str_repeat('a', 20),
+                    'queueName' => str_repeat('a', 20),
+                    'replyTo' => str_repeat('a', 20),
+                ],
+            ],
+            [
+                [
+                    (object) [
+                        'jobName' => str_repeat('a', 20),
+                        'queueName' => str_repeat('a', 20),
+                        'replyTo' => str_repeat('a', 20),
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function provideInvalidRoute(): array
+    {
+        return [
+            [
+                (object) [
+                    'jobName' => 'jobName',
+                ],
+            ],
+            [
+                (object) [
+                    'queueName' => 'queueName',
+                ],
+            ],
+            [
+                (object) [
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'jobName',
+                    'queueName' => 'queueName',
+                ],
+            ],
+            [
+                (object) [
+                    'queueName' => 'queueName',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'jobName',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'jo',
+                    'queueName' => 'queueName',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'job',
+                    'queueName' => 'aa',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'abc',
+                    'queueName' => 'abc',
+                    'replyTo' => 'ab',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => str_repeat('a', 21),
+                    'queueName' => str_repeat('a', 21),
+                    'replyTo' => str_repeat('a', 21),
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'Abc',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'jobName' => 'a-c',
+                    'queueName' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [],
+            ],
         ];
     }
 }

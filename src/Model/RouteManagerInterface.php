@@ -2,14 +2,16 @@
 
 namespace Abc\Job\Model;
 
-interface RouteRegistryInterface
+use Abc\Job\Broker\Route;
+
+interface RouteManagerInterface
 {
     /**
-     * @return RouteInterface[]
+     * @return Route[]
      */
     public function all(): array;
 
-    public function get(string $jobName): ?RouteInterface;
+    public function find(string $jobName): ?Route;
 
-    public function add(RouteInterface $route): void;
+    public function save(Route $route): void;
 }

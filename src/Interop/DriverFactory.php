@@ -3,7 +3,7 @@
 namespace Abc\Job\Interop;
 
 use Abc\Job\Broker\Config;
-use Abc\Job\Broker\RouteCollection;
+use Abc\Job\Broker\RouteRegistry;
 use Abc\Job\Interop\Driver\AmqpDriver;
 use Interop\Amqp\AmqpContext;
 use Interop\Queue\Context;
@@ -17,7 +17,7 @@ class DriverFactory
     private $config;
 
     /**
-     * @var RouteCollection
+     * @var RouteRegistry
      */
     private $routeCollection;
 
@@ -26,7 +26,7 @@ class DriverFactory
      */
     private $logger;
 
-    public function __construct(Config $config, RouteCollection $routeCollection, LoggerInterface $logger)
+    public function __construct(Config $config, RouteRegistry $routeCollection, LoggerInterface $logger)
     {
         $this->config = $config;
         $this->routeCollection = $routeCollection;

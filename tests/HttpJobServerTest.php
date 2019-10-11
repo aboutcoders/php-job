@@ -3,11 +3,12 @@
 namespace Abc\Job\Tests;
 
 use Abc\ApiProblem\InvalidParameter;
+use Abc\Job\Filter;
 use Abc\Job\HttpJobServer;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Result;
-use Abc\Job\ServerInterface;
+use Abc\Job\JobServerInterface;
 use Abc\Job\Status;
 use Abc\Job\Type;
 use Abc\Job\ValidatorInterface;
@@ -17,10 +18,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 use Ramsey\Uuid\Uuid;
 
-class JobHttpServerTest extends TestCase
+class HttpJobServerTest extends HttpServerTestCase
 {
     /**
-     * @var ServerInterface|MockObject
+     * @var JobServerInterface|MockObject
      */
     private $serverMock;
 
@@ -36,7 +37,7 @@ class JobHttpServerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->serverMock = $this->createMock(ServerInterface::class);
+        $this->serverMock = $this->createMock(JobServerInterface::class);
         $this->validatorMock = $this->createMock(ValidatorInterface::class);
         $this->subject = new HttpJobServer($this->serverMock, $this->validatorMock, new NullLogger());
     }
@@ -47,9 +48,9 @@ class JobHttpServerTest extends TestCase
 
         $result = static::buildResult();
 
-        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}')->willReturn([]);
+        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}', Filter::class)->willReturn([]);
 
-        $this->serverMock->expects($this->once())->method('find')->willReturn([$result]);
+        $this->serverMock->expects($this->once())->method('all')->willReturn([$result]);
 
         $response = $this->subject->all($queryString, 'requestUri');
 
@@ -68,9 +69,9 @@ class JobHttpServerTest extends TestCase
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $queryString = 'foo=bar';
 
-        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}')->willReturn([$invalidParam]);
+        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}', Filter::class)->willReturn([$invalidParam]);
 
-        $this->serverMock->expects($this->never())->method('find');
+        $this->serverMock->expects($this->never())->method('all');
 
         $response = $this->subject->all($queryString, 'requestUri');
 
@@ -81,9 +82,9 @@ class JobHttpServerTest extends TestCase
     {
         $queryString = 'foo=bar';
 
-        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}')->willReturn([]);
+        $this->validatorMock->expects($this->once())->method('validate')->with('{"foo":"bar"}', Filter::class)->willReturn([]);
 
-        $this->serverMock->expects($this->once())->method('find')->willThrowException(new \Exception());
+        $this->serverMock->expects($this->once())->method('all')->willThrowException(new \Exception());
 
         $response = $this->subject->all($queryString, 'requestUri');
 
@@ -96,7 +97,7 @@ class JobHttpServerTest extends TestCase
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
         $json = $job->toJson();
 
-        $this->validatorMock->expects($this->once())->method('validate')->with($json)->willReturn([]);
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\Job::class)->willReturn([]);
 
         $this->serverMock->expects($this->once())->method('process')->with($this->equalTo($job))->willReturn($result);
 
@@ -116,7 +117,7 @@ class JobHttpServerTest extends TestCase
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
         $json = $job->toJson();
 
-        $this->validatorMock->expects($this->once())->method('validate')->with($json)->willReturn([$invalidParam]);
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\Job::class)->willReturn([$invalidParam]);
 
         $this->serverMock->expects($this->never())->method('process');
 
@@ -130,7 +131,7 @@ class JobHttpServerTest extends TestCase
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
         $json = $job->toJson();
 
-        $this->validatorMock->expects($this->once())->method('validate')->with($json)->willReturn([]);
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\Job::class)->willReturn([]);
 
         $this->serverMock->expects($this->once())->method('process')->willThrowException(new \Exception());
 
@@ -306,21 +307,6 @@ class JobHttpServerTest extends TestCase
         return $job;
     }
 
-    private function assertStdJsonResponseHeader(ResponseInterface $response)
-    {
-        $this->assertEquals(['application/json'], $response->getHeader('Content-Type'));
-    }
-
-    private function assertProblemJsonResponseHeader(ResponseInterface $response)
-    {
-        $this->assertEquals(['application/problem+json'], $response->getHeader('Content-Type'));
-    }
-
-    private function assertStatusCode(int $statusCode, ResponseInterface $response)
-    {
-        $this->assertEquals($statusCode, $response->getStatusCode());
-    }
-
     private function assertJsonResult(Result $result, array $data)
     {
         $this->assertEquals($data['id'], $result->getId());
@@ -336,22 +322,6 @@ class JobHttpServerTest extends TestCase
         $this->assertEquals($data['created'], '1970-01-01T00:16:40+00:00');
     }
 
-    private function assertInvalidParameterResponse(ResponseInterface $response)
-    {
-        $this->assertStatusCode(400, $response);
-        $this->assertProblemJsonResponseHeader($response);
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpJobServer::TYPE_URL.'invalid-parameters', $data['type']);
-        $this->assertEquals('Your request parameters didn\'t validate.', $data['title']);
-        $this->assertEquals(400, $data['status']);
-        $this->assertEquals('One or more parameters are invalid.', $data['detail']);
-        $this->assertEquals('requestUri', $data['instance']);
-        $this->assertEquals('name', $data['invalid-params'][0]['name']);
-        $this->assertEquals('reason', $data['invalid-params'][0]['reason']);
-        $this->assertEquals('value', $data['invalid-params'][0]['value']);
-    }
-
     private function assertNotFoundResponse(ResponseInterface $response)
     {
         $this->assertStatusCode(404, $response);
@@ -362,19 +332,6 @@ class JobHttpServerTest extends TestCase
         $this->assertEquals('Resource Not Found', $data['title']);
         $this->assertEquals(404, $data['status']);
         $this->assertEquals('Job with id "jobId" not found', $data['detail']);
-        $this->assertEquals('requestUri', $data['instance']);
-    }
-
-    private function assertServerErrorResponse(ResponseInterface $response)
-    {
-        $this->assertStatusCode(500, $response);
-        $this->assertProblemJsonResponseHeader($response);
-
-        $data = json_decode($response->getBody()->getContents(), true);
-        $this->assertEquals(HttpJobServer::TYPE_URL.'internal-error', $data['type']);
-        $this->assertEquals('Internal Server Error', $data['title']);
-        $this->assertEquals(500, $data['status']);
-        $this->assertEquals('An internal server error occurred', $data['detail']);
         $this->assertEquals('requestUri', $data['instance']);
     }
 }

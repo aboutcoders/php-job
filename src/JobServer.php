@@ -8,7 +8,7 @@ use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class Server implements ServerInterface
+class JobServer implements JobServerInterface
 {
     /**
      * @var  ProducerInterface
@@ -32,7 +32,7 @@ class Server implements ServerInterface
         $this->logger = $logger;
     }
 
-    public function find(Filter $filter = null): array
+    public function all(Filter $filter = null): array
     {
         $results = [];
         foreach ($this->entityManager->findBy($filter) as $job) {

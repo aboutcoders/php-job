@@ -3,7 +3,7 @@
 namespace Abc\Job\Schedule;
 
 use Abc\Job\Job;
-use Abc\Job\ServerInterface;
+use Abc\Job\JobServerInterface;
 use Abc\Scheduler\ProcessorInterface;
 use Abc\Scheduler\ScheduleInterface as BaseScheduleInterface;
 use Abc\Job\Model\ScheduleInterface;
@@ -11,14 +11,14 @@ use Abc\Job\Model\ScheduleInterface;
 class ScheduleProcessor implements ProcessorInterface
 {
     /**
-     * @var ServerInterface
+     * @var JobServerInterface
      */
     private $jobServer;
 
     /**
-     * @param \Abc\Job\ServerInterface $jobServer
+     * @param \Abc\Job\JobServerInterface $jobServer
      */
-    public function __construct(ServerInterface $jobServer)
+    public function __construct(JobServerInterface $jobServer)
     {
         $this->jobServer = $jobServer;
     }

@@ -3,7 +3,7 @@
 namespace Abc\Job\Broker;
 
 /**
- * A Route provides information about where a job is delivered and where the job sends his replies.
+ * A Route provides information about where to send a job where a job sends it's replies.
  */
 class Route
 {
@@ -39,24 +39,33 @@ class Route
         return $this->queueName;
     }
 
+    public function setQueueName(string $queueName): void
+    {
+        $this->queueName = $queueName;
+    }
+
     public function getReplyTo(): string
     {
         return $this->replyTo;
     }
 
-    public static function fromArray(array $route): Route
+    public function setReplyTo(string $replyTo): void
     {
-        list('name' => $jobName, 'queue' => $queue, 'reply' => $replyTo) = $route;
+        $this->replyTo = $replyTo;
+    }
 
-        return new self($jobName, $queue, $replyTo);
+    public static function fromArray(array $rawRoute): Route
+    {
+        return new static($rawRoute['jobName'], $rawRoute['queueName'] ?? null, $rawRoute['replyTo'] ?? null);
     }
 
     public function toArray(): array
     {
-        return [
-            'name' => $this->jobName,
-            'queue' => $this->queueName,
-            'reply' => $this->replyTo,
-        ];
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode((object) $this->toArray());
     }
 }

@@ -3,7 +3,7 @@
 namespace Abc\Job\Tests\Schedule;
 
 use Abc\Job\Job;
-use Abc\Job\ServerInterface;
+use Abc\Job\JobServerInterface;
 use Abc\Job\Model\ScheduleInterface;
 use Abc\Job\Schedule\ScheduleProcessor;
 use Abc\Job\Type;
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class ScheduleProcessorTest extends TestCase
 {
     /**
-     * @var ServerInterface|MockObject
+     * @var JobServerInterface|MockObject
      */
     private $jobServer;
 
@@ -25,7 +25,7 @@ class ScheduleProcessorTest extends TestCase
 
     public function setUp(): void
     {
-        $this->jobServer = $this->createMock(ServerInterface::class);
+        $this->jobServer = $this->createMock(JobServerInterface::class);
         $this->subject = new ScheduleProcessor($this->jobServer);
     }
 

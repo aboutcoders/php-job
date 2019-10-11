@@ -12,10 +12,10 @@ use OpenApi\Annotations as OA;
 /**
  * @OA\Info(title="Job API", version="0.1")
  */
-class JobHttpServer extends HttpServer
+class HttpJobServer extends BaseHttpServer
 {
     /**
-     * @var ServerInterface
+     * @var JobServerInterface
      */
     private $server;
 
@@ -29,31 +29,11 @@ class JobHttpServer extends HttpServer
      */
     private $logger;
 
-    /**
-     * @var \Closure
-     */
-    private $exceptionLogger;
-
-    public function __construct(
-        ServerInterface $server,
-        ValidatorInterface $validator,
-        LoggerInterface $logger
-    ) {
+    public function __construct(JobServerInterface $server, ValidatorInterface $validator, LoggerInterface $logger)
+    {
         $this->server = $server;
         $this->validator = $validator;
         $this->logger = $logger;
-
-        $this->exceptionLogger = function (\Exception $exception, LoggerInterface $logger) {
-            $logger->error(sprintf('[HttpServer] %s [%s](code: %s) at %s line: %s', $exception->getMessage(), get_class($exception), $exception->getCode(), $exception->getFile(), $exception->getLine()));
-        };
-    }
-
-    /**
-     * @param \Closure $exceptionLogger A function that takes the arguments \Exception and \Psr\Log\LoggerInterface
-     */
-    public function setExceptionLogger(\Closure $exceptionLogger): void
-    {
-        $this->exceptionLogger = $exceptionLogger;
     }
 
     /**
@@ -126,20 +106,21 @@ class JobHttpServer extends HttpServer
      */
     public function all(?string $queryString, string $requestUri): ResponseInterface
     {
-        if (null != $queryString) {
-            parse_str($queryString, $data);
-            $json = json_encode((object) $data);
+        return $this->call(function () use ($queryString, $requestUri) {
 
-            $invalidParams = $this->validator->validate($json, Filter::class);
-            if (0 < count($invalidParams)) {
-                return $this->createInvalidParamResponse($invalidParams, $requestUri);
+            $filter = Filter::fromQueryString($queryString);
+
+            if (null != $queryString) {
+                parse_str($queryString, $data);
+                $json = json_encode((object) $data);
+
+                $invalidParams = $this->validator->validate($json, Filter::class);
+                if (0 < count($invalidParams)) {
+                    return $this->createInvalidParamResponse($invalidParams, $requestUri);
+                }
             }
-        }
 
-        $filter = Filter::fromQueryString($queryString);
-
-        return $this->call(function () use ($filter) {
-            $results = $this->server->find($filter);
+            $results = $this->server->all($filter);
 
             return new Response(200, static::$headers_ok, ResultArray::toJson($results));
         }, $requestUri);
@@ -173,14 +154,15 @@ class JobHttpServer extends HttpServer
      */
     public function process(string $json, string $requestUri): ResponseInterface
     {
-        $invalidParams = $this->validator->validate($json, Job::class);
-        if (0 < count($invalidParams)) {
-            return $this->createInvalidParamResponse($invalidParams, $requestUri);
-        }
+        return $this->call(function () use ($json, $requestUri) {
 
-        $job = Job::fromJson($json);
+            $invalidParams = $this->validator->validate($json, Job::class);
+            if (0 < count($invalidParams)) {
+                return $this->createInvalidParamResponse($invalidParams, $requestUri);
+            }
 
-        return $this->call(function () use ($job) {
+            $job = Job::fromJson($json);
+
             $result = $this->server->process($job);
 
             return new Response(201, static::$headers_ok, $result->toJson());
@@ -401,7 +383,8 @@ class JobHttpServer extends HttpServer
         try {
             return $serverAction($this->server);
         } catch (\Exception $exception) {
-            ($this->exceptionLogger)($exception, $this->logger);
+
+            $this->logger->error(sprintf('[HttpJobServer] %s [%s](code: %s) at %s line: %s', $exception->getMessage(), get_class($exception), $exception->getCode(), $exception->getFile(), $exception->getLine()));
 
             $apiProblem = new ApiProblem(self::buildTypeUrl('internal-error'), 'Internal Server Error', 500, 'An internal server error occurred', $requestUri);
 

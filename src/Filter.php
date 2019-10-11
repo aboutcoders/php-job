@@ -56,6 +56,19 @@ class Filter
         return $filter;
     }
 
+    public function toQueryParams(): array
+    {
+        $map = ['ids' => 'id', 'names' => 'name', 'status' => 'status', 'externalIds' => 'externalId'];
+        $params = [];
+        foreach ($map as $classKey => $paramKey) {
+            if (! empty($this->$classKey)) {
+                $params[$paramKey] = (1 == count($this->$classKey)) ? array_pop($this->$classKey) : $this->$classKey;
+            }
+        }
+
+        return $params;
+    }
+
     public function getIds(): array
     {
         return $this->ids;

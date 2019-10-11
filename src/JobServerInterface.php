@@ -5,13 +5,13 @@ namespace Abc\Job;
 /**
  * Job API
  */
-interface ServerInterface
+interface JobServerInterface
 {
     /**
      * @param Filter $filter
      * @return Result[]
      */
-    public function find(Filter $filter = null): array;
+    public function all(Filter $filter = null): array;
 
     /**
      * @param Job $job

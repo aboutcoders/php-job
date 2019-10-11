@@ -8,7 +8,7 @@ use Abc\Job\Util\ResultArray;
 use GuzzleHttp\Exception\RequestException;
 use InvalidArgumentException;
 
-class Client implements ServerInterface
+class JobClient extends BaseClient implements JobServerInterface
 {
     /**
      * @var HttpJobClient
@@ -20,28 +20,45 @@ class Client implements ServerInterface
         $this->client = $client;
     }
 
-    public function find(Filter $filter = null): array
+    /**
+     * @param Filter|null $filter
+     * @return array
+     * @throws ApiProblemException
+     */
+    public function all(Filter $filter = null): array
     {
         try {
-            $response = $this->client->find(['http_errors' => true]);
+            $response = $this->client->all(null !== $filter ? $filter->toQueryParams() : [], [
+                'http_errors' => true,
+            ]);
         } catch (RequestException $e) {
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return ResultArray::fromJson($response->getBody()->getContents());
     }
 
+    /**
+     * @param Job $job
+     * @return Result
+     * @throws ApiProblemException
+     */
     public function process(Job $job): Result
     {
         try {
             $response = $this->client->process($job->toJson(), ['http_errors' => true]);
         } catch (RequestException $e) {
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return Result::fromJson($response->getBody()->getContents());
     }
 
+    /**
+     * @param string $id
+     * @return Result|null
+     * @throws ApiProblemException
+     */
     public function result(string $id): ?Result
     {
         try {
@@ -51,12 +68,17 @@ class Client implements ServerInterface
                 return null;
             }
 
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return Result::fromJson($response->getBody()->getContents());
     }
 
+    /**
+     * @param string $id
+     * @return Result|null null if no job with the given id exists
+     * @throws ApiProblemException
+     */
     public function restart(string $id): ?Result
     {
         try {
@@ -66,12 +88,17 @@ class Client implements ServerInterface
                 return null;
             }
 
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return Result::fromJson($response->getBody()->getContents());
     }
 
+    /**
+     * @param string $id
+     * @return bool|null Bool if successful, null if no job with the given id exists
+     * @throws ApiProblemException
+     */
     public function cancel(string $id): ?bool
     {
         try {
@@ -85,13 +112,18 @@ class Client implements ServerInterface
                 return false;
             }
 
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return true;
     }
 
-    public function delete(string $id): bool
+    /**
+     * @param string $id
+     * @return bool|null True if successful, null if no job with the given id exists
+     * @throws ApiProblemException
+     */
+    public function delete(string $id): ?bool
     {
         try {
             $this->client->delete($id, ['http_errors' => true]);
@@ -100,20 +132,9 @@ class Client implements ServerInterface
                 return null;
             }
 
-            throw $this->createApiProblemException($e);
+            $this->throwApiProblemException($e);
         }
 
         return true;
-    }
-
-    private function createApiProblemException(RequestException $e)
-    {
-        try {
-            $apiProblem = ApiProblem::fromJson($e->getResponse()->getBody());
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $apiProblem = new ApiProblem(HttpJobServer::TYPE_URL.'/'.'internal-error', 'Internal Server Error', 500, 'An internal server error occurred', $e->getRequest()->getUri());
-        }
-
-        return new ApiProblemException($apiProblem);
     }
 }

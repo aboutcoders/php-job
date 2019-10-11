@@ -7,7 +7,7 @@ use Abc\Job\Doctrine\JobManager;
 use Abc\Job\Filter;
 use Abc\Job\Job;
 use Abc\Job\Result;
-use Abc\Job\Server;
+use Abc\Job\JobServer;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Status;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
-class ServerTest extends TestCase
+class JobServerTest extends TestCase
 {
     /**
      * @var  ProducerInterface|MockObject
@@ -29,7 +29,7 @@ class ServerTest extends TestCase
     private $jobManager;
 
     /**
-     * @var Server
+     * @var JobServer
      */
     private $subject;
 
@@ -37,26 +37,26 @@ class ServerTest extends TestCase
     {
         $this->producer = $this->createMock(ProducerInterface::class);
         $this->jobManager = $this->createMock(JobManagerInterface::class);
-        $this->subject = new Server($this->producer, $this->jobManager, new NullLogger());
+        $this->subject = new JobServer($this->producer, $this->jobManager, new NullLogger());
     }
 
-    public function testFindWithoutFilter()
+    public function testAllWithoutFilter()
     {
         $this->jobManager->expects($this->once())->method('findBy')->with()->willReturn([$this->createMock(JobInterface::class)]);
 
-        $results = $this->subject->find();
+        $results = $this->subject->all();
 
         $this->assertEquals(1, count($results));
         $this->assertInstanceOf(Result::class, $results[0]);
     }
 
-    public function testFindWithFilter()
+    public function testAllWithFilter()
     {
         $filter = new Filter();
 
         $this->jobManager->expects($this->once())->method('findBy')->with($filter)->willReturn([$this->createMock(JobInterface::class)]);
 
-        $results = $this->subject->find($filter);
+        $results = $this->subject->all($filter);
 
         $this->assertEquals(1, count($results));
         $this->assertInstanceOf(Result::class, $results[0]);
