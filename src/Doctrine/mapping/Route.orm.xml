@@ -3,7 +3,7 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-    <entity name="Abc\Job\Model\Schedule" table="abc_job_schedule">
+    <entity name="Abc\Job\Model\Route" table="abc_job_route">
         <id name="jobName" column="job_name" type="string" length="25"/>
         <field name="queueName" column="queue_name" type="string" length="25" nullable="false"/>
         <field name="replyTo" column="reply_to" type="string" length="20" nullable="false"/>

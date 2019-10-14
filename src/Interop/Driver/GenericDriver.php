@@ -4,6 +4,7 @@ namespace Abc\Job\Interop\Driver;
 
 use Abc\Job\Broker\Config;
 use Abc\Job\Broker\ManagedRouteRegistry;
+use Abc\Job\Broker\RouteRegistryInterface;
 use Abc\Job\Interop\DriverInterface;
 use Abc\Job\NoRouteException;
 use Interop\Queue\Context;
@@ -27,7 +28,7 @@ abstract class GenericDriver implements DriverInterface
      */
     private $logger;
 
-    public function __construct(Context $context, ManagedRouteRegistry $routeRegistry, LoggerInterface $logger)
+    public function __construct(Context $context, RouteRegistryInterface $routeRegistry, LoggerInterface $logger)
     {
         $this->context = $context;
         $this->routeRegistry = $routeRegistry;

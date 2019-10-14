@@ -10,17 +10,17 @@ class Route
     /**
      * @var string
      */
-    private $jobName;
+    protected $jobName;
 
     /**
      * @var string
      */
-    private $queueName;
+    protected $queueName;
 
     /**
      * @var string
      */
-    private $replyTo;
+    protected $replyTo;
 
     public function __construct(string $jobName, string $queueName, string $replyTo)
     {
