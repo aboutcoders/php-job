@@ -8,6 +8,7 @@ use Abc\Job\HttpRouteClient;
 use Abc\Job\RouteClient;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\NullLogger;
 
 class RouteClientTest extends ClientTestCase
 {
@@ -25,7 +26,7 @@ class RouteClientTest extends ClientTestCase
     {
         $this->httpClientMock = $this->createMock(HttpRouteClient::class);
 
-        $this->subject = new RouteClient($this->httpClientMock);
+        $this->subject = new RouteClient($this->httpClientMock, new NullLogger());
     }
 
     public function testAll()

@@ -24,6 +24,6 @@ class AmqpDriver extends GenericDriver
 
         $this->getContext()->declareQueue($queue);
 
-        $logger->debug(sprintf('[AmqpDriver] Declared queue: %s', $queueName));
+        $logger->notice(sprintf('[AmqpDriver] Declared queue: %s', $queueName));
     }
 }

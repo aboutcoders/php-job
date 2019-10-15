@@ -16,7 +16,7 @@ class BaseClient
     protected function throwApiProblemException(RequestException $e)
     {
         try {
-            $apiProblem = ApiProblem::fromJson($e->getResponse()->getBody());
+            $apiProblem = ApiProblem::fromJson($e->getResponse()->getBody()->getContents());
         } catch (InvalidArgumentException $invalidArgumentException) {
             $apiProblem = new ApiProblem(HttpJobServer::TYPE_URL.'/'.'internal-error', 'Internal Server Error', 500, 'An internal server error occurred', $e->getRequest()->getUri());
         }
