@@ -36,7 +36,7 @@ class SetupBrokerRouteRegistry implements RouteRegistryInterface
     {
         $this->registry->add($route);
 
-        $this->driver->declareQueue($route->getQueueName());
+        $this->driver->declareQueue($route->getQueue());
         $this->driver->declareQueue($route->getReplyTo());
     }
 }

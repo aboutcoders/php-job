@@ -2,7 +2,7 @@
 
 namespace Abc\Job\Enqueue\Consumption;
 
-use Abc\Job\Broker\RouteRegistry;
+use Abc\Job\Broker\RouteCollection;
 use Abc\Job\RouteClient;
 use Enqueue\Consumption\Context\Start;
 use Enqueue\Consumption\StartExtensionInterface;
@@ -15,11 +15,11 @@ class RegisterRoutesExtension implements StartExtensionInterface
     private $routeClient;
 
     /**
-     * @var RouteRegistry
+     * @var RouteCollection
      */
     private $routeCollection;
 
-    public function __construct(RouteClient $routeClient, RouteRegistry $routeCollection)
+    public function __construct(RouteClient $routeClient, RouteCollection $routeCollection)
     {
         $this->routeClient = $routeClient;
         $this->routeCollection = $routeCollection;

@@ -13,8 +13,8 @@ class RouteTest extends TestCase
 
         $data = $route->toArray();
 
-        $this->assertEquals($data['jobName'], $route->getJobName());
-        $this->assertEquals($data['queueName'], $route->getQueueName());
+        $this->assertEquals($data['name'], $route->getName());
+        $this->assertEquals($data['queue'], $route->getQueue());
         $this->assertEquals($data['replyTo'], $route->getReplyTo());
 
         $this->assertEquals($route, Route::fromArray($data));

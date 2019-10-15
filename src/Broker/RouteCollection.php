@@ -2,7 +2,7 @@
 
 namespace Abc\Job\Broker;
 
-class RouteRegistry implements RouteRegistryInterface
+class RouteCollection
 {
     /**
      * @var Route[]
@@ -12,16 +12,16 @@ class RouteRegistry implements RouteRegistryInterface
     /**
      * @param Route[] $routes
      */
-    public function __construct(array $routes)
+    public function __construct(array $routes = [])
     {
         foreach ($routes as $route) {
-            $this->routes[$route->getJobName()] = $route;
+            $this->routes[$route->getName()] = $route;
         }
     }
 
     public function add(Route $route): void
     {
-        $this->routes[$route->getJobName()] = $route;
+        $this->routes[$route->getName()] = $route;
     }
 
     /**

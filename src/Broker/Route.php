@@ -10,38 +10,38 @@ class Route
     /**
      * @var string
      */
-    protected $jobName;
+    protected $name;
 
     /**
      * @var string
      */
-    protected $queueName;
+    protected $queue;
 
     /**
      * @var string
      */
     protected $replyTo;
 
-    public function __construct(string $jobName, string $queueName, string $replyTo)
+    public function __construct(string $name, string $queue, string $replyTo)
     {
-        $this->jobName = $jobName;
-        $this->queueName = $queueName;
+        $this->name = $name;
+        $this->queue = $queue;
         $this->replyTo = $replyTo;
     }
 
-    public function getJobName(): string
+    public function getName(): string
     {
-        return $this->jobName;
+        return $this->name;
     }
 
-    public function getQueueName(): string
+    public function getQueue(): string
     {
-        return $this->queueName;
+        return $this->queue;
     }
 
-    public function setQueueName(string $queueName): void
+    public function setQueue(string $queueName): void
     {
-        $this->queueName = $queueName;
+        $this->queue = $queueName;
     }
 
     public function getReplyTo(): string
@@ -56,7 +56,7 @@ class Route
 
     public static function fromArray(array $rawRoute): Route
     {
-        return new static($rawRoute['jobName'], $rawRoute['queueName'] ?? null, $rawRoute['replyTo'] ?? null);
+        return new static($rawRoute['name'], $rawRoute['queue'] ?? null, $rawRoute['replyTo'] ?? null);
     }
 
     public function toArray(): array

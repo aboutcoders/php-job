@@ -4,8 +4,8 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <entity name="Abc\Job\Model\Route" table="abc_job_route">
-        <id name="jobName" column="job_name" type="string" length="25"/>
-        <field name="queueName" column="queue_name" type="string" length="25" nullable="false"/>
+        <id name="name" column="name" type="string" length="25"/>
+        <field name="queue" column="queue" type="string" length="25" nullable="false"/>
         <field name="replyTo" column="reply_to" type="string" length="20" nullable="false"/>
     </entity>
 </doctrine-mapping>

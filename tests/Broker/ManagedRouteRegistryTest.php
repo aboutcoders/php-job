@@ -44,7 +44,7 @@ class ManagedRouteRegistryTest extends TestCase
 
         $this->routeManagerMock->expects($this->once())->method('find')->with('jobName')->willReturn($route);
 
-        $this->assertSame($route, $this->subject->get($route->getJobName()));
+        $this->assertSame($route, $this->subject->get($route->getName()));
     }
 
     public function testAddWithNewRoute()
@@ -66,7 +66,7 @@ class ManagedRouteRegistryTest extends TestCase
 
         $assertUpdatedCallback = function (Route $route) use ($existingRoute) {
             Assert::assertSame($route, $existingRoute);
-            Assert::assertEquals('updatedQueueName', $route->getQueueName());
+            Assert::assertEquals('updatedQueueName', $route->getQueue());
             Assert::assertEquals('updatedReplyTo', $route->getReplyTo());
 
             return true;

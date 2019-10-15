@@ -2,7 +2,7 @@
 
 namespace Abc\Job;
 
-interface JobSubscriberInterface
+interface RouteProviderInterface
 {
     /**
      * The result may be either:
@@ -20,17 +20,15 @@ interface JobSubscriberInterface
      *     'job' => 'aJobName',
      *     'queue' => 'aQueueName',
      *     'replyTo' => 'aReplyToQueueName',
-     *     'processor' => 'aProcessorName',
      *   ],
      *   [
      *     'job' => 'anotherJobName',
      *     'queue' => 'anotherQueueName',
      *     'replyTo' => 'anotherReplyToQueueName',
-     *     'processor' => 'anotherProcessorName',
      *   ]
      * ]
      *
      * @return string|array
      */
-    public static function getSubscribedJob();
+    public static function getRoutes();
 }

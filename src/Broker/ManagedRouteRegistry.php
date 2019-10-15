@@ -39,23 +39,23 @@ class ManagedRouteRegistry implements RouteRegistryInterface
     public function add(Route $route): void
     {
         // fixme: not transaction save (multiple add operations at one time)
-        $oldRoute = $this->routeManager->find($route->getJobName());
+        $oldRoute = $this->routeManager->find($route->getName());
         if (null == $oldRoute) {
             $this->routeManager->save($route);
 
-            $this->logger->info(sprintf('[RouteRegistry] Registered route for job %s with queueName %s and replyTo %s', $route->getJobName(), $route->getQueueName(), $route->getReplyTo()));
+            $this->logger->info(sprintf('[RouteRegistry] Registered route for job %s with queue %s and replyTo %s', $route->getName(), $route->getQueue(), $route->getReplyTo()));
 
             return;
         }
 
         $message = null;
-        if (null !== $route->getQueueName() && $route->getQueueName() != $oldRoute->getQueueName()) {
-            $message = sprintf('Changed route for job %s, set queueName from %s to %s', $route->getJobName(), $oldRoute->getQueueName(), $route->getQueueName());
-            $oldRoute->setQueueName($route->getQueueName());
+        if (null !== $route->getQueue() && $route->getQueue() != $oldRoute->getQueue()) {
+            $message = sprintf('Changed route for job %s, set queue from %s to %s', $route->getName(), $oldRoute->getQueue(), $route->getQueue());
+            $oldRoute->setQueue($route->getQueue());
         }
 
         if (null !== $route->getReplyTo() && $route->getReplyTo() != $oldRoute->getReplyTo()) {
-            $message = sprintf('Changed route for job %s, set replyTo from %s to %s', $route->getJobName(), $oldRoute->getReplyTo(), $route->getReplyTo());
+            $message = sprintf('Changed route for job %s, set replyTo from %s to %s', $route->getName(), $oldRoute->getReplyTo(), $route->getReplyTo());
             $oldRoute->setReplyTo($route->getReplyTo());
         }
 

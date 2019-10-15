@@ -2,8 +2,6 @@
 
 namespace Abc\Job\Interop;
 
-use Abc\Job\Broker\Config;
-use Abc\Job\Broker\RouteRegistry;
 use Abc\Job\Broker\RouteRegistryInterface;
 use Abc\Job\Interop\Driver\AmqpDriver;
 use Interop\Amqp\AmqpContext;
@@ -13,7 +11,7 @@ use Psr\Log\LoggerInterface;
 class DriverFactory
 {
     /**
-     * @var RouteRegistry
+     * @var RouteRegistryInterface
      */
     private $routeRegistry;
 

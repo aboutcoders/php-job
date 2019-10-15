@@ -315,44 +315,44 @@ class ValidatorTest extends TestCase
         return [
             [
                 (object) [
-                    'jobName' => 'abc',
-                    'queueName' => 'abc',
+                    'name' => 'abc',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'a.bc',
-                    'queueName' => 'abc',
+                    'name' => 'a.bc',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'a.b1',
-                    'queueName' => 'abc',
+                    'name' => 'a.b1',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'a.b_c',
-                    'queueName' => 'abc',
+                    'name' => 'a.b_c',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => str_repeat('a', 20),
-                    'queueName' => str_repeat('a', 20),
+                    'name' => str_repeat('a', 20),
+                    'queue' => str_repeat('a', 20),
                     'replyTo' => str_repeat('a', 20),
                 ],
             ],
             [
                 [
                     (object) [
-                        'jobName' => str_repeat('a', 20),
-                        'queueName' => str_repeat('a', 20),
+                        'name' => str_repeat('a', 20),
+                        'queue' => str_repeat('a', 20),
                         'replyTo' => str_repeat('a', 20),
                     ],
                 ],
@@ -365,12 +365,12 @@ class ValidatorTest extends TestCase
         return [
             [
                 (object) [
-                    'jobName' => 'jobName',
+                    'name' => 'name',
                 ],
             ],
             [
                 (object) [
-                    'queueName' => 'queueName',
+                    'queue' => 'queue',
                 ],
             ],
             [
@@ -380,61 +380,61 @@ class ValidatorTest extends TestCase
             ],
             [
                 (object) [
-                    'jobName' => 'jobName',
-                    'queueName' => 'queueName',
+                    'name' => 'name',
+                    'queue' => 'queue',
                 ],
             ],
             [
                 (object) [
-                    'queueName' => 'queueName',
+                    'queue' => 'queue',
                     'replyTo' => 'replyTo',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'jobName',
+                    'name' => 'name',
                     'replyTo' => 'replyTo',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'jo',
-                    'queueName' => 'queueName',
+                    'name' => 'jo',
+                    'queue' => 'queue',
                     'replyTo' => 'replyTo',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'job',
-                    'queueName' => 'aa',
+                    'name' => 'job',
+                    'queue' => 'aa',
                     'replyTo' => 'replyTo',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'abc',
-                    'queueName' => 'abc',
+                    'name' => 'abc',
+                    'queue' => 'abc',
                     'replyTo' => 'ab',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => str_repeat('a', 21),
-                    'queueName' => str_repeat('a', 21),
+                    'name' => str_repeat('a', 21),
+                    'queue' => str_repeat('a', 21),
                     'replyTo' => str_repeat('a', 21),
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'Abc',
-                    'queueName' => 'abc',
+                    'name' => 'Abc',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],
             [
                 (object) [
-                    'jobName' => 'a-c',
-                    'queueName' => 'abc',
+                    'name' => 'a-c',
+                    'queue' => 'abc',
                     'replyTo' => 'abc',
                 ],
             ],

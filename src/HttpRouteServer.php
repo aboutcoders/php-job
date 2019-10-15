@@ -46,7 +46,7 @@ class HttpRouteServer extends BaseHttpServer
             }
 
             $rawRoute = json_decode($json, true);
-            if (isset($rawRoute['jobName'])) {
+            if (isset($rawRoute['name'])) {
                 $this->registry->add(Route::fromArray($rawRoute));
             } else {
                 $rawRoutes = $rawRoute;

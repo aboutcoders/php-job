@@ -45,7 +45,7 @@ class HttpRouteServerTest extends HttpServerTestCase
         $this->assertStatusCode(200, $response);
         $this->assertStdJsonResponseHeader($response);
 
-        $this->assertEquals('[{"jobName":"jobName","queueName":"queueName","replyTo":"replyTo"}]', $response->getBody()->getContents());
+        $this->assertEquals('[{"name":"jobName","queue":"queueName","replyTo":"replyTo"}]', $response->getBody()->getContents());
     }
 
     public function testAllServerError()

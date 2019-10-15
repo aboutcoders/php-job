@@ -3,7 +3,6 @@
 namespace Abc\Job\Interop\Driver;
 
 use Abc\Job\Broker\Config;
-use Abc\Job\Broker\ManagedRouteRegistry;
 use Abc\Job\Broker\RouteRegistryInterface;
 use Abc\Job\Interop\DriverInterface;
 use Abc\Job\NoRouteException;
@@ -19,7 +18,7 @@ abstract class GenericDriver implements DriverInterface
     private $context;
 
     /**
-     * @var ManagedRouteRegistry
+     * @var RouteRegistryInterface
      */
     private $routeRegistry;
 
@@ -56,7 +55,7 @@ abstract class GenericDriver implements DriverInterface
             throw new NoRouteException($jobName);
         }
 
-        $destination = $this->context->createQueue($route->getQueueName());
+        $destination = $this->context->createQueue($route->getQueue());
 
         $message->setReplyTo($route->getReplyTo());
 
