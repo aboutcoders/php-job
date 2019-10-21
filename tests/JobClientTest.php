@@ -42,7 +42,7 @@ class JobClientTest extends ClientTestCase
 
         $response = new Response(200, [], $json);
 
-        $this->httpClientMock->expects($this->once())->method('all')->with([], ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('all')->with([])->willReturn($response);
 
         $this->assertEquals([$result], $this->subject->all());
     }
@@ -58,14 +58,14 @@ class JobClientTest extends ClientTestCase
 
         $response = new Response(200, [], $json);
 
-        $this->httpClientMock->expects($this->once())->method('all')->with(['name' => 'foo'], ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('all')->with(['name' => 'foo'])->willReturn($response);
 
         $this->assertEquals([$result], $this->subject->all($filter));
     }
 
-    public function testAllWithApiException()
+    public function testAllWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('all')->with([], ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('all')->with([])->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -80,16 +80,16 @@ class JobClientTest extends ClientTestCase
 
         $response = new Response(200, [], $result->toJson());
 
-        $this->httpClientMock->expects($this->once())->method('process')->with($job->toJson(), ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('process')->with($job->toJson())->willReturn($response);
 
         $this->assertEquals($result, $this->subject->process($job));
     }
 
-    public function testProcessWithApiException()
+    public function testProcessWithHttpError()
     {
         $job = new Job(Type::JOB(), 'jobName');
 
-        $this->httpClientMock->expects($this->once())->method('process')->with($job->toJson(), ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('process')->with($job->toJson())->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -102,21 +102,21 @@ class JobClientTest extends ClientTestCase
 
         $response = new Response(200, [], $result->toJson());
 
-        $this->httpClientMock->expects($this->once())->method('result')->with('someId', ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('result')->with('someId')->willReturn($response);
 
         $this->assertEquals($result, $this->subject->result('someId'));
     }
 
     public function testResultWith404()
     {
-        $this->httpClientMock->expects($this->once())->method('result')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(404));
+        $this->httpClientMock->expects($this->once())->method('result')->with('someId')->willReturn(new Response(404, [], $this->createApiProblemJson()));
 
         $this->assertNull($this->subject->result('someId'));
     }
 
-    public function testResultWithApiException()
+    public function testResultWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('result')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('result')->with('someId')->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -129,21 +129,21 @@ class JobClientTest extends ClientTestCase
 
         $response = new Response(200, [], $result->toJson());
 
-        $this->httpClientMock->expects($this->once())->method('restart')->with('someId', ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('restart')->with('someId')->willReturn($response);
 
         $this->assertEquals($result, $this->subject->restart('someId'));
     }
 
     public function testRestartWith404()
     {
-        $this->httpClientMock->expects($this->once())->method('restart')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(404));
+        $this->httpClientMock->expects($this->once())->method('restart')->with('someId')->willReturn(new Response(404, [], $this->createApiProblemJson()));
 
         $this->assertNull($this->subject->restart('someId'));
     }
 
-    public function testRestartWithApiException()
+    public function testRestartWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('restart')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('restart')->with('someId')->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -154,28 +154,28 @@ class JobClientTest extends ClientTestCase
     {
         $response = new Response(200);
 
-        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId', ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId')->willReturn($response);
 
         $this->assertTrue($this->subject->cancel('someId'));
     }
 
     public function testCancelWith404()
     {
-        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(404));
+        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId')->willReturn(new Response(404, [], $this->createApiProblemJson()));
 
         $this->assertNull($this->subject->cancel('someId'));
     }
 
     public function testCancelWith406()
     {
-        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(406));
+        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId')->willReturn(new Response(406, [], $this->createApiProblemJson()));
 
         $this->assertFalse($this->subject->cancel('someId'));
     }
 
-    public function testCancelWithApiException()
+    public function testCancelWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('cancel')->with('someId')->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -186,21 +186,21 @@ class JobClientTest extends ClientTestCase
     {
         $response = new Response(204);
 
-        $this->httpClientMock->expects($this->once())->method('delete')->with('someId', ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('delete')->with('someId')->willReturn($response);
 
         $this->assertTrue($this->subject->delete('someId'));
     }
 
     public function testDeleteWith404()
     {
-        $this->httpClientMock->expects($this->once())->method('delete')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(404));
+        $this->httpClientMock->expects($this->once())->method('delete')->with('someId')->willReturn(new Response(404, [], $this->createApiProblemJson()));
 
         $this->assertNull($this->subject->delete('someId'));
     }
 
-    public function testDeleteWithApiException()
+    public function testDeleteWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('delete')->with('someId', ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('delete')->with('someId')->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 

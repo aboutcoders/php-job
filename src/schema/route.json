@@ -4,7 +4,7 @@
     "name": {
       "type": "string",
       "title": "The name of a job",
-      "pattern": "^[a-z0-9._]+$",
+      "pattern": "^[a-zA-z0-9._-]+$",
       "minLength": 3,
       "maxLength": 20
     },

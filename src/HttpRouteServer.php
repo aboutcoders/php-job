@@ -55,7 +55,7 @@ class HttpRouteServer extends BaseHttpServer
                 }
             }
 
-            return new Response(204);
+            return new Response(201);
         }, $requestUri);
     }
 

@@ -27,13 +27,9 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function all(Filter $filter = null): array
     {
-        try {
-            $response = $this->client->all(null !== $filter ? $filter->toQueryParams() : [], [
-                'http_errors' => true,
-            ]);
-        } catch (RequestException $e) {
-            $this->throwApiProblemException($e);
-        }
+        $response = $this->client->all(null !== $filter ? $filter->toQueryParams() : []);
+
+        $this->validateResponse($response);
 
         return ResultArray::fromJson($response->getBody()->getContents());
     }
@@ -45,11 +41,9 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function process(Job $job): Result
     {
-        try {
-            $response = $this->client->process($job->toJson(), ['http_errors' => true]);
-        } catch (RequestException $e) {
-            $this->throwApiProblemException($e);
-        }
+        $response = $this->client->process($job->toJson());
+
+        $this->validateResponse($response);
 
         return Result::fromJson($response->getBody()->getContents());
     }
@@ -61,15 +55,13 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function result(string $id): ?Result
     {
-        try {
-            $response = $this->client->result($id, ['http_errors' => true]);
-        } catch (RequestException $e) {
-            if (404 == $e->getCode()) {
-                return null;
-            }
+        $response = $this->client->result($id);
 
-            $this->throwApiProblemException($e);
+        if (404 == $response->getStatusCode()) {
+            return null;
         }
+
+        $this->validateResponse($response);
 
         return Result::fromJson($response->getBody()->getContents());
     }
@@ -81,15 +73,13 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function restart(string $id): ?Result
     {
-        try {
-            $response = $this->client->restart($id, ['http_errors' => true]);
-        } catch (RequestException $e) {
-            if (404 == $e->getCode()) {
-                return null;
-            }
+        $response = $this->client->restart($id);
 
-            $this->throwApiProblemException($e);
+        if (404 == $response->getStatusCode()) {
+            return null;
         }
+
+        $this->validateResponse($response);
 
         return Result::fromJson($response->getBody()->getContents());
     }
@@ -101,19 +91,17 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function cancel(string $id): ?bool
     {
-        try {
-            $this->client->cancel($id, ['http_errors' => true]);
-        } catch (RequestException $e) {
-            if (404 == $e->getCode()) {
-                return null;
-            }
+        $response = $this->client->cancel($id);
 
-            if (406 == $e->getCode()) {
-                return false;
-            }
-
-            $this->throwApiProblemException($e);
+        if (404 == $response->getStatusCode()) {
+            return null;
         }
+
+        if (406 == $response->getStatusCode()) {
+            return false;
+        }
+
+        $this->validateResponse($response);
 
         return true;
     }
@@ -125,15 +113,13 @@ class JobClient extends BaseClient implements JobServerInterface
      */
     public function delete(string $id): ?bool
     {
-        try {
-            $this->client->delete($id, ['http_errors' => true]);
-        } catch (RequestException $e) {
-            if (404 == $e->getCode()) {
-                return null;
-            }
+        $response = $this->client->delete($id);
 
-            $this->throwApiProblemException($e);
+        if (404 == $response->getStatusCode()) {
+            return null;
         }
+
+        $this->validateResponse($response);
 
         return true;
     }

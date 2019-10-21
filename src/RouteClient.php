@@ -4,7 +4,6 @@ namespace Abc\Job;
 
 use Abc\ApiProblem\ApiProblemException;
 use Abc\Job\Broker\Route;
-use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
 
 class RouteClient extends BaseClient
@@ -38,11 +37,9 @@ class RouteClient extends BaseClient
 
         $json = json_encode($rawRoutes);
 
-        try {
-            $this->client->add($json, ['http_errors' => true]);
-        } catch (RequestException $exception) {
-            $this->throwApiProblemException($exception);
-        }
+        $response = $this->client->add($json);
+
+        $this->validateResponse($response);
 
         $this->logger->info(sprintf('[RouteClient] Added routes %s', $json));
     }
@@ -53,11 +50,9 @@ class RouteClient extends BaseClient
      */
     public function all(): array
     {
-        try {
-            $response = $this->client->all(['http_errors' => true]);
-        } catch (RequestException $exception) {
-            $this->throwApiProblemException($exception);
-        }
+        $response = $this->client->all();
+
+        $this->validateResponse($response);
 
         $rawRoutes = json_decode($response->getBody()->getContents(), true);
 

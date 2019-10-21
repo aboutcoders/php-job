@@ -336,6 +336,13 @@ class ValidatorTest extends TestCase
             ],
             [
                 (object) [
+                    'name' => 'aA.-_1',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
                     'name' => 'a.b_c',
                     'queue' => 'abc',
                     'replyTo' => 'abc',
@@ -422,20 +429,6 @@ class ValidatorTest extends TestCase
                     'name' => str_repeat('a', 21),
                     'queue' => str_repeat('a', 21),
                     'replyTo' => str_repeat('a', 21),
-                ],
-            ],
-            [
-                (object) [
-                    'name' => 'Abc',
-                    'queue' => 'abc',
-                    'replyTo' => 'abc',
-                ],
-            ],
-            [
-                (object) [
-                    'name' => 'a-c',
-                    'queue' => 'abc',
-                    'replyTo' => 'abc',
                 ],
             ],
             [

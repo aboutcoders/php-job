@@ -68,7 +68,7 @@ class HttpRouteServerTest extends HttpServerTestCase
 
         $response = $this->subject->create($json, 'requestUri');
 
-        $this->assertStatusCode(204, $response);
+        $this->assertStatusCode(201, $response);
     }
 
     public function testCreateSuccessWithRouteArray()
@@ -82,7 +82,7 @@ class HttpRouteServerTest extends HttpServerTestCase
 
         $response = $this->subject->create($json, 'requestUri');
 
-        $this->assertStatusCode(204, $response);
+        $this->assertStatusCode(201, $response);
     }
 
     public function testCreateValidatorError()

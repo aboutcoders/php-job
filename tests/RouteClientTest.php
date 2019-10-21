@@ -37,14 +37,14 @@ class RouteClientTest extends ClientTestCase
 
         $response = new Response(200, [], $json);
 
-        $this->httpClientMock->expects($this->once())->method('all')->with(['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('all')->with()->willReturn($response);
 
         $this->assertEquals([$route], $this->subject->all());
     }
 
-    public function testAllWithApiException()
+    public function testAllWithHttpError()
     {
-        $this->httpClientMock->expects($this->once())->method('all')->with(['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('all')->with()->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
@@ -59,7 +59,7 @@ class RouteClientTest extends ClientTestCase
 
         $response = new Response(204, [], $json);
 
-        $this->httpClientMock->expects($this->once())->method('add')->with($json, ['http_errors' => true])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('add')->with($json)->willReturn($response);
 
         $this->subject->add([$route]);
     }
@@ -70,7 +70,7 @@ class RouteClientTest extends ClientTestCase
 
         $json = json_encode([(object) $route->toArray()]);
 
-        $this->httpClientMock->expects($this->once())->method('add')->with($json, ['http_errors' => true])->willThrowException($this->createRequestException(400, $this->createApiProblemJson()));
+        $this->httpClientMock->expects($this->once())->method('add')->with($json)->willReturn(new Response(400, [], $this->createApiProblemJson()));
 
         $this->expectException(ApiProblemException::class);
 
