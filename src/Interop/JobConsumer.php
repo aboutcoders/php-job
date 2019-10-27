@@ -43,13 +43,24 @@ class JobConsumer implements Processor
     }
 
     /**
-     * Limits jobs to be processed, if provided and a job name is not in the array, the job will be requeued
+     * Limits the jobs that will be processed.
      *
-     * @param array $jobNames
+     * If set and a job message is received with a job name that is not in the array,
+     * the job will be requeued.
+     *
+     * @param string[] $names An array of job names
      */
-    public function limitJobs(array $jobNames)
+    public function setJobs(array $names)
     {
-        $this->jobNames = $jobNames;
+        $this->jobNames = $names;
+    }
+
+    /**
+     * @return string[] The names of the jobs that are processed
+     */
+    public function getJobs(): array
+    {
+        return $this->jobNames;
     }
 
     public function process(Message $message, Context $context)
@@ -78,7 +89,9 @@ class JobConsumer implements Processor
         }
 
         if (! empty($this->jobNames) && ! in_array($jobName, $this->jobNames)) {
-            $this->logger->debug(sprintf('[JobConsumer] Requeue job "%s" due to processing limited to jobNames "%s"', $jobName, json_encode($this->jobNames)));
+            $this->logger->debug(sprintf('[JobConsumer] Requeue job "%s" because processing is limited to jobNames "%s"', $jobName, json_encode($this->jobNames)));
+
+            return self::REQUEUE;
         }
 
         $sendReplyCallback = function (Reply $reply) use ($message, $context, $logger) {

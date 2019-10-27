@@ -9,11 +9,6 @@ class ProcessorRegistry
      */
     private $processors = [];
 
-    /**
-     * @var ProcessorInterface
-     */
-    private $fallback;
-
     public function add(string $jobName, ProcessorInterface $processor): void
     {
         if ($this->exists($jobName) && $processor !== $this->processors[$jobName]) {

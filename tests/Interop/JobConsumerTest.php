@@ -76,6 +76,24 @@ class JobConsumerTest extends TestCase
 
     /**
      * @test
+     */
+    public function requeuesMessageIfJobIsNotWhitelisted()
+    {
+        $message = $this->createMock(Message::class);
+        $message->expects($this->any())->method('getCorrelationId')->willReturn('someId');
+        $message->expects($this->atLeastOnce())->method('getHeader')->with(Config::NAME, false)->willReturn('jobName');
+
+        $processor = $this->createMock(ProcessorInterface::class);
+
+        $this->registry->expects($this->atLeastOnce())->method('get')->with('jobName')->willReturn($processor);
+
+        $this->subject->setJobs(['anotherJobName']);
+
+        $this->assertEquals(Processor::REQUEUE, $this->subject->process($message, $this->createMock(Context::class)));
+    }
+
+    /**
+     * @test
      * @dataProvider provideResultData
      */
     public function sendsExpectedReplies($processorResult, ArrayCollection $expectedReplies)
