@@ -16,7 +16,7 @@ class AmqpDriver extends GenericDriver
         parent::__construct($context, ...$args);
     }
 
-    public function declareQueue(string $queueName, LoggerInterface $logger = null)
+    public function declareQueue(string $queueName, LoggerInterface $logger = null): void
     {
         $logger = $logger ?: new NullLogger();
 

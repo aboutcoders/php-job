@@ -31,6 +31,11 @@ class RegisterRoutesExtension implements StartExtensionInterface
      */
     public function onStart(Start $context): void
     {
-        $this->routeClient->add($this->routeCollection->all());
+        $routes = $this->routeCollection->all();
+
+        if(0 < count($routes))
+        {
+            $this->routeClient->add($routes);
+        }
     }
 }

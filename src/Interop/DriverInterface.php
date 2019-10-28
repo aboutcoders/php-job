@@ -15,5 +15,5 @@ interface DriverInterface
 
     public function sendMessage(Message $message): void;
 
-    public function declareQueue(string $queue, LoggerInterface $logger = null);
+    public function declareQueue(string $queue, LoggerInterface $logger = null): void;
 }
