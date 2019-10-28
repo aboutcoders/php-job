@@ -29,7 +29,7 @@ abstract class BaseProcessCommand extends Command
     protected function buildParameters(InputInterface $input, $parameters = []): array
     {
         foreach ($this->consumeCommand->getDefinition()->getOptions() as $inputOption) {
-            if ($input->hasOption($inputOption->getName())) {
+            if ($input->hasOption($inputOption->getName()) && $input->getOption($inputOption->getName()) != null) {
                 $parameters['--'.$inputOption->getName()] = $input->getOption($inputOption->getName());
             }
         }
