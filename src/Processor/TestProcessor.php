@@ -7,6 +7,8 @@ use Psr\Log\NullLogger;
 
 /**
  * This processor is only for testing purposes.
+ *
+ * @codeCoverageIgnore
  */
 class TestProcessor implements ProcessorInterface
 {

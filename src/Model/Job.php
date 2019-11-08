@@ -14,12 +14,12 @@ class Job implements JobInterface
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $type;
 
     /**
-     * @var JobInterface
+     * @var JobInterface|null
      */
     protected $parent;
 
@@ -34,22 +34,22 @@ class Job implements JobInterface
     protected $position;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $status;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $input;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $output;
 
@@ -64,7 +64,7 @@ class Job implements JobInterface
     protected $processingTime;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $externalId;
 
@@ -101,7 +101,7 @@ class Job implements JobInterface
         return $this->id;
     }
 
-    public function setId(?string $id)
+    public function setId(?string $id): void
     {
         $this->id = $id;
     }
@@ -111,7 +111,7 @@ class Job implements JobInterface
         return new Type($this->type);
     }
 
-    public function setType(Type $type)
+    public function setType(Type $type): void
     {
         $this->type = (string) $type;
     }
@@ -131,7 +131,7 @@ class Job implements JobInterface
         return $this->parent;
     }
 
-    public function setParent(Job $parent)
+    public function setParent(Job $parent): void
     {
         $this->parent = $parent;
     }
@@ -149,7 +149,7 @@ class Job implements JobInterface
         return $this->children->getValues();
     }
 
-    public function addChild(JobInterface $job)
+    public function addChild(JobInterface $job): void
     {
         if ($this->children->contains($job)) {
             return;
@@ -169,7 +169,7 @@ class Job implements JobInterface
         return $this->position;
     }
 
-    public function setPosition(int $position)
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }
@@ -179,7 +179,7 @@ class Job implements JobInterface
         return $this->name;
     }
 
-    public function setName(?string $name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -189,7 +189,7 @@ class Job implements JobInterface
         return $this->status;
     }
 
-    public function setStatus(string $status)
+    public function setStatus(string $status): void
     {
         $this->status = $status;
     }
@@ -199,7 +199,7 @@ class Job implements JobInterface
         return $this->input;
     }
 
-    public function setInput(?string $input)
+    public function setInput(?string $input): void
     {
         $this->input = $input;
     }
@@ -209,7 +209,7 @@ class Job implements JobInterface
         return $this->output;
     }
 
-    public function setOutput(?string $output)
+    public function setOutput(?string $output): void
     {
         $this->output = $output;
     }
@@ -219,14 +219,9 @@ class Job implements JobInterface
         return $this->allowFailure;
     }
 
-    public function setAllowFailure(bool $allowFailure)
+    public function setAllowFailure(bool $allowFailure): void
     {
         $this->allowFailure = $allowFailure;
-    }
-
-    public function setProcessingTime(float $value)
-    {
-        $this->processingTime = $value;
     }
 
     public function getProcessingTime(): float
@@ -234,7 +229,12 @@ class Job implements JobInterface
         return $this->processingTime;
     }
 
-    public function addProcessingTime(float $value)
+    public function setProcessingTime(float $value): void
+    {
+        $this->processingTime = $value;
+    }
+
+    public function addProcessingTime(float $value): void
     {
         $this->processingTime += $value;
     }
@@ -244,14 +244,9 @@ class Job implements JobInterface
         return $this->externalId;
     }
 
-    public function setExternalId(?string $externalId)
+    public function setExternalId(?string $externalId): void
     {
         $this->externalId = $externalId;
-    }
-
-    public function setCompletedAt(?DateTime $completedAt)
-    {
-        $this->completedAt = $completedAt;
     }
 
     public function getCompletedAt(): ?DateTime
@@ -259,9 +254,9 @@ class Job implements JobInterface
         return $this->completedAt;
     }
 
-    public function setCreatedAt(?DateTime $createdAt)
+    public function setCompletedAt(?DateTime $completedAt): void
     {
-        $this->createdAt = $createdAt;
+        $this->completedAt = $completedAt;
     }
 
     public function getCreatedAt(): ?DateTime
@@ -269,14 +264,19 @@ class Job implements JobInterface
         return $this->createdAt;
     }
 
-    public function setUpdatedAt(?DateTime $updatedAt)
+    public function setCreatedAt(?DateTime $createdAt): void
     {
-        $this->updatedAt = $updatedAt;
+        $this->createdAt = $createdAt;
     }
 
     public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 
     public function __toString()

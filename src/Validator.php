@@ -21,8 +21,9 @@ class Validator implements ValidatorInterface
 
     private static $schemas = [
         Job::class => 'job.json',
-        Filter::class => 'filter.json',
+        JobFilter::class => 'filter.json',
         Route::class => 'route.json',
+        CronJob::class => 'scheduledJob.json',
     ];
 
     public function __construct()
@@ -38,8 +39,9 @@ class Validator implements ValidatorInterface
         }
 
         switch ($class) {
-            case Filter::class:
+            case JobFilter::class:
             case Job::class:
+            case CronJob::class:
             case Route::class:
                 $data = json_decode($json);
                 break;

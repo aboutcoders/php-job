@@ -4,7 +4,7 @@ namespace Abc\Job\Tests\Schedule;
 
 use Abc\Job\Job;
 use Abc\Job\JobServerInterface;
-use Abc\Job\Model\ScheduleInterface;
+use Abc\Job\Model\CronJob;
 use Abc\Job\Schedule\ScheduleProcessor;
 use Abc\Job\Type;
 use Abc\Scheduler\ScheduleInterface as BaseScheduleInterface;
@@ -29,13 +29,14 @@ class ScheduleProcessorTest extends TestCase
         $this->subject = new ScheduleProcessor($this->jobServer);
     }
 
-    public function testProcessWithInvalidSchedule()
+    public function testProcessWithInvalidArgument()
     {
-        $schedule = $this->createMock(BaseScheduleInterface::class);
+        /** @var BaseScheduleInterface $cronJob */
+        $cronJob = $this->createMock(BaseScheduleInterface::class);
 
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->subject->process($schedule);
+        $this->subject->process($cronJob);
     }
 
     public function testProcess()
@@ -45,11 +46,10 @@ class ScheduleProcessorTest extends TestCase
             'name' => 'someName',
         ]);
 
-        $schedule = $this->createMock(ScheduleInterface::class);
-        $schedule->expects($this->any())->method('getJobJson')->willReturn($job->toJson());
+        $cronJob = new CronJob('* * * * *', $job);
 
         $this->jobServer->expects($this->once())->method('process')->with($this->equalTo($job));
 
-        $this->subject->process($schedule);
+        $this->subject->process($cronJob);
     }
 }

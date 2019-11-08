@@ -3,7 +3,8 @@
 namespace Abc\Job\Tests\Validator;
 
 use Abc\Job\Broker\Route;
-use Abc\Job\Filter;
+use Abc\Job\CronJob;
+use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Type;
 use Abc\Job\Validator;
@@ -49,6 +50,26 @@ class ValidatorTest extends TestCase
     }
 
     /**
+     * @dataProvider provideValidScheduledJob
+     */
+    public function testValidScheduledJob($job)
+    {
+        $json = json_encode($job);
+        $errors = $this->subject->validate($json, CronJob::class);
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideInvalidScheduledJob
+     */
+    public function testInvalidScheduledJob($job)
+    {
+        $json = json_encode($job);
+        $errors = $this->subject->validate($json, CronJob::class);
+        $this->assertNotEmpty($errors);
+    }
+
+    /**
      * @param string $queryString
      * @dataProvider provideValidFilter
      */
@@ -57,7 +78,7 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, Filter::class);
+        $errors = $this->subject->validate($json, JobFilter::class);
         $this->assertEmpty($errors);
     }
 
@@ -70,7 +91,7 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, Filter::class);
+        $errors = $this->subject->validate($json, JobFilter::class);
         $this->assertNotEmpty($errors);
     }
 
@@ -250,6 +271,202 @@ class ValidatorTest extends TestCase
             #6
             [
                 (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+
+        ];
+    }
+
+    public static function provideValidScheduledJob(): array
+    {
+        return [
+            #0
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                ],
+            ],
+            #1
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::SEQUENCE(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                    ],
+                ],
+            ],
+            #2
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                    ],
+                ],
+            ],
+            #3
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::SEQUENCE(),
+                            'children' => [
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                            ],
+                        ],
+                        (object) [
+                            'type' => (string) Type::BATCH(),
+                            'children' => [
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public static function provideInvalidScheduledJob(): array
+    {
+        return [
+            #0
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                ],
+            ],
+            #1
+            [
+                (object) [
+                    'name' => 'valid',
+                ],
+            ],
+            #2
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                ],
+            ],
+            #3
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => str_repeat('a', 2),
+                ],
+            ],
+            #4
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => str_repeat('a', 21),
+                ],
+            ],
+            #5
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                ],
+            ],
+            #6
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::SEQUENCE(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #7
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #8
+            [
+                (object) [
+                    'schedule' => '* * * * *',
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
                     'children' => [

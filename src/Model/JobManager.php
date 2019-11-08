@@ -71,7 +71,7 @@ abstract class JobManager implements JobManagerInterface
         return $job;
     }
 
-    protected static function createDate(int $timestamp)
+    protected static function createDate(int $timestamp): \DateTime
     {
         return new \DateTime('@'.$timestamp, new \DateTimeZone('UTC'));
     }

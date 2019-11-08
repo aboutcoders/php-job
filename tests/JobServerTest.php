@@ -4,7 +4,7 @@ namespace Abc\Job\Tests;
 
 use Abc\Job\Broker\ProducerInterface;
 use Abc\Job\Doctrine\JobManager;
-use Abc\Job\Filter;
+use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Result;
 use Abc\Job\JobServer;
@@ -40,23 +40,23 @@ class JobServerTest extends TestCase
         $this->subject = new JobServer($this->producer, $this->jobManager, new NullLogger());
     }
 
-    public function testAllWithoutFilter()
+    public function testListWithoutFilter()
     {
         $this->jobManager->expects($this->once())->method('findBy')->with()->willReturn([$this->createMock(JobInterface::class)]);
 
-        $results = $this->subject->all();
+        $results = $this->subject->list();
 
         $this->assertEquals(1, count($results));
         $this->assertInstanceOf(Result::class, $results[0]);
     }
 
-    public function testAllWithFilter()
+    public function testListWithFilter()
     {
-        $filter = new Filter();
+        $filter = new JobFilter();
 
         $this->jobManager->expects($this->once())->method('findBy')->with($filter)->willReturn([$this->createMock(JobInterface::class)]);
 
-        $results = $this->subject->all($filter);
+        $results = $this->subject->list($filter);
 
         $this->assertEquals(1, count($results));
         $this->assertInstanceOf(Result::class, $results[0]);

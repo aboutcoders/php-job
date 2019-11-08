@@ -2,14 +2,14 @@
 
 namespace Abc\Job\Tests;
 
-use Abc\Job\Filter;
+use Abc\Job\JobFilter;
 use Abc\Job\Status;
 use PHPUnit\Framework\TestCase;
 
 class FilterTest extends TestCase
 {
     public function testToQueryParams() {
-        $filter = new Filter();
+        $filter = new JobFilter();
         $filter->setNames(['foo']);
         $filter->setIds(['id1', 'id2']);
         $filter->setStatus([Status::CANCELLED]);

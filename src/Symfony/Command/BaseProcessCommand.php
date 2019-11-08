@@ -9,11 +9,13 @@ use Symfony\Component\Console\Input\InputOption;
 
 abstract class BaseProcessCommand extends Command
 {
+    /**
+     * @var ConfigurableConsumeCommand
+     */
     protected $consumeCommand;
 
-    public function __construct(
-        ConfigurableConsumeCommand $consumeCommand
-    ) {
+    public function __construct(ConfigurableConsumeCommand $consumeCommand)
+    {
         $this->consumeCommand = $consumeCommand;
 
         parent::__construct(static::$defaultName);

@@ -30,13 +30,18 @@
       "type": "boolean",
       "default": "false"
     },
-    "job": {
+    "ScheduledJob": {
       "type": "object",
       "required": [
         "type",
-        "name"
+        "name",
+        "schedule"
       ],
       "properties": {
+        "schedule": {
+          "description": "The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.",
+          "type": "string"
+        },
         "type": {
           "const": "Job"
         },
@@ -55,12 +60,17 @@
       },
       "additionalProperties": false
     },
-    "job_collection": {
+    "ScheduledJobCollection": {
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "schedule"
       ],
       "properties": {
+        "schedule": {
+          "description": "The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.",
+          "type": "string"
+        },
         "type": {
           "type": "string",
           "title": "The job type",
@@ -83,10 +93,10 @@
           "items": {
             "oneOf": [
               {
-                "$ref": "#/definitions/job"
+                "$ref": "./job.json#/definitions/job"
               },
               {
-                "$ref": "#/definitions/job_collection"
+                "$ref": "./job.json#/definitions/job_collection"
               }
             ]
           },
@@ -98,10 +108,10 @@
   },
   "oneOf": [
     {
-      "$ref": "#/definitions/job"
+      "$ref": "#/definitions/ScheduledJob"
     },
     {
-      "$ref": "#/definitions/job_collection"
+      "$ref": "#/definitions/ScheduledJobCollection"
     }
   ]
 }

@@ -8,10 +8,10 @@ namespace Abc\Job;
 interface JobServerInterface
 {
     /**
-     * @param Filter $filter
+     * @param JobFilter $filter
      * @return Result[]
      */
-    public function all(Filter $filter = null): array;
+    public function list(JobFilter $filter = null): array;
 
     /**
      * @param Job $job

@@ -32,7 +32,7 @@ class JobServer implements JobServerInterface
         $this->logger = $logger;
     }
 
-    public function all(Filter $filter = null): array
+    public function list(JobFilter $filter = null): array
     {
         $results = [];
         foreach ($this->entityManager->findBy($filter) as $job) {
