@@ -30,13 +30,41 @@ class RouteController extends AbstractController
      */
     private $logger;
 
-    public function __construct(RouteRegistryInterface $registry, ValidatorInterface $validator, LoggerInterface $logger)
-    {
+    public function __construct(
+        RouteRegistryInterface $registry,
+        ValidatorInterface $validator,
+        LoggerInterface $logger
+    ) {
         $this->registry = $registry;
         $this->validator = $validator;
         $this->logger = $logger;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/route",
+     *     tags={"Route"},
+     *     description="Creates a route",
+     *     @OA\RequestBody(
+     *         description="Route object to be created",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Route"),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Successful operation")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $json
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function create(string $json, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($json, $requestUri) {
@@ -60,6 +88,28 @@ class RouteController extends AbstractController
         }, $requestUri);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/route",
+     *     tags={"Route"},
+     *     description="Returns a list of route objects",
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Route")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function all(string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($requestUri) {

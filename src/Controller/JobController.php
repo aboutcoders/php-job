@@ -44,7 +44,7 @@ class JobController extends AbstractController
      * @OA\Get(
      *     path="/job",
      *     tags={"Job"},
-     *     description="Returns all job results",
+     *     description="Returns a list of job results",
      *     @OA\Parameter(
      *         description="The unique id of the job",
      *         in="query",
@@ -129,49 +129,6 @@ class JobController extends AbstractController
     }
 
     /**
-     * @OA\Post(
-     *     path="/job",
-     *     tags={"Job"},
-     *     description="Processes a job",
-     *     @OA\Response(
-     *          response=201,
-     *          description="Successful operation",
-     *          @OA\JsonContent(ref="#/components/schemas/Result")
-     *     ),
-     *     @OA\Response(
-     *          response=400,
-     *          description="In case invalid parameters were provided",
-     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
-     *     ),
-     *     @OA\Response(
-     *          response=500,
-     *          description="In case of an internal server error",
-     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
-     *     )
-     * )
-     *
-     * @param string $json
-     * @param string $requestUri
-     * @return ResponseInterface
-     */
-    public function process(string $json, string $requestUri): ResponseInterface
-    {
-        return $this->call(function () use ($json, $requestUri) {
-
-            $invalidParams = $this->validator->validate($json, Job::class);
-            if (0 < count($invalidParams)) {
-                return $this->createInvalidParamResponse($invalidParams, $requestUri);
-            }
-
-            $job = Job::fromJson($json);
-
-            $result = $this->server->process($job);
-
-            return new Response(201, static::$headers_ok, $result->toJson());
-        }, $requestUri);
-    }
-
-    /**
      * @OA\Get(
      *     path="/job/{id}",
      *     tags={"Job"},
@@ -217,6 +174,54 @@ class JobController extends AbstractController
             }
 
             return new Response(200, static::$headers_ok, $result->toJson());
+        }, $requestUri);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/job",
+     *     tags={"Job"},
+     *     description="Processes a job",
+     *     @OA\RequestBody(
+     *         description="Job object to be created",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Job"),
+     *     ),
+     *     @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/Result")
+     *     ),
+     *     @OA\Response(
+     *          response=400,
+     *          description="In case invalid parameters were provided",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $json
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
+    public function process(string $json, string $requestUri): ResponseInterface
+    {
+        return $this->call(function () use ($json, $requestUri) {
+
+            $invalidParams = $this->validator->validate($json, Job::class);
+            if (0 < count($invalidParams)) {
+                return $this->createInvalidParamResponse($invalidParams, $requestUri);
+            }
+
+            $job = Job::fromJson($json);
+
+            $result = $this->server->process($job);
+
+            return new Response(201, static::$headers_ok, $result->toJson());
         }, $requestUri);
     }
 

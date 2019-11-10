@@ -3,9 +3,9 @@
 namespace Abc\Job\Symfony\Command;
 
 use Abc\Job\Broker\RouteCollection;
+use Abc\Job\Client\RouteClient;
 use Abc\Job\Interop\JobConsumer;
 use Abc\Job\Processor\ProcessorRegistry;
-use Abc\Job\RouteClient;
 use Enqueue\Symfony\Consumption\ConfigurableConsumeCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,14 +17,14 @@ class ProcessJobCommand extends BaseProcessCommand
     protected static $defaultName = 'abc:process:job';
 
     /**
-     * @var RouteClient
-     */
-    private $routeClient;
-
-    /**
      * @var ProcessorRegistry
      */
     private $processorRegistry;
+
+    /**
+     * @var RouteClient
+     */
+    private $routeClient;
 
     /**
      * @var JobConsumer

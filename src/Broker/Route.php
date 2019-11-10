@@ -2,22 +2,38 @@
 
 namespace Abc\Job\Broker;
 
+use OpenApi\Annotations as OA;
+
 /**
- * A Route provides information about where to send a job where a job sends it's replies.
+ *  * @OA\Schema(
+ *     description="A Route defines queue and replyTo queue of a job"
+ * )
  */
 class Route
 {
     /**
+     * @OA\Property(
+     *     description="The job name"
+     * )
+     *
      * @var string
      */
     protected $name;
 
     /**
+     * @OA\Property(
+     *     description="The queue name"
+     * )
+     *
      * @var string
      */
     protected $queue;
 
     /**
+     * @OA\Property(
+     *     description="The name of the replyTo queue"
+     * )
+     *
      * @var string
      */
     protected $replyTo;

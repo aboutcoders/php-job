@@ -11,6 +11,7 @@ use Abc\Job\ValidatorInterface;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use OpenApi\Annotations as OA;
 
 class CronJobController extends AbstractController
 {
@@ -39,6 +40,35 @@ class CronJobController extends AbstractController
         $this->logger = $logger;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/cronjob",
+     *     tags={"CronJob"},
+     *     description="Returns a list of cronjobs",
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/CronJob")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *          response=400,
+     *          description="In case invalid parameters were provided",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $id
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function list(?string $queryString, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($queryString, $requestUri) {
@@ -61,6 +91,46 @@ class CronJobController extends AbstractController
         }, $requestUri);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/cronjob/{id}",
+     *     tags={"CronJob"},
+     *     description="Returns a cronjob",
+     *     @OA\Parameter(
+     *         description="The unique id of the cronjob",
+     *         in="path",
+     *         name="id",
+     *         required=true,
+     *         @OA\Schema(
+     *             ref="#components/schemas/CronJob/properties/id"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/CronJob")
+     *     ),
+     *     @OA\Response(
+     *          response=400,
+     *          description="In case invalid parameters were provided",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=404,
+     *          description="In case a cronjob with the given id is not found",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $id
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function find(string $id, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($id, $requestUri) {
@@ -74,6 +144,37 @@ class CronJobController extends AbstractController
         }, $requestUri);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/cronjob",
+     *     tags={"CronJob"},
+     *     description="Creates a cronjob",
+     *     @OA\RequestBody(
+     *         description="CronJob object to be created",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CronJob"),
+     *     ),
+     *     @OA\Response(
+     *          response=201,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/CronJob")
+     *     ),
+     *     @OA\Response(
+     *          response=400,
+     *          description="In case invalid parameters were provided",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $json
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function create(string $json, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($json, $requestUri) {
@@ -91,6 +192,51 @@ class CronJobController extends AbstractController
         }, $requestUri);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/cronjob/{id}",
+     *     tags={"CronJob"},
+     *     description="Updates a cronjob",
+     *     @OA\Parameter(
+     *         description="The unique id of the cronjob",
+     *         in="path",
+     *         name="id",
+     *         required=true,
+     *         @OA\Schema(
+     *             ref="#components/schemas/CronJob/properties/id"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         description="CronJob object to be updated",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CronJob"),
+     *     ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(ref="#/components/schemas/CronJob")
+     *     ),
+     *     @OA\Response(
+     *          response=400,
+     *          description="In case invalid parameters were provided",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=404,
+     *          description="In case a cronjob with the given id is not found",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $json
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function update(string $id, string $json, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($id, $json, $requestUri) {
@@ -115,6 +261,40 @@ class CronJobController extends AbstractController
         }, $requestUri);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/cronjob/{id}",
+     *     tags={"CronJob"},
+     *     description="Deletes a cronjob",
+     *     @OA\Parameter(
+     *         description="The unique id of the cronjob",
+     *         in="path",
+     *         name="id",
+     *         required=true,
+     *         @OA\Schema(
+     *             ref="#components/schemas/CronJob/properties/id"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response=204,
+     *          description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *          response=404,
+     *          description="In case a cronjob with the given id is not found",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $id
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
     public function delete(string $id, string $requestUri): ResponseInterface
     {
         return $this->call(function () use ($id, $requestUri) {
