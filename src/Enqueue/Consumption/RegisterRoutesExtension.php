@@ -3,7 +3,7 @@
 namespace Abc\Job\Enqueue\Consumption;
 
 use Abc\Job\Broker\RouteCollection;
-use Abc\Job\RouteClient;
+use Abc\Job\Client\RouteClient;
 use Enqueue\Consumption\Context\Start;
 use Enqueue\Consumption\StartExtensionInterface;
 
