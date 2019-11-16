@@ -205,7 +205,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
 
         $response = $this->subject->update('cronJobId', $json, 'requestUri');
 
-        $this->assertStatusCode(201, $response);
+        $this->assertStatusCode(200, $response);
         $this->assertStdJsonResponseHeader($response);
 
         $data = json_decode($response->getBody()->getContents(), true);

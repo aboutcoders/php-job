@@ -256,7 +256,7 @@ class CronJobController extends AbstractController
 
             $this->cronJobManager->update($managedCronJob);
 
-            return new Response(201, static::$headers_ok, $managedCronJob->toJson());
+            return new Response(200, static::$headers_ok, $managedCronJob->toJson());
         }, $requestUri, $this->logger);
     }
 
