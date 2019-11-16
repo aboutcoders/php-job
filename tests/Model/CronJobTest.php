@@ -10,20 +10,90 @@ use PHPUnit\Framework\TestCase;
 
 class CronJobTest extends TestCase
 {
+    public function testGetScheduleWithConstructorNotCalled()
+    {
+        /** @var CronJob $subject */
+        $subject = $this->getMockBuilder(CronJob::class)->disableOriginalConstructor()->setMethods()->getMock();
+
+        $this->expectException(\LogicException::class);
+
+        $subject->getSchedule();
+    }
+
+    public function testGetJobWithJobJsonSet()
+    {
+        /** @var CronJob $subject */
+        $subject = $this->getMockBuilder(CronJob::class)->disableOriginalConstructor()->setMethods()->getMock();
+
+        $job = Job::fromArray([
+            'type' => Type::JOB(),
+            'name' => 'someName',
+        ]);
+
+        $jobJson = $job->toJson();
+
+        $subject->setJobJson($jobJson);
+
+        $this->assertEquals($job, $subject->getJob());
+    }
+
+    public function testGetJobWithJobJsonNull()
+    {
+        /** @var CronJob $subject */
+        $subject = $this->getMockBuilder(CronJob::class)->disableOriginalConstructor()->setMethods()->getMock();
+
+        $this->expectException(\LogicException::class);
+
+        $subject->getJob();
+    }
+
+    public function testGetJobWithJobSet()
+    {
+        $subject = new CronJob('* * * * *', Job::fromArray([
+            'type' => Type::JOB(),
+            'name' => 'someName',
+        ]));
+
+        $job = Job::fromArray([
+            'type' => Type::JOB(),
+            'name' => 'someName',
+        ]);
+
+        $subject->setJob($job);
+
+        $this->assertSame($job, $subject->getJob());
+    }
+
+    public function testGetJobJsonWithoutConstructorCalled() {
+        /** @var CronJob $subject */
+        $subject = $this->getMockBuilder(CronJob::class)->disableOriginalConstructor()->setMethods()->getMock();
+
+        $this->assertNull($subject->getJobJson());
+    }
+
+    public function testGetJobJsonWithoutConstructorCalledAndJobJsonSet() {
+        /** @var CronJob $subject */
+        $subject = $this->getMockBuilder(CronJob::class)->disableOriginalConstructor()->setMethods()->getMock();
+
+        $subject->setJobJson('someJson');
+
+        $this->assertEquals('someJson', $subject->getJobJson());
+    }
+
     public function testFromJson()
     {
-        $scheduledJob = CronJob::fromJson(json_encode([
+        $cronJob = CronJob::fromJson(json_encode([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]));
 
-        $this->assertInstanceOf(CronJobInterface::class, $scheduledJob);
-        $this->assertSame('* * * * *', $scheduledJob->getSchedule());
+        $this->assertInstanceOf(CronJobInterface::class, $cronJob);
+        $this->assertSame('* * * * *', $cronJob->getSchedule());
         $this->assertEquals(Job::fromArray([
             'type' => Type::JOB(),
             'name' => 'someName',
-        ]), $scheduledJob->getJob());
+        ]), $cronJob->getJob());
     }
 
     /**
@@ -39,48 +109,48 @@ class CronJobTest extends TestCase
 
     public function testToJson()
     {
-        $scheduledJob = CronJob::fromJson(json_encode([
+        $cronJob = CronJob::fromJson(json_encode([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]));
 
-        $object = json_decode($scheduledJob->toJson());
+        $object = json_decode($cronJob->toJson());
 
-        $this->assertEquals($scheduledJob->getSchedule(), $object->schedule);
-        $this->assertEquals($scheduledJob->getJob()->getType(), $object->type);
-        $this->assertEquals($scheduledJob->getJob()->getName(), $object->name);
+        $this->assertEquals($cronJob->getSchedule(), $object->schedule);
+        $this->assertEquals($cronJob->getJob()->getType(), $object->type);
+        $this->assertEquals($cronJob->getJob()->getName(), $object->name);
     }
 
     public function testFromArray()
     {
-        $scheduledJob = CronJob::fromArray([
+        $cronJob = CronJob::fromArray([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]);
 
-        $this->assertInstanceOf(CronJobInterface::class, $scheduledJob);
-        $this->assertSame('* * * * *', $scheduledJob->getSchedule());
+        $this->assertInstanceOf(CronJobInterface::class, $cronJob);
+        $this->assertSame('* * * * *', $cronJob->getSchedule());
         $this->assertEquals(Job::fromArray([
             'type' => Type::JOB(),
             'name' => 'someName',
-        ]), $scheduledJob->getJob());
+        ]), $cronJob->getJob());
     }
 
     public function testToArray()
     {
-        $scheduledJob = CronJob::fromJson(json_encode([
+        $cronJob = CronJob::fromJson(json_encode([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]));
 
-        $data = $scheduledJob->toArray();
+        $data = $cronJob->toArray();
 
-        $this->assertEquals($scheduledJob->getSchedule(), $data['schedule']);
-        $this->assertEquals($scheduledJob->getJob()->getType(), $data['type']);
-        $this->assertEquals($scheduledJob->getJob()->getName(), $data['name']);
+        $this->assertEquals($cronJob->getSchedule(), $data['schedule']);
+        $this->assertEquals($cronJob->getJob()->getType(), $data['type']);
+        $this->assertEquals($cronJob->getJob()->getName(), $data['name']);
         $this->assertFalse(isset($data['id']));
         $this->assertFalse(isset($data['createdAt']));
         $this->assertFalse(isset($data['updatedAt']));
@@ -88,36 +158,36 @@ class CronJobTest extends TestCase
 
     public function testToArrayWithSaved()
     {
-        $scheduledJob = CronJob::fromJson(json_encode([
+        $cronJob = CronJob::fromJson(json_encode([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]));
 
-        $scheduledJob->setId('someId');
-        $scheduledJob->setCreatedAt(new \DateTime("@10"));
-        $scheduledJob->setUpdatedAt(new \DateTime("@100"));
+        $cronJob->setId('someId');
+        $cronJob->setCreatedAt(new \DateTime("@10"));
+        $cronJob->setUpdatedAt(new \DateTime("@100"));
 
-        $data = $scheduledJob->toArray();
+        $data = $cronJob->toArray();
 
         $this->assertEquals('someId', $data['id']);
-        $this->assertEquals($scheduledJob->getCreatedAt()->format('c'), $data['created']);
-        $this->assertEquals($scheduledJob->getUpdatedAt()->format('c'), $data['updated']);
+        $this->assertEquals($cronJob->getCreatedAt()->format('c'), $data['created']);
+        $this->assertEquals($cronJob->getUpdatedAt()->format('c'), $data['updated']);
     }
 
     public function testToArraySortsKeys()
     {
-        $scheduledJob = CronJob::fromJson(json_encode([
+        $cronJob = CronJob::fromJson(json_encode([
             'schedule' => '* * * * *',
             'type' => Type::JOB(),
             'name' => 'someName',
         ]));
 
-        $scheduledJob->setId('someId');
-        $scheduledJob->setCreatedAt(new \DateTime("@10"));
-        $scheduledJob->setUpdatedAt(new \DateTime("@100"));
+        $cronJob->setId('someId');
+        $cronJob->setCreatedAt(new \DateTime("@10"));
+        $cronJob->setUpdatedAt(new \DateTime("@100"));
 
-        $data = $scheduledJob->toArray();
+        $data = $cronJob->toArray();
 
         $this->assertSame([
             'id',

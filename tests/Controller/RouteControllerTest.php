@@ -6,6 +6,7 @@ use Abc\ApiProblem\InvalidParameter;
 use Abc\Job\Broker\Route;
 use Abc\Job\Broker\RouteRegistryInterface;
 use Abc\Job\Controller\RouteController;
+use Abc\Job\InvalidJsonException;
 use Abc\Job\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
@@ -34,7 +35,7 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->subject = new RouteController($this->routeRegistry, $this->validatorMock, new NullLogger());
     }
 
-    public function testAllSuccess()
+    public function testAll()
     {
         $route = new Route('jobName', 'queueName', 'replyTo');
 
@@ -48,7 +49,7 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->assertEquals('[{"name":"jobName","queue":"queueName","replyTo":"replyTo"}]', $response->getBody()->getContents());
     }
 
-    public function testAllServerError()
+    public function testAllWithServerException()
     {
         $this->routeRegistry->expects($this->once())->method('all')->with()->willThrowException(new \Exception('someExceptionMessage'));
 
@@ -57,7 +58,7 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testCreateSuccessWithSingleRoute()
+    public function testCreateWithRoute()
     {
         $route = new Route('jobName', 'queueName', 'replyTo');
         $json = $route->toJson();
@@ -71,7 +72,7 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->assertStatusCode(201, $response);
     }
 
-    public function testCreateSuccessWithRouteArray()
+    public function testCreateWithRoutes()
     {
         $route = new Route('jobName', 'queueName', 'replyTo');
         $json = json_encode([(object) $route->toArray()]);
@@ -85,7 +86,7 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->assertStatusCode(201, $response);
     }
 
-    public function testCreateValidatorError()
+    public function testCreateWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
 
@@ -101,7 +102,21 @@ class RouteControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testCreateServerError()
+    public function testCreateWithInvalidJson()
+    {
+        $route = new Route('jobName', 'queueName', 'replyTo');
+        $json = $route->toJson();
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, Route::class)->willThrowException(new InvalidJsonException('some error'));
+
+        $this->routeRegistry->expects($this->never())->method('add');
+
+        $response = $this->subject->create($json, 'requestUri');
+
+        $this->assertInvalidJsonResponse($response, 'some error');
+    }
+
+    public function testCreateWithServerException()
     {
         $this->validatorMock->expects($this->once())->method('validate')->willThrowException(new \Exception('someExceptionMessage'));
 

@@ -20,7 +20,7 @@ class ProcessorRegistry
 
     public function get(string $jobName): ?ProcessorInterface
     {
-        return $this->exists($jobName) ? $this->processors[$jobName] : $this->fallback;
+        return $this->exists($jobName) ? $this->processors[$jobName] : null;
     }
 
     public function exists(string $jobName): bool

@@ -7,14 +7,14 @@ use Abc\Job\Model\CronJobInterface;
 class CronJobArray
 {
     /**
-     * @param $scheduledJobs CronJobInterface[]
+     * @param $cronJobs CronJobInterface[]
      * @return string $json
      */
-    public static function toJson(array $scheduledJobs): string
+    public static function toJson(array $cronJobs): string
     {
         $data = [];
-        foreach ($scheduledJobs as $scheduledJob) {
-            $data[] = $scheduledJob->toArray();
+        foreach ($cronJobs as $cronJob) {
+            $data[] = $cronJob->toArray();
         }
 
         return json_encode($data);

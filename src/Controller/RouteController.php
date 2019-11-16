@@ -2,7 +2,6 @@
 
 namespace Abc\Job\Controller;
 
-use Abc\ApiProblem\ApiProblem;
 use Abc\Job\Broker\Route;
 use Abc\Job\Broker\RouteRegistryInterface;
 use Abc\Job\ValidatorInterface;
@@ -85,7 +84,7 @@ class RouteController extends AbstractController
             }
 
             return new Response(201);
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -120,24 +119,6 @@ class RouteController extends AbstractController
             }
 
             return new Response(200, static::$headers_ok, json_encode($routes));
-        }, $requestUri);
-    }
-
-    /**
-     * @param \Closure $action
-     * @param string $requestUri
-     * @return mixed
-     */
-    private function call(\Closure $action, string $requestUri)
-    {
-        try {
-            return $action($this->registry);
-        } catch (\Exception $exception) {
-            $this->logger->error(sprintf('[RouteController] %s [%s](code: %s) at %s line: %s', $exception->getMessage(), get_class($exception), $exception->getCode(), $exception->getFile(), $exception->getLine()));
-
-            $apiProblem = new ApiProblem(self::buildTypeUrl('internal-error'), 'Internal Server Error', 500, 'An internal server error occurred', $requestUri);
-
-            return $this->createProblemResponse($apiProblem);
-        }
+        }, $requestUri, $this->logger);
     }
 }

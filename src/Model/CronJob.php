@@ -61,8 +61,25 @@ class CronJob implements CronJobInterface
         $this->id = $id;
     }
 
+    public function getSchedule(): string
+    {
+        if (null == $this->schedule) {
+            throw new \LogicException(sprintf('Expected the variable $schedule to be set. Either %s must call the parent constructor of %s or call setSchedule() right after instantiation.', get_class($this), self::class));
+        }
+
+        return $this->schedule;
+    }
+
     public function getJob(): Job
     {
+        if (null === $this->job) {
+            if (null === $this->jobJson) {
+                throw new \LogicException(sprintf('Expected the variable $jobJson to be set. Either %s must call the parent constructor of %s or call setJobJson() right after instantiation.', get_class($this), self::class));
+            }
+
+            $this->job = Job::fromJson($this->jobJson);
+        }
+
         return $this->job;
     }
 
@@ -73,6 +90,10 @@ class CronJob implements CronJobInterface
 
     public function getJobJson(): ?string
     {
+        if (null != $this->job) {
+            return $this->job->toJson();
+        }
+
         return $this->jobJson;
     }
 
@@ -81,12 +102,10 @@ class CronJob implements CronJobInterface
         $this->jobJson = $json;
     }
 
-
     public function getName(): ?string
     {
         return $this->name;
     }
-
 
     public function setName(?string $name): void
     {

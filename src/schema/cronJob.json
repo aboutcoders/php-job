@@ -30,7 +30,7 @@
       "type": "boolean",
       "default": "false"
     },
-    "ScheduledJob": {
+    "CronJob": {
       "type": "object",
       "required": [
         "type",
@@ -60,7 +60,7 @@
       },
       "additionalProperties": false
     },
-    "ScheduledJobCollection": {
+    "CronJobCollection": {
       "type": "object",
       "required": [
         "type",
@@ -108,10 +108,10 @@
   },
   "oneOf": [
     {
-      "$ref": "#/definitions/ScheduledJob"
+      "$ref": "#/definitions/CronJob"
     },
     {
-      "$ref": "#/definitions/ScheduledJobCollection"
+      "$ref": "#/definitions/CronJobCollection"
     }
   ]
 }

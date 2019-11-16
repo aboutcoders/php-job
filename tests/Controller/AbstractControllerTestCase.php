@@ -36,6 +36,19 @@ abstract class AbstractControllerTestCase extends TestCase
         $this->assertEquals('requestUri', $data['instance']);
     }
 
+    protected function assertInvalidJsonResponse(ResponseInterface $response, string $expectedProblemDetail)
+    {
+        $this->assertStatusCode(400, $response);
+        $this->assertProblemJsonResponseHeader($response);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(JobController::TYPE_URL.'invalid-request-body', $data['type']);
+        $this->assertEquals('The request body didn\'t validate.', $data['title']);
+        $this->assertEquals(400, $data['status']);
+        $this->assertEquals($expectedProblemDetail, $data['detail']);
+        $this->assertEquals('requestUri', $data['instance']);
+    }
+
     protected function assertInvalidParameterResponse(ResponseInterface $response)
     {
         $this->assertStatusCode(400, $response);

@@ -4,6 +4,7 @@ namespace Abc\Job\Tests\Controller;
 
 use Abc\ApiProblem\InvalidParameter;
 use Abc\Job\Controller\JobController;
+use Abc\Job\InvalidJsonException;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
@@ -40,7 +41,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->subject = new JobController($this->serverMock, $this->validatorMock, new NullLogger());
     }
 
-    public function testListSuccess()
+    public function testList()
     {
         $queryString = 'foo=bar';
 
@@ -62,7 +63,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertJsonResult($result, $data[0]);
     }
 
-    public function testListValidatorError()
+    public function testListWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $queryString = 'foo=bar';
@@ -76,7 +77,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testListServerError()
+    public function testListWithServerException()
     {
         $queryString = 'foo=bar';
 
@@ -89,7 +90,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testProcessSuccess()
+    public function testProcess()
     {
         $result = static::buildResult();
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
@@ -109,7 +110,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertJsonResult($result, $data);
     }
 
-    public function testProcessValidatorError()
+    public function testProcessWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
@@ -124,7 +125,21 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testProcessServerError()
+    public function testProcessWithInvalidJson()
+    {
+        $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
+        $json = $job->toJson();
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\Job::class)->willThrowException(new InvalidJsonException('some error'));
+
+        $this->serverMock->expects($this->never())->method('process');
+
+        $response = $this->subject->process($json, 'requestUri');
+
+        $this->assertInvalidJsonResponse($response, 'some error');
+    }
+
+    public function testProcessWithServerException()
     {
         $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
         $json = $job->toJson();
@@ -138,7 +153,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testRestartSuccess()
+    public function testRestart()
     {
         $result = static::buildResult();
 
@@ -154,7 +169,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertJsonResult($result, $data);
     }
 
-    public function testRestartNotFound()
+    public function testRestartWithJobNotFound()
     {
         $this->serverMock->expects($this->once())->method('restart')->with('jobId')->willReturn(null);
 
@@ -164,7 +179,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'jobId');
     }
 
-    public function testRestartServerError()
+    public function testRestartWithServerException()
     {
         $this->serverMock->expects($this->once())->method('restart')->willThrowException(new \Exception());
 
@@ -173,7 +188,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testResultSuccess()
+    public function testResult()
     {
         $result = static::buildResult();
 
@@ -189,7 +204,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertJsonResult($result, $data);
     }
 
-    public function testResultNotFound()
+    public function testResultWithJobNotFound()
     {
         $this->serverMock->expects($this->once())->method('result')->with('jobId')->willReturn(null);
 
@@ -199,7 +214,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'jobId');
     }
 
-    public function testResultServerError()
+    public function testResultWithServerException()
     {
         $this->serverMock->expects($this->once())->method('result')->willThrowException(new \Exception());
 
@@ -208,7 +223,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testCancelSuccess()
+    public function testCancel()
     {
         $this->serverMock->expects($this->once())->method('cancel')->with('jobId')->willReturn(true);
 
@@ -218,7 +233,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertStdJsonResponseHeader($response);
     }
 
-    public function testCancelNotFound()
+    public function testCancelWithJobNotFound()
     {
         $this->serverMock->expects($this->once())->method('cancel')->with('jobId')->willReturn(null);
 
@@ -228,7 +243,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'jobId');
     }
 
-    public function testCancelServerError()
+    public function testCancelWithServerException()
     {
         $this->serverMock->expects($this->once())->method('cancel')->willThrowException(new \Exception());
 
@@ -237,7 +252,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testCancelFailure()
+    public function testCancelWithServerReturnsFalse()
     {
         $this->serverMock->expects($this->once())->method('cancel')->with('jobId')->willReturn(false);
 
@@ -253,7 +268,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertEquals('Cancellation of job "jobId" failed', $data['detail']);
     }
 
-    public function testDeleteSuccess()
+    public function testDelete()
     {
         $this->serverMock->expects($this->once())->method('delete')->with('jobId')->willReturn(true);
 
@@ -263,7 +278,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertStdJsonResponseHeader($response);
     }
 
-    public function testDeleteNotFound()
+    public function testDeleteWithJobNotFound()
     {
         $this->serverMock->expects($this->once())->method('delete')->with('jobId')->willReturn(null);
 
@@ -273,7 +288,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'jobId');
     }
 
-    public function testDeleteServerError()
+    public function testDeleteWithServerException()
     {
         $this->serverMock->expects($this->once())->method('delete')->willThrowException(new \Exception());
 

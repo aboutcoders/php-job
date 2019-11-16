@@ -125,7 +125,7 @@ class JobController extends AbstractController
             $results = $this->server->list(JobFilter::fromQueryString($queryString));
 
             return new Response(200, static::$headers_ok, ResultArray::toJson($results));
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -174,7 +174,7 @@ class JobController extends AbstractController
             }
 
             return new Response(200, static::$headers_ok, $result->toJson());
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -222,7 +222,7 @@ class JobController extends AbstractController
             $result = $this->server->process($job);
 
             return new Response(201, static::$headers_ok, $result->toJson());
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -271,7 +271,7 @@ class JobController extends AbstractController
             }
 
             return new Response(200, static::$headers_ok, $result->toJson());
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -330,7 +330,7 @@ class JobController extends AbstractController
             }
 
             return new Response(204, static::$headers_ok);
-        }, $requestUri);
+        }, $requestUri, $this->logger);
     }
 
     /**
@@ -377,25 +377,6 @@ class JobController extends AbstractController
             };
 
             return new Response(204, static::$headers_ok);
-        }, $requestUri);
-    }
-
-    /**
-     * @param \Closure $serverAction
-     * @param string $requestUri
-     * @return mixed
-     */
-    private function call(\Closure $serverAction, string $requestUri)
-    {
-        try {
-            return $serverAction($this->server);
-        } catch (\Exception $exception) {
-
-            $this->logger->error(sprintf('[CronJobController] %s [%s](code: %s) at %s line: %s', $exception->getMessage(), get_class($exception), $exception->getCode(), $exception->getFile(), $exception->getLine()));
-
-            $apiProblem = new ApiProblem(self::buildTypeUrl('internal-error'), 'Internal Server Error', 500, 'An internal server error occurred', $requestUri);
-
-            return $this->createProblemResponse($apiProblem);
-        }
+        }, $requestUri, $this->logger);
     }
 }

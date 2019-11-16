@@ -6,6 +6,7 @@ use Abc\ApiProblem\InvalidParameter;
 use Abc\Job\Controller\CronJobController;
 use Abc\Job\CronJobFilter;
 use Abc\Job\CronJobManager;
+use Abc\Job\InvalidJsonException;
 use Abc\Job\Job;
 use Abc\Job\Model\CronJob;
 use Abc\Job\Model\CronJobInterface;
@@ -38,7 +39,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->subject = new CronJobController($this->cronJobManagerMock, $this->validatorMock, new NullLogger());
     }
 
-    public function testListSuccess()
+    public function testList()
     {
         $queryString = 'foo=bar';
 
@@ -61,7 +62,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertJsonManagedCronJob($cronJob, $data[0]);
     }
 
-    public function testListValidatorError()
+    public function testListWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $queryString = 'foo=bar';
@@ -75,7 +76,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testListServerError()
+    public function testListWithServerException()
     {
         $queryString = 'foo=bar';
 
@@ -88,7 +89,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testFindSuccess()
+    public function testFind()
     {
         $cronJob = $this->createManagedCronJob();
 
@@ -106,7 +107,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertJsonManagedCronJob($cronJob, $data);
     }
 
-    public function testFindNotFound()
+    public function testFindWithCronJobNotFound()
     {
         $this->cronJobManagerMock->expects($this->once())->method('find')->with('cronJobId')->willReturn(null);
 
@@ -116,7 +117,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'cronJobId');
     }
 
-    public function testFindServerError()
+    public function testFindWithServerException()
     {
         $this->cronJobManagerMock->expects($this->once())->method('find')->willThrowException(new \Exception());
 
@@ -125,7 +126,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testCreateSuccess()
+    public function testCreate()
     {
         $cronJob = static::createCronJob();
         $managedCronJob = static::createManagedCronJob();
@@ -145,7 +146,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertJsonManagedCronJob($managedCronJob, $data);
     }
 
-    public function testCreateValidatorError()
+    public function testCreateWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $cronJob = static::createCronJob();
@@ -160,7 +161,20 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testCreateServerError()
+    public function testCreateWithInvalidJson()
+    {
+        $json = 'someJson';
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\CronJob::class)->willThrowException(new InvalidJsonException('some message'));
+
+        $this->cronJobManagerMock->expects($this->never())->method('create');
+
+        $response = $this->subject->create($json, 'requestUri');
+
+        $this->assertInvalidJsonResponse($response, 'some message');
+    }
+
+    public function testCreateWithServerException()
     {
         $cronJob = static::createCronJob();
         $json = $cronJob->toJson();
@@ -174,7 +188,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testUpdateSuccess()
+    public function testUpdate()
     {
         $managedCronJob = static::createManagedCronJob();
 
@@ -199,7 +213,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertJsonManagedCronJob($expectedJob, $data);
     }
 
-    public function testUpdateNotFound()
+    public function testUpdateCronJobNotFound()
     {
         $updatedJob = $cronJob = new CronJob('updatedSchedule', new Job(Type::JOB(), 'anotherJobName'));
         $json = $updatedJob->toJson();
@@ -215,7 +229,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'cronJobId');
     }
 
-    public function testUpdateValidatorError()
+    public function testUpdateWithValidatorError()
     {
         $invalidParam = new InvalidParameter('name', 'reason', 'value');
         $cronJob = static::createCronJob();
@@ -230,7 +244,20 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidParameterResponse($response);
     }
 
-    public function testUpdateServerError()
+    public function testUpdateWithInvalidJson()
+    {
+        $json = 'someJson';
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\CronJob::class)->willThrowException(new InvalidJsonException('some message'));
+
+        $this->cronJobManagerMock->expects($this->never())->method('create');
+
+        $response = $this->subject->update('someCronJobId', $json, 'requestUri');
+
+        $this->assertInvalidJsonResponse($response, 'some message');
+    }
+
+    public function testUpdateWithServerException()
     {
         $cronJob = static::createCronJob();
         $json = $cronJob->toJson();
@@ -244,7 +271,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertServerErrorResponse($response);
     }
 
-    public function testDeleteSuccess()
+    public function testDelete()
     {
         $managedCronJob = $this->createManagedCronJob();
 
@@ -257,7 +284,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertStdJsonResponseHeader($response);
     }
 
-    public function testDeleteNotFound()
+    public function testDeleteWithCronJobNotFound()
     {
         $this->cronJobManagerMock->expects($this->once())->method('find')->with('cronJobId')->willReturn(null);
         $this->cronJobManagerMock->expects($this->never())->method('delete');
@@ -268,7 +295,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertNotFoundResponse($response, 'cronJobId');
     }
 
-    public function testDeleteServerError()
+    public function testDeleteWithServerException()
     {
         $this->cronJobManagerMock->expects($this->once())->method('find')->willThrowException(new \Exception());
 

@@ -4,6 +4,7 @@ namespace Abc\Job\Tests\Validator;
 
 use Abc\Job\Broker\Route;
 use Abc\Job\CronJob;
+use Abc\Job\InvalidJsonException;
 use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Type;
@@ -29,6 +30,13 @@ class ValidatorTest extends TestCase
         $this->subject->validate('json', \stdClass::class);
     }
 
+    public function testWithInvalidJson() {
+
+        $this->expectException(InvalidJsonException::class);
+
+        $this->subject->validate('json', Job::class);
+    }
+
     /**
      * @dataProvider provideValidJob
      */
@@ -50,9 +58,9 @@ class ValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideValidScheduledJob
+     * @dataProvider provideValidCronJob
      */
-    public function testValidScheduledJob($job)
+    public function testValidCronJob($job)
     {
         $json = json_encode($job);
         $errors = $this->subject->validate($json, CronJob::class);
@@ -60,9 +68,9 @@ class ValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideInvalidScheduledJob
+     * @dataProvider provideInvalidCronJob
      */
-    public function testInvalidScheduledJob($job)
+    public function testInvalidCronJob($job)
     {
         $json = json_encode($job);
         $errors = $this->subject->validate($json, CronJob::class);
@@ -289,7 +297,7 @@ class ValidatorTest extends TestCase
         ];
     }
 
-    public static function provideValidScheduledJob(): array
+    public static function provideValidCronJob(): array
     {
         return [
             #0
@@ -393,7 +401,7 @@ class ValidatorTest extends TestCase
         ];
     }
 
-    public static function provideInvalidScheduledJob(): array
+    public static function provideInvalidCronJob(): array
     {
         return [
             #0
