@@ -185,7 +185,7 @@ class CronJob implements CronJobInterface
             'updated',
             'created',
             'children',
-        ]), array_merge($data, $this->job->toArray()));
+        ]), array_merge($data, $this->getJob()->toArray()));
 
         foreach (['id', 'updated', 'created'] as $key) {
             if (null == $data[$key]) {
