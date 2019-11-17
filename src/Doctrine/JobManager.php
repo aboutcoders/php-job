@@ -2,7 +2,7 @@
 
 namespace Abc\Job\Doctrine;
 
-use Abc\Job\Filter;
+use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager as BaseJobManager;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -66,7 +66,7 @@ class JobManager extends BaseJobManager
         return $this->repository->find($id);
     }
 
-    public function findBy(Filter $filter = null): array
+    public function findBy(JobFilter $filter = null): array
     {
         $criteria = [];
 

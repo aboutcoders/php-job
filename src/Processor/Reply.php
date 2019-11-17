@@ -56,6 +56,21 @@ class Reply
         return $this->createdTimestamp;
     }
 
+    public static function fromArray($data): self
+    {
+        return new static($data['status'], $data['output'] ?? null, $data['processingTime'] ?? 0.0, $data['createdTimestamp'] ?? null);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'status' => $this->getStatus(),
+            'output' => $this->getOutput(),
+            'processingTime' => $this->getProcessingTime(),
+            'createdTimestamp' => $this->getCreatedTimestamp(),
+        ];
+    }
+
     public static function fromJson(string $json): self
     {
         $data = @json_decode($json, true);
@@ -63,15 +78,11 @@ class Reply
             throw new \InvalidArgumentException('Invalid JSON');
         }
 
-        if (! isset($data['status'])) {
-            throw new \InvalidArgumentException('Expected key "status" not found in JSON');
-        }
+        return static::fromArray($data);
+    }
 
-        return new self(...[
-            $data['status'],
-            $data['output'] ?? null,
-            $data['processingTime'] ?? 0.0,
-            $data['createdTimestamp'] ?? null,
-        ]);
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
     }
 }

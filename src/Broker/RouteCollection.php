@@ -12,16 +12,16 @@ class RouteCollection
     /**
      * @param Route[] $routes
      */
-    public function __construct(array $routes)
+    public function __construct(array $routes = [])
     {
         foreach ($routes as $route) {
-            $this->routes[$route->getJobName()] = $route;
+            $this->routes[$route->getName()] = $route;
         }
     }
 
     public function add(Route $route): void
     {
-        $this->routes[$route->getJobName()] = $route;
+        $this->routes[$route->getName()] = $route;
     }
 
     /**

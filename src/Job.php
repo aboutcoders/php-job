@@ -6,7 +6,7 @@ use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
- *     description="The job to be processed"
+ *     description="A job to be processed"
  * )
  */
 class Job
@@ -140,7 +140,7 @@ class Job
     {
         return $this->externalId;
     }
-    
+
     public function setExternalId(?string $externalId)
     {
         $this->externalId = $externalId;
@@ -162,6 +162,12 @@ class Job
 
     public static function fromArray(array $data): Job
     {
+        foreach (['type', 'name'] as $property) {
+            if (! isset($data[$property])) {
+                throw new \InvalidArgumentException(sprintf('The property "%s" must be set', $property));
+            }
+        }
+
         $children = [];
         if (isset($data['children'])) {
             foreach ($data['children'] as $childArray) {
@@ -179,6 +185,12 @@ class Job
 
     public static function fromJson(string $json)
     {
-        return static::fromArray(json_decode($json, true));
+        $data = @json_decode($json, true);
+
+        if (null === $data) {
+            throw new \InvalidArgumentException('Invalid json');
+        }
+
+        return static::fromArray($data);
     }
 }

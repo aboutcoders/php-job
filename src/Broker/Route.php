@@ -2,41 +2,62 @@
 
 namespace Abc\Job\Broker;
 
+use OpenApi\Annotations as OA;
+
 /**
- * A Route provides information about where a job is delivered and where the job sends his replies.
+ *  * @OA\Schema(
+ *     description="A Route defines queue and replyTo queue of a job"
+ * )
  */
 class Route
 {
     /**
+     * @OA\Property(
+     *     description="The job name"
+     * )
+     *
      * @var string
      */
-    private $jobName;
+    protected $name;
 
     /**
+     * @OA\Property(
+     *     description="The queue name"
+     * )
+     *
      * @var string
      */
-    private $queueName;
+    protected $queue;
 
     /**
+     * @OA\Property(
+     *     description="The name of the replyTo queue"
+     * )
+     *
      * @var string
      */
-    private $replyTo;
+    protected $replyTo;
 
-    public function __construct(string $jobName, string $queueName, string $replyTo)
+    public function __construct(string $name, string $queue, string $replyTo)
     {
-        $this->jobName = $jobName;
-        $this->queueName = $queueName;
+        $this->name = $name;
+        $this->queue = $queue;
         $this->replyTo = $replyTo;
     }
 
-    public function getJobName(): string
+    public function getName(): string
     {
-        return $this->jobName;
+        return $this->name;
     }
 
-    public function getQueueName(): string
+    public function getQueue(): string
     {
-        return $this->queueName;
+        return $this->queue;
+    }
+
+    public function setQueue(string $queueName): void
+    {
+        $this->queue = $queueName;
     }
 
     public function getReplyTo(): string
@@ -44,19 +65,23 @@ class Route
         return $this->replyTo;
     }
 
-    public static function fromArray(array $route): Route
+    public function setReplyTo(string $replyTo): void
     {
-        list('name' => $jobName, 'queue' => $queue, 'reply' => $replyTo) = $route;
+        $this->replyTo = $replyTo;
+    }
 
-        return new self($jobName, $queue, $replyTo);
+    public static function fromArray(array $rawRoute): Route
+    {
+        return new static($rawRoute['name'], $rawRoute['queue'] ?? null, $rawRoute['replyTo'] ?? null);
     }
 
     public function toArray(): array
     {
-        return [
-            'name' => $this->jobName,
-            'queue' => $this->queueName,
-            'reply' => $this->replyTo,
-        ];
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode((object) $this->toArray());
     }
 }

@@ -3,7 +3,7 @@
 namespace Abc\Job\Model;
 
 use Abc\Job\Job;
-use Abc\Job\Filter;
+use Abc\Job\JobFilter;
 
 interface JobManagerInterface
 {
@@ -17,7 +17,7 @@ interface JobManagerInterface
 
     public function find(string $id): ?JobInterface;
 
-    public function findBy(Filter $filter = null) : array;
+    public function findBy(JobFilter $filter = null) : array;
 
     public static function fromArray(JobInterface $job, array $data): JobInterface;
 }

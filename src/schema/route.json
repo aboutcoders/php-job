@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "name": {
+      "type": "string",
+      "title": "The name of a job",
+      "pattern": "^[a-zA-z0-9._-]+$",
+      "minLength": 3,
+      "maxLength": 20
+    },
+    "queue": {
+      "type": "string",
+      "title": "The name of a queue",
+      "pattern": "^[a-z0-9._]+$",
+      "minLength": 3,
+      "maxLength": 20
+    },
+    "route": {
+      "type": "object",
+      "required": [
+        "name",
+        "queue",
+        "replyTo"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/name"
+        },
+        "queue": {
+          "$ref": "#/definitions/queue"
+        },
+        "replyTo": {
+          "$ref": "#/definitions/queue"
+        }
+      },
+      "additionalProperties": false
+    },
+    "route_collection": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/route",
+        "minItems": 1
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/route"
+    },
+    {
+      "$ref": "#/definitions/route_collection"
+    }
+  ]
+}

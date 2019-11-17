@@ -2,7 +2,10 @@
 
 namespace Abc\Job\Tests\Validator;
 
-use Abc\Job\Filter;
+use Abc\Job\Broker\Route;
+use Abc\Job\CronJob;
+use Abc\Job\InvalidJsonException;
+use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Type;
 use Abc\Job\Validator;
@@ -19,6 +22,19 @@ class ValidatorTest extends TestCase
     public function setUp(): void
     {
         $this->subject = new Validator();
+    }
+
+    public function testValidWithInvalidClass()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->subject->validate('json', \stdClass::class);
+    }
+
+    public function testWithInvalidJson() {
+
+        $this->expectException(InvalidJsonException::class);
+
+        $this->subject->validate('json', Job::class);
     }
 
     /**
@@ -42,6 +58,26 @@ class ValidatorTest extends TestCase
     }
 
     /**
+     * @dataProvider provideValidCronJob
+     */
+    public function testValidCronJob($job)
+    {
+        $json = json_encode($job);
+        $errors = $this->subject->validate($json, CronJob::class);
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideInvalidCronJob
+     */
+    public function testInvalidCronJob($job)
+    {
+        $json = json_encode($job);
+        $errors = $this->subject->validate($json, CronJob::class);
+        $this->assertNotEmpty($errors);
+    }
+
+    /**
      * @param string $queryString
      * @dataProvider provideValidFilter
      */
@@ -50,7 +86,7 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, Filter::class);
+        $errors = $this->subject->validate($json, JobFilter::class);
         $this->assertEmpty($errors);
     }
 
@@ -63,7 +99,27 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, Filter::class);
+        $errors = $this->subject->validate($json, JobFilter::class);
+        $this->assertNotEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideValidRoute
+     */
+    public function testValidRoute($route)
+    {
+        $json = json_encode($route);
+        $errors = $this->subject->validate($json, Route::class);
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * @dataProvider provideInvalidRoute
+     */
+    public function testInvalidRoute($route)
+    {
+        $json = json_encode($route);
+        $errors = $this->subject->validate($json, Route::class);
         $this->assertNotEmpty($errors);
     }
 
@@ -241,6 +297,202 @@ class ValidatorTest extends TestCase
         ];
     }
 
+    public static function provideValidCronJob(): array
+    {
+        return [
+            #0
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                ],
+            ],
+            #1
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::SEQUENCE(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                    ],
+                ],
+            ],
+            #2
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                            'input' => 'valid',
+                            'allowFailure' => false,
+                            'externalId' => Uuid::uuid4(),
+                        ],
+                    ],
+                ],
+            ],
+            #3
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'input' => 'valid',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::SEQUENCE(),
+                            'children' => [
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                            ],
+                        ],
+                        (object) [
+                            'type' => (string) Type::BATCH(),
+                            'children' => [
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                                (object) [
+                                    'type' => (string) Type::JOB(),
+                                    'name' => 'valid',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public static function provideInvalidCronJob(): array
+    {
+        return [
+            #0
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                ],
+            ],
+            #1
+            [
+                (object) [
+                    'name' => 'valid',
+                ],
+            ],
+            #2
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                ],
+            ],
+            #3
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => str_repeat('a', 2),
+                ],
+            ],
+            #4
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => str_repeat('a', 21),
+                ],
+            ],
+            #5
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                ],
+            ],
+            #6
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::SEQUENCE(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #7
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #8
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+
+        ];
+    }
+
     public static function provideValidFilter(): array
     {
         return [
@@ -280,6 +532,133 @@ class ValidatorTest extends TestCase
             [http_build_query(['name' => ['aa', 'bb']])],
             ['status=undefined'],
             [http_build_query(['status' => ['undefined']])],
+        ];
+    }
+
+    public function provideValidRoute(): array
+    {
+        return [
+            [
+                (object) [
+                    'name' => 'abc',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'a.bc',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'a.b1',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'aA.-_1',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'a.b_c',
+                    'queue' => 'abc',
+                    'replyTo' => 'abc',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => str_repeat('a', 20),
+                    'queue' => str_repeat('a', 20),
+                    'replyTo' => str_repeat('a', 20),
+                ],
+            ],
+            [
+                [
+                    (object) [
+                        'name' => str_repeat('a', 20),
+                        'queue' => str_repeat('a', 20),
+                        'replyTo' => str_repeat('a', 20),
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function provideInvalidRoute(): array
+    {
+        return [
+            [
+                (object) [
+                    'name' => 'name',
+                ],
+            ],
+            [
+                (object) [
+                    'queue' => 'queue',
+                ],
+            ],
+            [
+                (object) [
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'name',
+                    'queue' => 'queue',
+                ],
+            ],
+            [
+                (object) [
+                    'queue' => 'queue',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'name',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'jo',
+                    'queue' => 'queue',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'job',
+                    'queue' => 'aa',
+                    'replyTo' => 'replyTo',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => 'abc',
+                    'queue' => 'abc',
+                    'replyTo' => 'ab',
+                ],
+            ],
+            [
+                (object) [
+                    'name' => str_repeat('a', 21),
+                    'queue' => str_repeat('a', 21),
+                    'replyTo' => str_repeat('a', 21),
+                ],
+            ],
+            [
+                (object) [],
+            ],
         ];
     }
 }

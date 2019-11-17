@@ -16,30 +16,14 @@ class AmqpDriver extends GenericDriver
         parent::__construct($context, ...$args);
     }
 
-    public function setupBroker(LoggerInterface $logger = null): void
+    public function declareQueue(string $queueName, LoggerInterface $logger = null): void
     {
         $logger = $logger ?: new NullLogger();
-        $log = function ($text, ...$args) use ($logger) {
-            $logger->debug(sprintf('[AmqpDriver] '.$text, ...$args));
-        };
 
-        $queues = [];
-        $replyQueues = [];
-        foreach ($this->getRouteCollection()->all() as $route) {
-            $queues[] = $route->getQueueName();
-            $replyQueues[] = $route->getReplyTo();
-        }
+        $queue = $this->getContext()->createQueue($queueName);
 
-        foreach (array_unique($queues) as $queueName) {
-            $queue = $this->createQueue($queueName);
-            $log('Declare queue: %s', $queue->getQueueName());
-            $this->getContext()->declareQueue($queue);
-        }
+        $this->getContext()->declareQueue($queue);
 
-        foreach (array_unique($replyQueues) as $queueName) {
-            $queue = $this->createQueue($queueName);
-            $log('Declare reply queue: %s', $queue->getQueueName());
-            $this->getContext()->declareQueue($queue);
-        }
+        $logger->notice(sprintf('[AmqpDriver] Declared queue: %s', $queueName));
     }
 }

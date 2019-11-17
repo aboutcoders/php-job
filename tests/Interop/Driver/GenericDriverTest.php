@@ -4,8 +4,9 @@ namespace Abc\Job\Tests\Interop\Driver;
 
 use Abc\Job\Broker\Config;
 use Abc\Job\Broker\Route;
-use Abc\Job\Broker\RouteCollection;
+use Abc\Job\Broker\ManagedRouteRegistry;
 use Abc\Job\Interop\Driver\GenericDriver;
+use Abc\Job\NoRouteException;
 use Interop\Queue\Context;
 use Interop\Queue\Message;
 use Interop\Queue\Producer;
@@ -22,14 +23,9 @@ class GenericDriverTest extends TestCase
     private $contextMock;
 
     /**
-     * @var Config
+     * @var ManagedRouteRegistry
      */
-    private $config;
-
-    /**
-     * @var RouteCollection
-     */
-    private $routeCollection;
+    private $routeRegistry;
 
     /**
      * @var GenericDriver
@@ -39,61 +35,56 @@ class GenericDriverTest extends TestCase
     public function setUp(): void
     {
         $this->contextMock = $this->createMock(Context::class);
-        $this->config = new Config('some.prefix', '_', 'default_queue_name', 'default_replyto_name');
-
-        $route_A = new Route('jobNameA', 'queuename', 'replya');
-
-        $this->routeCollection = new RouteCollection([$route_A]);
+        $this->routeRegistry = $this->createMock(ManagedRouteRegistry::class);
 
         $this->subject = $this->getMockForAbstractClass(GenericDriver::class, [
             $this->contextMock,
-            $this->config,
-            $this->routeCollection,
+            $this->routeRegistry,
             new NullLogger(),
         ]);
     }
 
     public function testSendMessageWithRoute()
     {
+        $route = new Route('jobName', 'queueName', 'replyTo');
+
+        $this->routeRegistry->expects($this->once())->method('get')->with('jobName')->willReturn($route);
+
         $message = $this->createMock(Message::class);
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME)->willReturn('jobNameA');
-        $message->expects($this->once())->method('setReplyTo')->with('some.prefix_replya');
+        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn('jobName');
+        $message->expects($this->once())->method('setReplyTo')->with('replyTo');
 
         $queue = $this->createMock(Queue::class);
         $producer = $this->createMock(Producer::class);
 
-        $this->contextMock->expects($this->once())->method('createQueue')->with('some.prefix_queuename')->willReturn($queue);
+        $this->contextMock->expects($this->once())->method('createQueue')->with('queueName')->willReturn($queue);
         $this->contextMock->expects($this->once())->method('createProducer')->willReturn($producer);
 
         $producer->expects($this->once())->method('send')->with($queue, $message);
 
         $this->subject->sendMessage($message);
     }
-
 
     public function testSendMessageWithoutRoute()
     {
         $message = $this->createMock(Message::class);
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME)->willReturn('undefined');
-        $message->expects($this->once())->method('setReplyTo')->with('some.prefix_default_replyto_name');
+        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn('undefined');
 
-        $queue = $this->createMock(Queue::class);
-        $producer = $this->createMock(Producer::class);
+        $this->routeRegistry->expects($this->once())->method('get')->with('undefined')->willReturn(null);
 
-        $this->contextMock->expects($this->once())->method('createQueue')->with('some.prefix_default_queue_name')->willReturn($queue);
-        $this->contextMock->expects($this->once())->method('createProducer')->willReturn($producer);
-
-        $producer->expects($this->once())->method('send')->with($queue, $message);
+        $this->expectException(NoRouteException::class);
 
         $this->subject->sendMessage($message);
     }
 
-    public function testCreateQueue()
+    public function testSendMessageWithMissingHeader()
     {
-        $queue = $this->createMock(Queue::class);
+        $message = $this->createMock(Message::class);
 
-        $this->contextMock->expects($this->once())->method('createQueue')->with('some.prefix_queuename')->willReturn($queue);
+        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn(false);
 
-        $this->assertSame($queue, $this->subject->createQueue('queueName'));
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->subject->sendMessage($message);
     }
 }

@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 class ReplyProcessor
 {
     /**
-     * @var Server
+     * @var JobServer
      */
     private $jobServer;
 
@@ -25,7 +25,7 @@ class ReplyProcessor
      */
     private $logger;
 
-    public function __construct(Server $jobServer, JobManagerInterface $jobManager, LoggerInterface $logger)
+    public function __construct(JobServer $jobServer, JobManagerInterface $jobManager, LoggerInterface $logger)
     {
         $this->jobServer = $jobServer;
         $this->jobManager = $jobManager;
@@ -33,6 +33,8 @@ class ReplyProcessor
     }
 
     /**
+     * @param string $jobId
+     * @param Reply $reply
      * @throws NotFoundException
      */
     public function process(string $jobId, Reply $reply): void

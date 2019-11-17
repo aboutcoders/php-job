@@ -47,17 +47,6 @@ class ReplyTest extends TestCase
         $this->assertEquals($status, $reply->getStatus());
     }
 
-    /**
-     * @param string $invalidJson
-     * @dataProvider provideInvalidJson
-     */
-    public function testFromJsonWithInvalidJson(string $invalidJson)
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        Reply::fromJson($invalidJson);
-    }
-
     public static function provideValidJson(): array
     {
         return [
