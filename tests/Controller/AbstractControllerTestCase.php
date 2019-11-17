@@ -3,6 +3,7 @@
 namespace Abc\Job\Tests\Controller;
 
 use Abc\Job\Controller\JobController;
+use Abc\Job\Result;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
@@ -76,5 +77,20 @@ abstract class AbstractControllerTestCase extends TestCase
         $this->assertEquals(404, $data['status']);
         $this->assertEquals(sprintf('Job with id "%s" not found', $id), $data['detail']);
         $this->assertEquals('requestUri', $data['instance']);
+    }
+
+    protected function assertJsonResult(Result $result, array $data)
+    {
+        $this->assertEquals($data['id'], $result->getId());
+        $this->assertEquals($data['type'], $result->getType());
+        $this->assertEquals($data['name'], $result->getName());
+        $this->assertEquals($data['status'], $result->getStatus());
+        $this->assertEquals($data['input'], $result->getInput());
+        $this->assertEquals($data['output'], $result->getOutput());
+        $this->assertEquals($data['processingTime'], $result->getProcessingTime());
+        $this->assertEquals($data['externalId'], $result->getExternalId());
+        $this->assertEquals($data['completed'], '1970-01-01T00:00:10+00:00');
+        $this->assertEquals($data['updated'], '1970-01-01T00:01:40+00:00');
+        $this->assertEquals($data['created'], '1970-01-01T00:16:40+00:00');
     }
 }

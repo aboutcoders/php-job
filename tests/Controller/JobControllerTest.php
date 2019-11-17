@@ -319,19 +319,4 @@ class JobControllerTest extends AbstractControllerTestCase
 
         return $job;
     }
-
-    private function assertJsonResult(Result $result, array $data)
-    {
-        $this->assertEquals($data['id'], $result->getId());
-        $this->assertEquals($data['type'], $result->getType());
-        $this->assertEquals($data['name'], $result->getName());
-        $this->assertEquals($data['status'], $result->getStatus());
-        $this->assertEquals($data['input'], $result->getInput());
-        $this->assertEquals($data['output'], $result->getOutput());
-        $this->assertEquals($data['processingTime'], $result->getProcessingTime());
-        $this->assertEquals($data['externalId'], $result->getExternalId());
-        $this->assertEquals($data['completed'], '1970-01-01T00:00:10+00:00');
-        $this->assertEquals($data['updated'], '1970-01-01T00:01:40+00:00');
-        $this->assertEquals($data['created'], '1970-01-01T00:16:40+00:00');
-    }
 }

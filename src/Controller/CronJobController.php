@@ -5,7 +5,10 @@ namespace Abc\Job\Controller;
 use Abc\Job\CronJob;
 use Abc\Job\CronJobFilter;
 use Abc\Job\CronJobManager;
+use Abc\Job\JobFilter;
+use Abc\Job\JobServerInterface;
 use Abc\Job\Util\CronJobArray;
+use Abc\Job\Util\ResultArray;
 use Abc\Job\ValidatorInterface;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +23,11 @@ class CronJobController extends AbstractController
     private $cronJobManager;
 
     /**
+     * @var JobServerInterface
+     */
+    private $jobServer;
+
+    /**
      * @var ValidatorInterface
      */
     private $validator;
@@ -31,10 +39,12 @@ class CronJobController extends AbstractController
 
     public function __construct(
         CronJobManager $scheduleManager,
+        JobServerInterface $jobServer,
         ValidatorInterface $validator,
         LoggerInterface $logger
     ) {
         $this->cronJobManager = $scheduleManager;
+        $this->jobServer = $jobServer;
         $this->validator = $validator;
         $this->logger = $logger;
     }
@@ -140,6 +150,62 @@ class CronJobController extends AbstractController
             }
 
             return new Response(200, static::$headers_ok, $managedCronJob->toJson());
+        }, $requestUri, $this->logger);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/cronjob/{id}/results",
+     *     tags={"CronJob"},
+     *     description="Returns the results of a cronjob",
+     *     @OA\Parameter(
+     *         description="The unique id of the cronjob",
+     *         in="path",
+     *         name="id",
+     *         required=true,
+     *         @OA\Schema(
+     *             ref="#components/schemas/CronJob/properties/id"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Result")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *          response=404,
+     *          description="In case a cronjob with the given id is not found",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     *
+     * @param string $id
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
+    public function results($id, string $requestUri): ResponseInterface
+    {
+        return $this->call(function () use ($id, $requestUri) {
+
+            $managedCronJob = $this->cronJobManager->find($id);
+            if (null === $managedCronJob) {
+                return $this->createNotFoundResponse($id, $requestUri);
+            }
+
+            $filter = new JobFilter();
+            $filter->setExternalIds([$id]);
+
+            $results = $this->jobServer->list($filter);
+
+            return new Response(200, static::$headers_ok, ResultArray::toJson($results));
         }, $requestUri, $this->logger);
     }
 
