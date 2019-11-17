@@ -30,8 +30,8 @@ class ValidatorTest extends TestCase
         $this->subject->validate('json', \stdClass::class);
     }
 
-    public function testWithInvalidJson() {
-
+    public function testWithInvalidJson()
+    {
         $this->expectException(InvalidJsonException::class);
 
         $this->subject->validate('json', Job::class);
@@ -43,8 +43,11 @@ class ValidatorTest extends TestCase
     public function testValidJob($job)
     {
         $json = json_encode($job);
+
         $errors = $this->subject->validate($json, Job::class);
         $this->assertEmpty($errors);
+
+        $job = Job::fromJson($json);
     }
 
     /**
@@ -126,14 +129,30 @@ class ValidatorTest extends TestCase
     public static function provideValidJob(): array
     {
         return [
-            #0
+            #0 minimal job
             [
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
                 ],
             ],
-            #1
+            #1 minimal sequence
+            [
+                (object) [
+                    'type' => (string) Type::SEQUENCE(),
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #2
             [
                 (object) [
                     'type' => (string) Type::SEQUENCE(),
@@ -158,7 +177,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #2
+            #3
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
@@ -183,7 +202,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #3
+            #4
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
