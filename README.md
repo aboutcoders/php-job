@@ -29,7 +29,7 @@ composer require abc/job
 
 ## Demo
 
-Please take a look at [here](https://gitlab.com/hasc/job-docker-compose) and start a demo application based on docker-compose in a couple of minutes.
+You can find a demo [here](https://gitlab.com/hasc/abc-job-demo/).
 
 ## License
 
