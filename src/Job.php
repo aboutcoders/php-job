@@ -162,10 +162,12 @@ class Job
 
     public static function fromArray(array $data): Job
     {
-        foreach (['type', 'name'] as $property) {
-            if (! isset($data[$property])) {
-                throw new \InvalidArgumentException(sprintf('The property "%s" must be set', $property));
-            }
+        if (! isset($data['type'])) {
+            throw new \InvalidArgumentException(sprintf('The property "%s" must be set', 'type'));
+        }
+
+        if ((string) Type::JOB() === $data['type'] && ! isset($data['name'])) {
+            throw new \InvalidArgumentException(sprintf('The property "%s" must be set', 'name'));
         }
 
         $children = [];
