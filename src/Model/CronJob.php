@@ -4,17 +4,24 @@ namespace Abc\Job\Model;
 
 use Abc\Job\Job;
 use Abc\Job\Util\DateUtil;
-use Abc\Scheduler\Model\ScheduleTrait;
 use DateTime;
 
 class CronJob implements CronJobInterface
 {
-    use ScheduleTrait;
-
     /**
      * @var string|null
      */
     protected $id;
+
+    /**
+     * @var string|null
+     */
+    protected $schedule;
+
+    /**
+     * @var int|null
+     */
+    protected $scheduledTime;
 
     /**
      * @var \Abc\Job\Job|null
@@ -69,6 +76,21 @@ class CronJob implements CronJobInterface
         }
 
         return $this->schedule;
+    }
+
+    public function setSchedule(string $schedule): void
+    {
+        $this->schedule = $schedule;
+    }
+
+    public function setScheduledTime(int $timestamp): void
+    {
+        $this->scheduledTime = $timestamp;
+    }
+
+    public function getScheduledTime(): ?int
+    {
+        return $this->scheduledTime;
     }
 
     public function getJob(): Job
