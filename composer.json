@@ -18,6 +18,7 @@
   "require": {
     "php": "^7.2",
     "psr/log": "^1.1",
+    "symfony/property-access": "^4.3|^5",
     "guzzlehttp/guzzle": "^6.0",
     "justinrainbow/json-schema": "^5.0",
     "myclabs/php-enum": "^1.6",
@@ -29,7 +30,7 @@
     "phpunit/phpunit": "^7.0",
     "symfony/config": "^4.3|^5",
     "symfony/console": "^4.3|^5",
-    "symfony/property-access": "^4.3|^5",
+
     "doctrine/collections": "^1.6",
     "doctrine/orm": "^2.6",
     "enqueue/amqp-bunny": "^0.10",
