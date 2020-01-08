@@ -5,6 +5,7 @@ namespace Abc\Job\Model;
 use Abc\Job\Job;
 use Abc\Job\Status;
 use Abc\Job\Type;
+use Abc\Job\Util\DateUtil;
 use LogicException;
 
 abstract class JobManager implements JobManagerInterface
@@ -58,9 +59,9 @@ abstract class JobManager implements JobManagerInterface
         $job->setAllowFailure($data['allowFailure'] ?? false);
         $job->setProcessingTime($data['processingTime'] ?? 0);
         $job->setExternalId($data['externalId'] ?? null);
-        $job->setCreatedAt(! isset($data['created']) ? null : static::createDate(strtotime($data['created'])));
-        $job->setCompletedAt(! isset($data['completed']) ? null : static::createDate(strtotime($data['completed'])));
-        $job->setUpdatedAt(! isset($data['updated']) ? null : static::createDate(strtotime($data['updated'])));
+        $job->setCreatedAt(! isset($data['created']) ? null : DateUtil::createDate(strtotime($data['created'])));
+        $job->setCompletedAt(! isset($data['completed']) ? null : DateUtil::createDate(strtotime($data['completed'])));
+        $job->setUpdatedAt(! isset($data['updated']) ? null : DateUtil::createDate(strtotime($data['updated'])));
 
         if (isset($data['children'])) {
             foreach ($data['children'] as $childArray) {
@@ -69,10 +70,5 @@ abstract class JobManager implements JobManagerInterface
         }
 
         return $job;
-    }
-
-    protected static function createDate(int $timestamp): \DateTime
-    {
-        return new \DateTime('@'.$timestamp, new \DateTimeZone('UTC'));
     }
 }

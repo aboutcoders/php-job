@@ -8,4 +8,10 @@ class CronJobFilter
     {
         return new static();
     }
+
+    public function toQueryParams(): array
+    {
+        // fixme: to be implemented
+        return [];
+    }
 }

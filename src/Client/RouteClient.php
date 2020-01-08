@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 class RouteClient extends AbstractClient
 {
     /**
-     * @var HttpRouteClient
+     * @var RouteHttpClient
      */
     private $client;
 
@@ -18,7 +18,7 @@ class RouteClient extends AbstractClient
      */
     private $logger;
 
-    public function __construct(HttpRouteClient $client, LoggerInterface $logger)
+    public function __construct(RouteHttpClient $client, LoggerInterface $logger)
     {
         $this->client = $client;
         $this->logger = $logger;

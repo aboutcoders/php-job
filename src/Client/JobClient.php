@@ -12,11 +12,11 @@ use Abc\Job\Util\ResultArray;
 class JobClient extends AbstractClient implements JobServerInterface
 {
     /**
-     * @var HttpJobClient
+     * @var JobHttpClient
      */
     private $client;
 
-    public function __construct(HttpJobClient $client)
+    public function __construct(JobHttpClient $client)
     {
         $this->client = $client;
     }

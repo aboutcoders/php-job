@@ -2,13 +2,13 @@
 
 namespace Abc\Job\Tests\Client;
 
-use Abc\Job\Client\HttpRouteClient;
+use Abc\Job\Client\RouteHttpClient;
 use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-class HttpRouteClientTest extends TestCase
+class RouteHttpClientTest extends TestCase
 {
     /**
      * @var ClientInterface|MockObject
@@ -16,7 +16,7 @@ class HttpRouteClientTest extends TestCase
     private $clientMock;
 
     /**
-     * @var HttpRouteClient
+     * @var RouteHttpClient
      */
     private $subject;
 
@@ -26,7 +26,7 @@ class HttpRouteClientTest extends TestCase
     {
         $this->clientMock = $this->createMock(ClientInterface::class);
 
-        $this->subject = new HttpRouteClient('http://domain.tld/path/', $this->clientMock);
+        $this->subject = new RouteHttpClient('http://domain.tld/path/', $this->clientMock);
 
         $this->defaultHeaders = [
             'base_uri' => 'http://domain.tld/path',

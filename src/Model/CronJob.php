@@ -3,6 +3,7 @@
 namespace Abc\Job\Model;
 
 use Abc\Job\Job;
+use Abc\Job\Util\DateUtil;
 use Abc\Scheduler\Model\ScheduleTrait;
 use DateTime;
 
@@ -117,9 +118,19 @@ class CronJob implements CronJobInterface
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): void
+    public function getCreated(): ?DateTime
+    {
+        return $this->getCreatedAt();
+    }
+
+    public function setCreatedAt(?DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getUpdated(): ?DateTime
+    {
+        return $this->getUpdatedAt();
     }
 
     public function getUpdatedAt(): ?DateTime
@@ -127,7 +138,7 @@ class CronJob implements CronJobInterface
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(?DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -162,7 +173,12 @@ class CronJob implements CronJobInterface
         $schedule = $data['schedule'];
         unset($data['schedule']);
 
-        return static::create($schedule, Job::fromArray($data));
+        $cronJob = static::create($schedule, Job::fromArray($data));
+        $cronJob->setId($data['id'] ?? null);
+        $cronJob->setCreatedAt(! isset($data['created']) ? null : DateUtil::createDate(strtotime($data['created'])));
+        $cronJob->setUpdatedAt(! isset($data['updated']) ? null : DateUtil::createDate(strtotime($data['updated'])));
+
+        return $cronJob;
     }
 
     public function toArray(): array
@@ -170,8 +186,8 @@ class CronJob implements CronJobInterface
         $data = [
             'id' => $this->getId(),
             'schedule' => $this->getSchedule(),
-            'updated' => null == $this->getUpdatedAt() ? null : $this->getUpdatedAt()->format('c'),
-            'created' => null == $this->getCreatedAt() ? null : $this->getCreatedAt()->format('c'),
+            'updated' => null == $this->getUpdated() ? null : $this->getUpdated()->format('c'),
+            'created' => null == $this->getCreated() ? null : $this->getCreated()->format('c'),
         ];
 
         $data = array_merge(array_flip([

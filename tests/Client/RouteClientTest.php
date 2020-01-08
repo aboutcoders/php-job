@@ -4,7 +4,7 @@ namespace Abc\Job\Tests\Client;
 
 use Abc\ApiProblem\ApiProblemException;
 use Abc\Job\Broker\Route;
-use Abc\Job\Client\HttpRouteClient;
+use Abc\Job\Client\RouteHttpClient;
 use Abc\Job\Client\RouteClient;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -13,7 +13,7 @@ use Psr\Log\NullLogger;
 class RouteClientTest extends AbstractClientTestCase
 {
     /**
-     * @var HttpRouteClient|MockObject
+     * @var RouteHttpClient|MockObject
      */
     private $httpClientMock;
 
@@ -24,7 +24,7 @@ class RouteClientTest extends AbstractClientTestCase
 
     public function setUp(): void
     {
-        $this->httpClientMock = $this->createMock(HttpRouteClient::class);
+        $this->httpClientMock = $this->createMock(RouteHttpClient::class);
 
         $this->subject = new RouteClient($this->httpClientMock, new NullLogger());
     }

@@ -2,13 +2,13 @@
 
 namespace Abc\Job\Tests\Client;
 
-use Abc\Job\Client\HttpJobClient;
+use Abc\Job\Client\JobHttpClient;
 use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-class HttpJobClientTest extends TestCase
+class JobHttpClientTest extends TestCase
 {
     /**
      * @var ClientInterface|MockObject
@@ -16,7 +16,7 @@ class HttpJobClientTest extends TestCase
     private $clientMock;
 
     /**
-     * @var HttpJobClient
+     * @var JobHttpClient
      */
     private $subject;
 
@@ -26,7 +26,7 @@ class HttpJobClientTest extends TestCase
     {
         $this->clientMock = $this->createMock(ClientInterface::class);
 
-        $this->subject = new HttpJobClient('http://domain.tld/job/', $this->clientMock);
+        $this->subject = new JobHttpClient('http://domain.tld/job/', $this->clientMock);
 
         $this->defaultHeaders = [
             'base_uri' => 'http://domain.tld/job',

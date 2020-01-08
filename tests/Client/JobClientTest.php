@@ -3,7 +3,7 @@
 namespace Abc\Job\Tests\Client;
 
 use Abc\ApiProblem\ApiProblemException;
-use Abc\Job\Client\HttpJobClient;
+use Abc\Job\Client\JobHttpClient;
 use Abc\Job\Client\JobClient;
 use Abc\Job\JobFilter;
 use Abc\Job\Job;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 class JobClientTest extends AbstractClientTestCase
 {
     /**
-     * @var HttpJobClient|MockObject
+     * @var JobHttpClient|MockObject
      */
     private $httpClientMock;
 
@@ -27,7 +27,7 @@ class JobClientTest extends AbstractClientTestCase
 
     public function setUp(): void
     {
-        $this->httpClientMock = $this->createMock(HttpJobClient::class);
+        $this->httpClientMock = $this->createMock(JobHttpClient::class);
 
         $this->subject = new JobClient($this->httpClientMock);
     }

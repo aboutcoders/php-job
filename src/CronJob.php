@@ -69,7 +69,7 @@ interface CronJob
 
     public function setJob(Job $job): void;
 
-    public function getCreatedAt(): ?\DateTime;
+    public function getCreated(): ?\DateTime;
 
-    public function getUpdatedAt(): ?\DateTime;
+    public function getUpdated(): ?\DateTime;
 }

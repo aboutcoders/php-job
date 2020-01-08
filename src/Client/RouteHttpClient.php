@@ -4,7 +4,7 @@ namespace Abc\Job\Client;
 
 use Psr\Http\Message\ResponseInterface;
 
-class HttpRouteClient extends AbstractHttpClient
+class RouteHttpClient extends AbstractHttpClient
 {
     private static $endpoint = 'route';
 
