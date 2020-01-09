@@ -18,7 +18,7 @@
   "require": {
     "php": "^7.2",
     "psr/log": "^1.1",
-    "symfony/property-access": "^4.3|^5",
+    "symfony/property-access": "^3.4|^4.3|^5",
     "guzzlehttp/guzzle": "^6.0",
     "justinrainbow/json-schema": "^5.0",
     "myclabs/php-enum": "^1.6",
