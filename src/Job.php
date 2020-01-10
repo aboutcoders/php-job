@@ -85,8 +85,8 @@ class Job
             throw new \InvalidArgumentException(sprintf('Type %s cannot have children', $type));
         }
 
-        if (Type::JOB() != $type && 1 >= count($children)) {
-            throw new \InvalidArgumentException(sprintf('Type %s expects at least two children, given has %s', $type, count($children) == 0 ? 'zero' : 'one'));
+        if (Type::JOB() != $type && empty($children)) {
+            throw new \InvalidArgumentException(sprintf('Type %s expects at least one child', $type));
         }
 
         foreach ($children as $child) {

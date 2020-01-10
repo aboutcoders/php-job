@@ -90,7 +90,7 @@
               }
             ]
           },
-          "minItems": 2
+          "minItems": 1
         }
       },
       "additionalProperties": false

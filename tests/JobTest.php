@@ -33,7 +33,7 @@ class JobTest extends TestCase
     /**
      * @dataProvider provideInvalidCollection
      */
-    public function testThrowsExceptionOnInvalidSequence($type, $children)
+    public function testThrowsExceptionOnInvalidCollection($type, $children)
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -77,9 +77,7 @@ class JobTest extends TestCase
     {
         return [
             [Type::SEQUENCE(), []],
-            [Type::SEQUENCE(), [['type' => Type::JOB(), 'name' => 'name1']]],
             [Type::BATCH(), []],
-            [Type::BATCH(), [['type' => Type::JOB(), 'name' => 'name1']]],
         ];
     }
 

@@ -145,6 +145,14 @@ class ValidatorTest extends TestCase
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                         ],
+                    ],
+                ],
+            ],
+            #2 minimal batch
+            [
+                (object) [
+                    'type' => (string) Type::BATCH(),
+                    'children' => [
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
@@ -152,7 +160,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #2
+            #3
             [
                 (object) [
                     'type' => (string) Type::SEQUENCE(),
@@ -177,7 +185,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #3
+            #4
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
@@ -202,7 +210,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #4
+            #5
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
@@ -272,30 +280,6 @@ class ValidatorTest extends TestCase
                 ],
             ],
             #4
-            [
-                (object) [
-                    'type' => (string) Type::SEQUENCE(),
-                    'children' => [
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
-                    ],
-                ],
-            ],
-            #5
-            [
-                (object) [
-                    'type' => (string) Type::BATCH(),
-                    'children' => [
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
-                    ],
-                ],
-            ],
-            #6
             [
                 (object) [
                     'type' => (string) Type::JOB(),
