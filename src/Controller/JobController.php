@@ -3,15 +3,16 @@
 namespace Abc\Job\Controller;
 
 use Abc\ApiProblem\ApiProblem;
-use Abc\Job\JobFilter;
 use Abc\Job\Job;
+use Abc\Job\JobFilter;
 use Abc\Job\JobServerInterface;
+use Abc\Job\NoRouteException;
 use Abc\Job\Util\ResultArray;
 use Abc\Job\ValidatorInterface;
 use GuzzleHttp\Psr7\Response;
+use OpenApi\Annotations as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use OpenApi\Annotations as OA;
 
 /**
  * @OA\Info(title="Job API", version="0.1")
@@ -219,7 +220,13 @@ class JobController extends AbstractController
 
             $job = Job::fromJson($json);
 
-            $result = $this->server->process($job);
+            try {
+                $result = $this->server->process($job);
+            } catch (NoRouteException $e) {
+                $apiProblem = new ApiProblem(static::buildTypeUrl('no-route'), 'Route not found', 400, sprintf("No route for job '%s' found", $job->getName()), $requestUri);
+
+                return $this->createProblemResponse($apiProblem);
+            }
 
             return new Response(201, static::$headers_ok, $result->toJson());
         }, $requestUri, $this->logger);
