@@ -30,7 +30,6 @@
     "phpunit/phpunit": "^7.0",
     "symfony/config": "^4.3|^5",
     "symfony/console": "^4.3|^5",
-
     "doctrine/collections": "^1.6",
     "doctrine/orm": "^2.6",
     "enqueue/amqp-bunny": "^0.10",

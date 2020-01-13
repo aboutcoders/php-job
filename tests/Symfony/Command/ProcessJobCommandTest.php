@@ -37,7 +37,6 @@ class ProcessJobCommandTest extends TestCase
      */
     private $consumeCommandInputDefinition;
 
-
     /**
      * @var ProcessJobCommand
      */
@@ -57,7 +56,8 @@ class ProcessJobCommandTest extends TestCase
         $this->subject = new ProcessJobCommand($this->processorRegistryMock, $this->routeClientMock, $this->jobConsumerMock, $this->consumeCommandMock);
     }
 
-    public function testGetName() {
+    public function testGetName()
+    {
         $this->assertSame('abc:process:job', $this->subject->getName());
     }
 }

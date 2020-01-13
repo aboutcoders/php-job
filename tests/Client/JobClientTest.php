@@ -50,7 +50,7 @@ class JobClientTest extends AbstractClientTestCase
     public function testListWithFilter()
     {
         $filter = new JobFilter();
-        $filter->setNames(['foo']);
+        $filter->setNames(['jobA', 'jobB']);
 
         $result = new Result(JobProvider::createJob());
 
@@ -58,7 +58,7 @@ class JobClientTest extends AbstractClientTestCase
 
         $response = new Response(200, [], $json);
 
-        $this->httpClientMock->expects($this->once())->method('list')->with(['name' => 'foo'])->willReturn($response);
+        $this->httpClientMock->expects($this->once())->method('list')->with(['names' => 'jobA,jobB'])->willReturn($response);
 
         $this->assertEquals([$result], $this->subject->list($filter));
     }

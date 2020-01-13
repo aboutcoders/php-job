@@ -94,7 +94,6 @@ class JobFilter
      */
     private $externalIds;
 
-
     /**
      * @OA\Parameter(
      *     description="If true, the endpoint only returns the latest job",
@@ -121,7 +120,7 @@ class JobFilter
      *     )
      * )
      *
-     * @var int
+     * @var int|null
      */
     private $offset;
 
@@ -136,10 +135,9 @@ class JobFilter
      *     )
      * )
      *
-     * @var int
+     * @var int|null
      */
     private $limit;
-
 
     public function __construct()
     {
@@ -147,6 +145,91 @@ class JobFilter
         $this->names = [];
         $this->status = [];
         $this->externalIds = [];
+    }
+
+    public function getIds(): array
+    {
+        return $this->ids;
+    }
+
+    public function setIds(array $ids): void
+    {
+        $this->ids = $ids;
+    }
+
+    public function getNames(): array
+    {
+        return $this->names;
+    }
+
+    public function setNames(array $names): void
+    {
+        $this->names = $names;
+    }
+
+    public function addName(string $name): void
+    {
+        $this->names[] = $name;
+    }
+
+    public function getStatus(): array
+    {
+        return $this->status;
+    }
+
+    public function setStatus(array $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function addStatus(string $status): void
+    {
+        $this->status[] = $status;
+    }
+
+    public function getExternalIds(): array
+    {
+        return $this->externalIds;
+    }
+
+    public function setExternalIds(array $externalIds): void
+    {
+        $this->externalIds = $externalIds;
+    }
+
+    public function addExternalId(string $externalId): void
+    {
+        $this->externalIds[] = $externalId;
+    }
+
+    public function getOffset(): ?int
+    {
+        return $this->offset;
+    }
+
+    public function setOffset(?int $offset): void
+    {
+        $this->offset = $offset;
+    }
+
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    public function setLimit(?int $limit): void
+    {
+        $this->limit = $limit;
+    }
+
+    public function isLatest(): bool
+    {
+        return $this->latest;
+    }
+
+    public function setLatest(bool $latest): void
+    {
+        $this->latest = $latest;
     }
 
     public static function fromQueryString(?string $query): JobFilter
@@ -174,78 +257,39 @@ class JobFilter
             $filter->setLatest((bool) $params['latest']);
         }
 
+        if (isset($params['offset'])) {
+            $filter->setOffset((int) $params['offset']);
+        }
+
+        if (isset($params['limit'])) {
+            $filter->setLimit((int) $params['limit']);
+        }
+
         return $filter;
     }
 
     public function toQueryParams(): array
     {
-        $map = ['ids' => 'id', 'names' => 'name', 'status' => 'status', 'externalIds' => 'externalId'];
+        $map = ['ids', 'names', 'status', 'externalIds'];
         $params = [];
-        foreach ($map as $classKey => $paramKey) {
-            if (! empty($this->$classKey)) {
-                $params[$paramKey] = (1 == count($this->$classKey)) ? array_pop($this->$classKey) : $this->$classKey;
+        foreach ($map as $name) {
+            if (! empty($this->$name)) {
+                $params[$name] = implode(',', $this->$name);
             }
         }
 
-        return $params;
-    }
-
-    public function getIds(): array
-    {
-        return $this->ids;
-    }
-
-    public function setIds(array $ids): void
-    {
-        $this->ids = $ids;
-    }
-
-    public function getNames(): array
-    {
-        return $this->names;
-    }
-
-    public function setNames(array $names): void
-    {
-        $this->names = $names;
-    }
-
-    public function getStatus(): array
-    {
-        return $this->status;
-    }
-
-    public function setStatus(array $status): void
-    {
-        $this->status = $status;
-    }
-
-    public function getExternalIds(): array
-    {
-        return $this->externalIds;
-    }
-
-    public function setExternalIds(array $externalIds): void
-    {
-        $this->externalIds = $externalIds;
-    }
-
-    public function isLatest(): bool
-    {
-        return $this->latest;
-    }
-
-    public function setLatest(bool $latest): void
-    {
-        $this->latest = $latest;
-    }
-
-    private static function toArray($param): array
-    {
-        if (! is_array($param)) {
-            return [$param];
+        if ($this->latest) {
+            $params['latest'] = 'true';
         }
 
-        return $param;
+        if (null !== $this->offset) {
+            $params['offset'] = $this->offset;
+        }
+
+        if (null !== $this->limit) {
+            $params['limit'] = $this->limit;
+        }
+
+        return $params;
     }
 }

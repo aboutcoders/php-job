@@ -5,10 +5,8 @@ namespace Abc\Job\Doctrine;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager as BaseJobManager;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Query\Expr\OrderBy;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
 class JobManager extends BaseJobManager
@@ -72,29 +70,65 @@ class JobManager extends BaseJobManager
 
     public function findBy(JobFilter $filter = null): array
     {
-        $criteria = [];
+        $qb = $this->createQueryBuilder();
+
+        if ($filter->isLatest()) {
+            return $this->findByLatest($filter);
+        }
 
         if (! empty($filter->getIds())) {
-            $criteria['id'] = array_merge($filter->getIds(), $ids);
+            $qb->andWhere($qb->expr()->in('j.id', '?1'));
+            $qb->setParameter(1, $filter->getIds());
         }
 
         if (! empty($filter->getNames())) {
-            $criteria['name'] = $filter->getNames();
-        }
-
-        if (! empty($filter->getExternalIds())) {
-            $criteria['externalId'] = $filter->getExternalIds();
+            $qb->andWhere($qb->expr()->in('j.name', '?2'));
+            $qb->setParameter(2, $filter->getNames());
         }
 
         if (! empty($filter->getStatus())) {
-            $criteria['status'] = $filter->getStatus();
+            $qb->andWhere($qb->expr()->in('j.status', '?3'));
+            $qb->setParameter(3, $filter->getStatus());
         }
 
-        if ($filter->isLatest()) {
-            return $this->queryIdsByDistinctExternalId($filter->getExternalIds());
+        if (! empty($filter->getExternalIds())) {
+            $qb->andWhere($qb->expr()->in('j.externalId', '?4'));
+            $qb->setParameter(4, $filter->getExternalIds());
         }
 
-        return $this->repository->findBy($criteria, ['createdAt' => 'DESC']);
+        $query = $qb->getQuery();
+        $query->setFirstResult($filter->getOffset());
+        $query->setMaxResults($filter->getLimit());
+
+        return $query->getResult();
+    }
+
+    private function findByLatest(JobFilter $filter): array
+    {
+        $jobs = [];
+
+        foreach ($filter->getExternalIds() as $externalId) {
+
+            $qb = $this->createQueryBuilder();
+            $qb->where($qb->expr()->eq('j.externalId', '?1'));
+            $qb->setParameter(1, $externalId);
+
+            $query = $qb->getQuery();
+            $query->setMaxResults(1);
+            $jobs[] = $query->getSingleResult($query::HYDRATE_OBJECT);
+        }
+
+        return $jobs;
+    }
+
+    private function createQueryBuilder(): QueryBuilder
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('j');
+        $qb->from($this->class, 'j');
+        $qb->orderBy('j.createdAt', 'DESC');
+
+        return $qb;
     }
 
     private function setDates(JobInterface $job): void
@@ -107,24 +141,5 @@ class JobManager extends BaseJobManager
         foreach ($job->getChildren() as $child) {
             $this->setDates($child);
         }
-    }
-
-    private function queryIdsByDistinctExternalId(array $externalIds): array
-    {
-        $jobs = [];
-        foreach ($externalIds as $externalId) {
-            $qb = $this->entityManager->createQueryBuilder();
-            $qb->select('j');
-            $qb->from($this->class, 'j');
-            $qb->where($qb->expr()->eq('j.externalId', '?1'));
-            $qb->orderBy('j.createdAt', 'DESC');
-            $qb->setParameter(1, $externalId);
-
-            $query = $qb->getQuery();
-            $query->setMaxResults(1);
-            $jobs[] = $query->getSingleResult($query::HYDRATE_OBJECT);
-        }
-
-        return $jobs;
     }
 }
