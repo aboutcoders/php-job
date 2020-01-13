@@ -223,7 +223,7 @@ class JobController extends AbstractController
             try {
                 $result = $this->server->process($job);
             } catch (NoRouteException $e) {
-                $apiProblem = new ApiProblem(static::buildTypeUrl('no-route'), 'Route not found', 400, sprintf("No route for job '%s' found", $job->getName()), $requestUri);
+                $apiProblem = new ApiProblem(static::buildTypeUrl('no-route'), 'No Route Found', 400, sprintf('No route found for job "%s"', $job->getName()), $requestUri);
 
                 return $this->createProblemResponse($apiProblem);
             }

@@ -8,6 +8,7 @@ use Abc\Job\InvalidJsonException;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
+use Abc\Job\NoRouteException;
 use Abc\Job\Result;
 use Abc\Job\JobServerInterface;
 use Abc\Job\Status;
@@ -123,6 +124,28 @@ class JobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->process($json, 'requestUri');
 
         $this->assertInvalidParameterResponse($response);
+    }
+
+    public function testProcessWithNoRoute()
+    {
+        $job = new \Abc\Job\Job(Type::JOB(), 'jobName', 'input', [], true, 'externalId');
+        $json = $job->toJson();
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\Job::class)->willReturn([]);
+
+        $this->serverMock->expects($this->once())->method('process')->willThrowException(new NoRouteException('jobName'));
+
+        $response = $this->subject->process($json, 'requestUri');
+
+        $this->assertStatusCode(400, $response);
+        $this->assertProblemJsonResponseHeader($response);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(JobController::TYPE_URL.'no-route', $data['type']);
+        $this->assertEquals('No Route Found', $data['title']);
+        $this->assertEquals(400, $data['status']);
+        $this->assertEquals('No route found for job "jobName"', $data['detail']);
+        $this->assertEquals('requestUri', $data['instance']);
     }
 
     public function testProcessWithInvalidJson()
