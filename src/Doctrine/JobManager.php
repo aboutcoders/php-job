@@ -5,14 +5,18 @@ namespace Abc\Job\Doctrine;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager as BaseJobManager;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query\Expr\OrderBy;
+use Doctrine\Persistence\ObjectRepository;
 
 class JobManager extends BaseJobManager
 {
     /**
-     * @var ObjectManager
+     * @var EntityManager
      */
-    protected $objectManager;
+    protected $entityManager;
 
     /**
      * @var string
@@ -20,16 +24,16 @@ class JobManager extends BaseJobManager
     protected $class;
 
     /**
-     * @var
+     * @var ObjectRepository
      */
     protected $repository;
 
-    public function __construct(ObjectManager $om, string $class)
+    public function __construct(EntityManager $em, string $class)
     {
-        $this->objectManager = $om;
-        $this->repository = $om->getRepository($class);
+        $this->entityManager = $em;
+        $this->repository = $em->getRepository($class);
 
-        $metadata = $om->getClassMetadata($class);
+        $metadata = $em->getClassMetadata($class);
         $this->class = $metadata->getName();
     }
 
@@ -41,24 +45,24 @@ class JobManager extends BaseJobManager
     public function save(JobInterface $job, bool $andFlush = true): void
     {
         $this->setDates($job);
-        $this->objectManager->persist($job);
+        $this->entityManager->persist($job);
 
         if ($andFlush) {
-            $this->objectManager->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function delete(JobInterface $job, bool $andFlush = true): void
     {
-        $this->objectManager->remove($job);
+        $this->entityManager->remove($job);
         if ($andFlush) {
-            $this->objectManager->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function refresh(JobInterface $job): void
     {
-        $this->objectManager->refresh($job);
+        $this->entityManager->refresh($job);
     }
 
     public function find(string $id): ?JobInterface
@@ -71,7 +75,7 @@ class JobManager extends BaseJobManager
         $criteria = [];
 
         if (! empty($filter->getIds())) {
-            $criteria['id'] = $filter->getIds();
+            $criteria['id'] = array_merge($filter->getIds(), $ids);
         }
 
         if (! empty($filter->getNames())) {
@@ -84,6 +88,10 @@ class JobManager extends BaseJobManager
 
         if (! empty($filter->getStatus())) {
             $criteria['status'] = $filter->getStatus();
+        }
+
+        if ($filter->isLatest()) {
+            return $this->queryIdsByDistinctExternalId($filter->getExternalIds());
         }
 
         return $this->repository->findBy($criteria, ['createdAt' => 'DESC']);
@@ -99,5 +107,24 @@ class JobManager extends BaseJobManager
         foreach ($job->getChildren() as $child) {
             $this->setDates($child);
         }
+    }
+
+    private function queryIdsByDistinctExternalId(array $externalIds): array
+    {
+        $jobs = [];
+        foreach ($externalIds as $externalId) {
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb->select('j');
+            $qb->from($this->class, 'j');
+            $qb->where($qb->expr()->eq('j.externalId', '?1'));
+            $qb->orderBy('j.createdAt', 'DESC');
+            $qb->setParameter(1, $externalId);
+
+            $query = $qb->getQuery();
+            $query->setMaxResults(1);
+            $jobs[] = $query->getSingleResult($query::HYDRATE_OBJECT);
+        }
+
+        return $jobs;
     }
 }

@@ -2,66 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://aboutcoders.com/schema/job.json",
   "title": "JSON schema of a job",
-  "definitions": {
-    "uuid": {
-      "type": "string",
-      "title": "A RFC-4122 conform uuid",
-      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-    },
-    "name": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 20
-    },
-    "status": {
-      "type": "string",
-      "enum": ["waiting", "scheduled", "running", "complete", "failure", "cancelled"]
-    },
-    "filter_uuid": {
-      "oneOf": [
-        {
-          "$ref": "#/definitions/uuid"
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/uuid"
-          }
-        }
-      ]
-    },
-    "filter_name": {
-      "oneOf": [
-        {
-          "$ref": "#/definitions/name"
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/name"
-          }
-        }
-      ]
-    },
-    "filter_status": {
-      "oneOf": [
-        {
-          "$ref": "#/definitions/status"
-        },
-        {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/status"
-          }
-        }
-      ]
-    }
-  },
   "type": "object",
   "properties": {
     "ids": {
       "type": "string",
-      "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(,([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))*$"
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
     },
     "status": {
       "type": "string",
@@ -73,7 +18,17 @@
     },
     "externalIds": {
       "type": "string",
-      "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(,([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))*$"
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
+    },
+    "latest": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "offset": {
+      "type": "integer"
+    },
+    "limit": {
+      "type": "integer"
     }
   },
   "additionalProperties": false

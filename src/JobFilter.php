@@ -108,7 +108,7 @@ class JobFilter
      *
      * @var bool
      */
-    private $latest;
+    private $latest = false;
 
     /**
      * @OA\Parameter(
@@ -154,20 +154,24 @@ class JobFilter
         parse_str($query, $params);
 
         $filter = new static();
-        if (isset($params['id'])) {
-            $filter->setIds(static::toArray($params['id']));
+        if (isset($params['ids'])) {
+            $filter->setIds(explode(',', $params['ids']));
         }
 
-        if (isset($params['name'])) {
-            $filter->setNames(static::toArray($params['name']));
+        if (isset($params['names'])) {
+            $filter->setNames(explode(',', $params['names']));
         }
 
         if (isset($params['status'])) {
-            $filter->setStatus(static::toArray($params['status']));
+            $filter->setStatus(explode(',', $params['status']));
         }
 
-        if (isset($params['externalId'])) {
-            $filter->setExternalIds(static::toArray($params['externalId']));
+        if (isset($params['externalIds'])) {
+            $filter->setExternalIds(explode(',', $params['externalIds']));
+        }
+
+        if (isset($params['latest'])) {
+            $filter->setLatest((bool) $params['latest']);
         }
 
         return $filter;
@@ -224,6 +228,16 @@ class JobFilter
     public function setExternalIds(array $externalIds): void
     {
         $this->externalIds = $externalIds;
+    }
+
+    public function isLatest(): bool
+    {
+        return $this->latest;
+    }
+
+    public function setLatest(bool $latest): void
+    {
+        $this->latest = $latest;
     }
 
     private static function toArray($param): array
