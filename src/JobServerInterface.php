@@ -16,6 +16,7 @@ interface JobServerInterface
     /**
      * @param Job $job
      * @return Result
+     * @throws NoRouteException
      */
     public function process(Job $job): Result;
 
