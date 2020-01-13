@@ -499,28 +499,24 @@ class ValidatorTest extends TestCase
     public static function provideValidFilter(): array
     {
         return [
-            ['id=00000000-0000-0000-0000-000000000000'],
+            /*['ids=00000000-0000-0000-0000-000000000000'],
             [
-                http_build_query([
-                    'id' => [
-                        '00000000-0000-0000-0000-000000000000',
-                        '00000000-1111-1111-1111-111111111111',
-                    ],
+                'ids='.implode(',', [
+                    '00000000-0000-0000-0000-000000000000',
+                    '00000000-1111-1111-1111-111111111111',
                 ]),
             ],
-            ['externalId=00000000-0000-0000-0000-000000000000'],
+            ['externalIds=00000000-0000-0000-0000-000000000000'],
             [
-                http_build_query([
-                    'externalId' => [
-                        '00000000-0000-0000-0000-000000000000',
-                        '00000000-1111-1111-1111-111111111111',
-                    ],
+                'externalIds='.implode(',', [
+                    '00000000-0000-0000-0000-000000000000',
+                    '00000000-1111-1111-1111-111111111111',
                 ]),
-            ],
-            ['name=valid'],
-            [http_build_query(['name' => ['validA', 'validB']])],
-            ['status=failure'],
-            [http_build_query(['status' => ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled']])],
+            ],*/
+            ['names=valid'],
+            ['names=validA,validB'],
+            #['status=failure'],
+            #['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled'])],
         ];
     }
 

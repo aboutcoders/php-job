@@ -25,7 +25,7 @@ interface Status
     const COMPLETE = 'complete';
 
     /**
-     * The job was not processed successfully
+     * The job was not successfully processed
      */
     const FAILED = 'failed';
 

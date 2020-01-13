@@ -2,27 +2,144 @@
 
 namespace Abc\Job;
 
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Schema(
+ *     description="The filter of results"
+ * )
+ */
 class JobFilter
 {
     /**
+     * @OA\Parameter(
+     *     description="The id of the job to get",
+     *     in="query",
+     *     name="ids",
+     *     required=false,
+     *     style="simple",
+     *     explode="false",
+     *     @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     )
+     * )
+     *
      * @var string[]
      */
     private $ids;
 
     /**
+     * @OA\Parameter(
+     *     description="The names of the job to get",
+     *     in="query",
+     *     name="names",
+     *     required=false,
+     *     style="simple",
+     *     explode="false",
+     *     @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string"
+     *         )
+     *     )
+     * )
+     *
      * @var string[]
      */
     private $names;
 
     /**
+     * @OA\Parameter(
+     *     description="The status of the job to get",
+     *     in="query",
+     *     name="status",
+     *     required=false,
+     *     style="simple",
+     *     explode="false",
+     *     @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string",
+     *             enum={"waiting", "scheduled", "running", "complete", "failed", "cancelled"}
+     *         )
+     *     )
+     * )
+     *
      * @var string[]
      */
     private $status;
 
     /**
+     * @OA\Parameter(
+     *     description="The externalIds of the job to get",
+     *     in="query",
+     *     name="externalIds",
+     *     required=false,
+     *     style="simple",
+     *     explode="false",
+     *     @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     )
+     * )
+     *
      * @var string[]
      */
     private $externalIds;
+
+
+    /**
+     * @OA\Parameter(
+     *     description="If true, the endpoint only returns the latest job",
+     *     in="query",
+     *     name="latest",
+     *     required=false,
+     *     @OA\Schema(
+     *         type="boolean"
+     *     )
+     * )
+     *
+     * @var bool
+     */
+    private $latest;
+
+    /**
+     * @OA\Parameter(
+     *     description="The result offset",
+     *     in="query",
+     *     name="offset",
+     *     required=false,
+     *     @OA\Schema(
+     *         type="integer"
+     *     )
+     * )
+     *
+     * @var int
+     */
+    private $offset;
+
+    /**
+     * @OA\Parameter(
+     *     description="The result limit",
+     *     in="query",
+     *     name="limit",
+     *     required=false,
+     *     @OA\Schema(
+     *         type="integer"
+     *     )
+     * )
+     *
+     * @var int
+     */
+    private $limit;
+
 
     public function __construct()
     {
