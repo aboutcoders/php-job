@@ -2,13 +2,13 @@
 
 namespace Abc\Job\Tests\Controller;
 
-use Abc\Job\Controller\DeleteController;
+use Abc\Job\Controller\CleanupController;
 use Abc\Job\Model\CronJobManagerInterface;
 use Abc\Job\Model\JobManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
 
-class DeleteControllerTest extends AbstractControllerTestCase
+class CleanupControllerTest extends AbstractControllerTestCase
 {
     /**
      * @var JobManagerInterface|MockObject
@@ -21,7 +21,7 @@ class DeleteControllerTest extends AbstractControllerTestCase
     private $cronJobManagerMock;
 
     /**
-     * @var DeleteController
+     * @var CleanupController
      */
     private $subject;
 
@@ -29,7 +29,7 @@ class DeleteControllerTest extends AbstractControllerTestCase
     {
         $this->jobManagerMock = $this->createMock(JobManagerInterface::class);
         $this->cronJobManagerMock = $this->createMock(CronJobManagerInterface::class);
-        $this->subject = new DeleteController($this->jobManagerMock, $this->cronJobManagerMock, new NullLogger());
+        $this->subject = new CleanupController($this->jobManagerMock, $this->cronJobManagerMock, new NullLogger());
     }
 
     public function testDeleteJobs()

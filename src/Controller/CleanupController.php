@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
-class DeleteController extends AbstractController
+class CleanupController extends AbstractController
 {
     /**
      * @var JobManagerInterface
