@@ -38,12 +38,12 @@ class CronJobController extends AbstractController
     private $logger;
 
     public function __construct(
-        CronJobManager $scheduleManager,
+        CronJobManager $cronJobManager,
         JobServerInterface $jobServer,
         ValidatorInterface $validator,
         LoggerInterface $logger
     ) {
-        $this->cronJobManager = $scheduleManager;
+        $this->cronJobManager = $cronJobManager;
         $this->jobServer = $jobServer;
         $this->validator = $validator;
         $this->logger = $logger;
