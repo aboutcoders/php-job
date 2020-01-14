@@ -26,7 +26,7 @@ class CleanupCronJobController extends AbstractController
     /**
      * @OA\Delete(
      *     path="/cronjob",
-     *     tags={"Job"},
+     *     tags={"Cleanup"},
      *     description="Deletes all cronjobs",
      *     @OA\Response(
      *          response=204,

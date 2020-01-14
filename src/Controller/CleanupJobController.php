@@ -26,7 +26,7 @@ class CleanupJobController extends AbstractController
     /**
      * @OA\Delete(
      *     path="/job",
-     *     tags={"Job"},
+     *     tags={"Cleanup"},
      *     description="Deletes all jobs",
      *     @OA\Response(
      *          response=204,
