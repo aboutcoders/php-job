@@ -43,7 +43,7 @@ class RouteController extends AbstractController
      * @OA\Post(
      *     path="/route",
      *     tags={"Route"},
-     *     description="Creates a route",
+     *     description="Creates one or more routes",
      *     @OA\RequestBody(
      *         description="Route object to be created",
      *         required=true,

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RegisterRoutesCommand extends Command
 {
 
-    protected static $defaultName = 'abc:register:routes';
+    protected static $defaultName = 'abc:routes:register';
 
     /**
      * @var RouteClient
@@ -40,12 +40,11 @@ class RegisterRoutesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $routes = $this->routeCollection->all();
 
         if(0 == count($routes))
         {
-            $output->writeln('No routes to register');
+            $output->writeln('No routes defined');
         }
 
         $this->routeClient->add($routes);
