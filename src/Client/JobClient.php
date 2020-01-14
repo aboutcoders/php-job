@@ -36,6 +36,26 @@ class JobClient extends AbstractClient implements JobServerInterface
     }
 
     /**
+     * Returns the latest jobs by external ids
+     *
+     * @param string[] $externalIds An array of external ids
+     * @return array
+     * @throws ApiProblemException
+     */
+    public function latest(array $externalIds): array
+    {
+        $filter = new JobFilter();
+        $filter->setExternalIds($externalIds);
+        $filter->toQueryParams();
+
+        $response = $this->client->list(null !== $filter ? : []);
+
+        $this->validateResponse($response);
+
+        return ResultArray::fromJson($response->getBody()->getContents());
+    }
+
+    /**
      * @param Job $job
      * @return Result
      * @throws ApiProblemException

@@ -47,43 +47,25 @@ class JobController extends AbstractController
      *     tags={"Job"},
      *     description="Returns a list of job results",
      *     @OA\Parameter(
-     *         description="The unique id of the job",
-     *         in="query",
-     *         name="id",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *             format="uuid"
-     *         )
+     *         ref="#/components/parameters/ids"
      *     ),
      *     @OA\Parameter(
-     *         description="The status of the job",
-     *         in="query",
-     *         name="status",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *             enum={"waiting", "scheduled", "running", "complete", "failed", "cancelled"},
-     *         )
+     *         ref="#/components/parameters/names"
      *     ),
      *     @OA\Parameter(
-     *         description="The name of the job",
-     *         in="query",
-     *         name="name",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
+     *         ref="#/components/parameters/status"
      *     ),
      *     @OA\Parameter(
-     *         description="The external id of the job",
-     *         in="query",
-     *         name="externalId",
-     *         required=false,
-     *         @OA\Schema(
-     *             type="string",
-     *             format="uuid"
-     *         )
+     *         ref="#/components/parameters/externalIds"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/latest"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/offset"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/limit"
      *     ),
      *     @OA\Response(
      *          response=200,
@@ -91,7 +73,7 @@ class JobController extends AbstractController
      *          @OA\JsonContent(
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/Result")
-     *         ),
+     *         )
      *     ),
      *     @OA\Response(
      *          response=400,

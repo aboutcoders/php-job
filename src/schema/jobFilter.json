@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://aboutcoders.com/schema/job.json",
+  "title": "JSON schema of a job",
+  "type": "object",
+  "properties": {
+    "ids": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
+    },
+    "status": {
+      "type": "string",
+      "pattern": "^(waiting|scheduled|running|complete|failure|cancelled)(,(waiting|scheduled|running|complete|failure|cancelled))*$"
+    },
+    "names": {
+      "type": "string",
+      "pattern": "^([a-zA-Z0-9._-]{3,20})(,([a-zA-Z0-9._-]{3,20}))*$"
+    },
+    "externalIds": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
+    },
+    "latest": {
+      "type": "string",
+      "enum": ["true", "false"]
+    },
+    "offset": {
+      "type": "integer"
+    },
+    "limit": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}

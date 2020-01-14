@@ -22,7 +22,7 @@ class Validator implements ValidatorInterface
 
     private static $schemas = [
         Job::class => 'job.json',
-        JobFilter::class => 'filter.json',
+        JobFilter::class => 'jobFilter.json',
         Route::class => 'route.json',
         CronJob::class => 'cronJob.json',
     ];
