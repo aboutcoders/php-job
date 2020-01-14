@@ -11,6 +11,8 @@ interface JobManagerInterface
 
     public function delete(JobInterface $job): void;
 
+    public function deleteAll(): int;
+
     public function refresh(JobInterface $job): void;
 
     public function save(JobInterface $job): void;

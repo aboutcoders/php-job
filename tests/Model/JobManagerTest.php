@@ -17,6 +17,7 @@ class JobManagerTest extends TestCase
         $subject = $this->getMockBuilder(JobManager::class)->setMethods([
             'getClass',
             'delete',
+            'deleteAll',
             'refresh',
             'save',
             'find',
@@ -39,6 +40,7 @@ class JobManagerTest extends TestCase
         $subject = $this->getMockBuilder(JobManager::class)->setMethods([
             'getClass',
             'delete',
+            'deleteAll',
             'refresh',
             'save',
             'find',

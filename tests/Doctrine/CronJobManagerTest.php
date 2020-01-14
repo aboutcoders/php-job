@@ -7,8 +7,8 @@ use Abc\Job\Job;
 use Abc\Job\Model\CronJob;
 use Abc\Job\Model\CronJobInterface;
 use Abc\Job\Type;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,12 +16,12 @@ use PHPUnit\Framework\TestCase;
 class CronJobManagerTest extends TestCase
 {
     /**
-     * @var ObjectManager|MockObject
+     * @var EntityManager|MockObject
      */
     protected $objectManagerMock;
 
     /**
-     * @var ObjectRepository|MockObject
+     * @var EntityRepository|MockObject
      */
     protected $repositoryMock;
 
@@ -32,8 +32,8 @@ class CronJobManagerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->objectManagerMock = $this->createMock(ObjectManager::class);
-        $this->repositoryMock = $this->createMock(ObjectRepository::class);
+        $this->objectManagerMock = $this->createMock(EntityManager::class);
+        $this->repositoryMock = $this->createMock(EntityRepository::class);
         $this->subject = new CronJobManager($this->objectManagerMock, CronJob::class);
     }
 

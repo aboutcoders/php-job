@@ -6,6 +6,8 @@ use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager as BaseJobManager;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
@@ -58,6 +60,19 @@ class JobManager extends BaseJobManager
         }
     }
 
+    /**
+     * @return int The number of deleted jobs
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function deleteAll(): int
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $query = $qb->delete()->from($this->class, 'j')->getQuery();
+
+        return $query->getSingleScalarResult();
+    }
+
     public function refresh(JobInterface $job): void
     {
         $this->entityManager->refresh($job);
@@ -70,6 +85,10 @@ class JobManager extends BaseJobManager
 
     public function findBy(JobFilter $filter = null): array
     {
+        if(null == $filter) {
+            return $this->repository->findAll();
+        }
+
         $qb = $this->createQueryBuilder();
 
         if ($filter->isLatest()) {

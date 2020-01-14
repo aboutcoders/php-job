@@ -13,6 +13,8 @@ interface CronJobManagerInterface
 
     public function delete(CronJobInterface $job): void;
 
+    public function deleteAll(): int;
+
     public function save(CronJobInterface $job): void;
 
     public function find(string $id): ?CronJobInterface;
