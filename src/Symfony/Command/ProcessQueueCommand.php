@@ -19,7 +19,7 @@ class ProcessQueueCommand extends BaseProcessCommand
 
         $this->addArgument($queuesArgument->getName(), InputArgument::REQUIRED | InputArgument::IS_ARRAY, $queuesArgument->getDescription(), $queuesArgument->getDefault());
 
-        $this->configureOptions();
+        $this->configureConsumeCommandOptions();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): ?int

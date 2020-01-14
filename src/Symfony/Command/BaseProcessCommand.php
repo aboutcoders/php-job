@@ -21,7 +21,7 @@ abstract class BaseProcessCommand extends Command
         parent::__construct(static::$defaultName);
     }
 
-    protected function configureOptions()
+    protected function configureConsumeCommandOptions()
     {
         foreach ($this->consumeCommand->getDefinition()->getOptions() as $option) {
             $this->addOption($option->getName(), $option->getShortcut(), $this->getOptionMode($option), $option->getDescription(), $option->getDefault());

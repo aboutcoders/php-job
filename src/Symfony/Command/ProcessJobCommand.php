@@ -50,7 +50,7 @@ class ProcessJobCommand extends BaseProcessCommand
 
         $this->addArgument('jobs', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'A job to process');
 
-        $this->configureOptions();
+        $this->configureConsumeCommandOptions();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): ?int
