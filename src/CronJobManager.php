@@ -58,6 +58,11 @@ class CronJobManager
         $this->entityManager->delete($cronJob);
     }
 
+    public function deleteAll(): int
+    {
+        return $this->entityManager->deleteAll();
+    }
+
     private function validateInstance(CronJob $cronJob)
     {
         $class = $this->entityManager->getClass();

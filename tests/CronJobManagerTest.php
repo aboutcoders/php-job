@@ -108,4 +108,11 @@ class CronJobManagerTest extends TestCase
 
         $this->subject->delete($cronJob);
     }
+
+    public function testDeleteAll()
+    {
+        $this->entityManager->expects($this->once())->method('deleteAll')->willReturn(21);
+
+        $this->assertEquals(21, $this->subject->deleteAll());
+    }
 }
