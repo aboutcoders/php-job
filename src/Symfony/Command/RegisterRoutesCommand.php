@@ -43,12 +43,14 @@ class RegisterRoutesCommand extends Command
 
         $routes = $this->routeCollection->all();
 
-        if(0 < count($routes))
+        if(0 == count($routes))
         {
-            $this->routeClient->add($routes);
-
-            $output->writeln('Registered routes');
+            $output->writeln('No routes to register');
         }
+
+        $this->routeClient->add($routes);
+
+        $output->writeln('Registered routes');
 
         return 0;
     }
