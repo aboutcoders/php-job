@@ -23,7 +23,7 @@ class JobClient extends AbstractClient implements JobServerInterface
 
     /**
      * @param JobFilter|null $filter
-     * @return array
+     * @return Result[]
      * @throws ApiProblemException
      */
     public function list(JobFilter $filter = null): array
