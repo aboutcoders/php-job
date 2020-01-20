@@ -39,12 +39,19 @@ class ValidatorTest extends TestCase
 
     /**
      * @dataProvider provideValidJob
+     * @param \stdClass $job
      */
-    public function testValidJob($job)
+    public function testValidJob(\stdClass $job)
     {
         $json = json_encode($job);
 
         $errors = $this->subject->validate($json, Job::class);
+
+        if (! empty($errors)) {
+            var_dump($json);
+            exit;
+        }
+
         $this->assertEmpty($errors);
 
         $job = Job::fromJson($json);
@@ -52,8 +59,9 @@ class ValidatorTest extends TestCase
 
     /**
      * @dataProvider provideInvalidJob
+     * @param \stdClass $job
      */
-    public function testInvalidJob($job)
+    public function testInvalidJob(\stdClass $job)
     {
         $json = json_encode($job);
         $errors = $this->subject->validate($json, Job::class);
@@ -62,8 +70,9 @@ class ValidatorTest extends TestCase
 
     /**
      * @dataProvider provideValidCronJob
+     * @param \stdClass $job
      */
-    public function testValidCronJob($job)
+    public function testValidCronJob(\stdClass $job)
     {
         $json = json_encode($job);
         $errors = $this->subject->validate($json, CronJob::class);
@@ -72,8 +81,9 @@ class ValidatorTest extends TestCase
 
     /**
      * @dataProvider provideInvalidCronJob
+     * @param \stdClass $job
      */
-    public function testInvalidCronJob($job)
+    public function testInvalidCronJob(\stdClass $job)
     {
         $json = json_encode($job);
         $errors = $this->subject->validate($json, CronJob::class);
@@ -160,7 +170,18 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #3
+            #3 job with empty children array
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'input' => 'someInput',
+                    'allowFailure' => false,
+                    'externalId' => Uuid::uuid4(),
+                    'children' => [],
+                ],
+            ],
+            #4 Sequence with two children
             [
                 (object) [
                     'type' => (string) Type::SEQUENCE(),
@@ -185,7 +206,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #4
+            #5 Batch with two children
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
@@ -210,7 +231,7 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #5
+            #6 nested collection
             [
                 (object) [
                     'type' => (string) Type::BATCH(),
@@ -512,8 +533,7 @@ class ValidatorTest extends TestCase
                     '00000000-0000-0000-0000-000000000000',
                     '00000000-1111-1111-1111-111111111111',
                 ]),
-            ],*/
-            ['names=valid'],
+            ],*/ ['names=valid'],
             ['names=validA,validB'],
             #['status=failure'],
             #['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled'])],

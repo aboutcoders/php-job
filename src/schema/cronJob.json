@@ -90,6 +90,7 @@
         },
         "children": {
           "type": "array",
+          "minItems": 2,
           "items": {
             "oneOf": [
               {
@@ -99,8 +100,7 @@
                 "$ref": "./job.json#/definitions/job_collection"
               }
             ]
-          },
-          "minItems": 2
+          }
         }
       },
       "additionalProperties": false
