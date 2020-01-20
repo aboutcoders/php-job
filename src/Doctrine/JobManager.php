@@ -68,7 +68,22 @@ class JobManager extends BaseJobManager
     public function deleteAll(): int
     {
         $qb = $this->entityManager->createQueryBuilder();
-        $query = $qb->delete()->from($this->class, 'j')->getQuery();
+
+        // delete children
+        $query = $qb->delete()
+            ->from($this->class, 'j')
+            ->where($qb->expr()->isNotNull('j.parent'))
+            ->getQuery();
+
+        $query->getSingleScalarResult();
+
+        // delete parents
+        $qb = $this->entityManager->createQueryBuilder();
+
+        // delete parents
+        $query = $qb->delete()
+            ->from($this->class, 'j')
+            ->getQuery();
 
         return $query->getSingleScalarResult();
     }
