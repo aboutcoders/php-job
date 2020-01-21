@@ -78,6 +78,13 @@
             "Sequence"
           ]
         },
+        "name": {
+          "type": ["string", "null"],
+          "title": "The job name",
+          "pattern": "^[a-zA-z0-9._-]+$",
+          "minLength": 3,
+          "maxLength": 20
+        },
         "input": {
           "$ref": "#/definitions/data"
         },

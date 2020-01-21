@@ -181,6 +181,33 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
+            # collection with name
+            [
+                (object) [
+                    'type' => (string) Type::BATCH(),
+                    'name' => 'valid',
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            # collection with null values
+            [
+                (object) [
+                    'type' => (string) Type::BATCH(),
+                    'name' => null,
+                    'externalId' => null,
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
             #3 job with empty children array
             [
                 (object) [
