@@ -6,6 +6,11 @@
       "title": "A RFC-4122 conform uuid",
       "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
     },
+    "externalId": {
+      "type": ["string", "null"],
+      "title": "A RFC-4122 conform uuid",
+      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    },
     "type": {
       "type": "string",
       "title": "The job type",
@@ -16,14 +21,14 @@
       ]
     },
     "name": {
-      "type": "string",
+      "type": ["string"],
       "title": "The job name",
       "pattern": "^[a-zA-z0-9._-]+$",
       "minLength": 3,
       "maxLength": 20
     },
     "data": {
-      "type": "string",
+      "type": ["string", "null"],
       "title": "Job input or output"
     },
     "allowFailure": {
@@ -50,7 +55,7 @@
           "$ref": "#/definitions/allowFailure"
         },
         "externalId": {
-          "$ref": "#/definitions/uuid"
+          "$ref": "#/definitions/externalId"
         },
         "children": {
           "type": "array",
@@ -80,7 +85,7 @@
           "$ref": "#/definitions/allowFailure"
         },
         "externalId": {
-          "$ref": "#/definitions/uuid"
+          "$ref": "#/definitions/externalId"
         },
         "children": {
           "type": "array",

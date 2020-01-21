@@ -47,11 +47,6 @@ class ValidatorTest extends TestCase
 
         $errors = $this->subject->validate($json, Job::class);
 
-        if (! empty($errors)) {
-            var_dump($json);
-            exit;
-        }
-
         $this->assertEmpty($errors);
 
         $job = Job::fromJson($json);
@@ -144,6 +139,22 @@ class ValidatorTest extends TestCase
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
+                ],
+            ],
+            #0 job with input is null
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'input' => null,
+                ],
+            ],
+            #0 job with externalId is null
+            [
+                (object) [
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'externalId' => null,
                 ],
             ],
             #1 minimal sequence
