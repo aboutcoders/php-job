@@ -73,7 +73,8 @@ class JobManager extends BaseJobManager
         $query = $qb->delete()
             ->from($this->class, 'j')
             ->where($qb->expr()->isNotNull('j.parent'))
-            ->getQuery();
+            ->getQuery()
+        ;
 
         $query->getSingleScalarResult();
 
@@ -82,8 +83,7 @@ class JobManager extends BaseJobManager
 
         // delete parents
         $query = $qb->delete()
-            ->from($this->class, 'j')
-            ->getQuery();
+            ->from($this->class, 'j')->getQuery();
 
         return $query->getSingleScalarResult();
     }
@@ -100,39 +100,37 @@ class JobManager extends BaseJobManager
 
     public function findBy(JobFilter $filter = null): array
     {
-        if(null == $filter) {
-            return $this->repository->findAll();
-        }
-
         $qb = $this->createQueryBuilder();
 
-        if ($filter->isLatest()) {
-            return $this->findByLatest($filter);
-        }
+        if (null !== $filter) {
+            if ($filter->isLatest()) {
+                return $this->findByLatest($filter);
+            }
 
-        if (! empty($filter->getIds())) {
-            $qb->andWhere($qb->expr()->in('j.id', '?1'));
-            $qb->setParameter(1, $filter->getIds());
-        }
+            if (! empty($filter->getIds())) {
+                $qb->andWhere($qb->expr()->in('j.id', '?1'));
+                $qb->setParameter(1, $filter->getIds());
+            }
 
-        if (! empty($filter->getNames())) {
-            $qb->andWhere($qb->expr()->in('j.name', '?2'));
-            $qb->setParameter(2, $filter->getNames());
-        }
+            if (! empty($filter->getNames())) {
+                $qb->andWhere($qb->expr()->in('j.name', '?2'));
+                $qb->setParameter(2, $filter->getNames());
+            }
 
-        if (! empty($filter->getStatus())) {
-            $qb->andWhere($qb->expr()->in('j.status', '?3'));
-            $qb->setParameter(3, $filter->getStatus());
-        }
+            if (! empty($filter->getStatus())) {
+                $qb->andWhere($qb->expr()->in('j.status', '?3'));
+                $qb->setParameter(3, $filter->getStatus());
+            }
 
-        if (! empty($filter->getExternalIds())) {
-            $qb->andWhere($qb->expr()->in('j.externalId', '?4'));
-            $qb->setParameter(4, $filter->getExternalIds());
+            if (! empty($filter->getExternalIds())) {
+                $qb->andWhere($qb->expr()->in('j.externalId', '?4'));
+                $qb->setParameter(4, $filter->getExternalIds());
+            }
         }
 
         $query = $qb->getQuery();
-        $query->setFirstResult($filter->getOffset());
-        $query->setMaxResults($filter->getLimit());
+        $query->setFirstResult(null === $filter ? null : $filter->getOffset());
+        $query->setMaxResults(null === $filter ? null : $filter->getLimit());
 
         return $query->getResult();
     }
@@ -160,6 +158,7 @@ class JobManager extends BaseJobManager
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('j');
         $qb->from($this->class, 'j');
+        $qb->where($qb->expr()->isNull('j.parent'));
         $qb->orderBy('j.createdAt', 'DESC');
 
         return $qb;
