@@ -362,7 +362,7 @@ class ValidatorTest extends TestCase
     public static function provideValidCronJob(): array
     {
         return [
-            #0
+            #0 minimal cronjob
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -370,7 +370,34 @@ class ValidatorTest extends TestCase
                     'name' => 'valid',
                 ],
             ],
-            #1
+            #1 cronjob with input is null
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'input' => null,
+                ],
+            ],
+            #2 cronjob with externalId is null
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'externalId' => null,
+                ],
+            ],
+            #3 job with empty children array
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'children' => [],
+                ],
+            ],
+            #4 Sequence
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -386,17 +413,10 @@ class ValidatorTest extends TestCase
                             'allowFailure' => false,
                             'externalId' => Uuid::uuid4(),
                         ],
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                            'input' => 'valid',
-                            'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
-                        ],
                     ],
                 ],
             ],
-            #2
+            #4 Batch
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -422,7 +442,36 @@ class ValidatorTest extends TestCase
                     ],
                 ],
             ],
-            #3
+            #5 collection with name
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'name' => 'valid',
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #6 collection with null values
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::BATCH(),
+                    'name' => null,
+                    'externalId' => null,
+                    'children' => [
+                        (object) [
+                            'type' => (string) Type::JOB(),
+                            'name' => 'valid',
+                        ],
+                    ],
+                ],
+            ],
+            #7 nested collection
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -512,12 +561,7 @@ class ValidatorTest extends TestCase
                 (object) [
                     'schedule' => '* * * * *',
                     'type' => (string) Type::SEQUENCE(),
-                    'children' => [
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
-                    ],
+                    'children' => [],
                 ],
             ],
             #7
@@ -525,12 +569,7 @@ class ValidatorTest extends TestCase
                 (object) [
                     'schedule' => '* * * * *',
                     'type' => (string) Type::BATCH(),
-                    'children' => [
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
-                    ],
+                    'children' => [],
                 ],
             ],
             #8
