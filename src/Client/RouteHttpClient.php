@@ -2,6 +2,7 @@
 
 namespace Abc\Job\Client;
 
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 
 class RouteHttpClient extends AbstractHttpClient
@@ -10,7 +11,7 @@ class RouteHttpClient extends AbstractHttpClient
 
     public function add(string $json, array $options = []): ResponseInterface
     {
-        $options['body'] = $json;
+        $options[RequestOptions::BODY] = $json;
 
         return $this->request('post', static::$endpoint, $options);
     }

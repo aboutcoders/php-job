@@ -34,6 +34,11 @@ class CronJobClient extends AbstractClient
         return CronJobArray::fromJson($response->getBody()->getContents());
     }
 
+    /**
+     * @param string $id
+     * @return CronJob|null
+     * @throws ApiProblemException
+     */
     public function find(string $id): ?CronJob
     {
         $response = $this->client->find($id);
@@ -41,6 +46,8 @@ class CronJobClient extends AbstractClient
         if (404 == $response->getStatusCode()) {
             return null;
         }
+
+        $this->validateResponse($response);
 
         return \Abc\Job\Model\CronJob::fromJson($response->getBody()->getContents());
     }

@@ -76,6 +76,15 @@ class CronJobClientTest extends AbstractClientTestCase
         $this->assertNull($this->subject->find('someId'));
     }
 
+    public function testFindWithApiProblem()
+    {
+        $this->httpClientMock->expects($this->once())->method('find')->with('someId')->willReturn(new Response(500, [], $this->createApiProblemJson()));
+
+        $this->expectException(ApiProblemException::class);
+
+        $this->assertNull($this->subject->find('someId'));
+    }
+
     public function testCreate()
     {
         $job = new Job(Type::JOB(), 'jobName');
