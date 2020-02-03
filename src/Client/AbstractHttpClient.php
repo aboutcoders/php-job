@@ -25,8 +25,8 @@ class AbstractHttpClient
     public function __construct($baseUrl, ClientInterface $client, array $defaultOptions = [])
     {
         $lastStr = substr($baseUrl, -1);
-        if ('/' == $lastStr) {
-            $baseUrl = substr($baseUrl, 0, -1);
+        if ('/' !== $lastStr) {
+            $baseUrl .= '/';
         }
 
         $this->baseUrl = $baseUrl;

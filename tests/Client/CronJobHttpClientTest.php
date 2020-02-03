@@ -4,6 +4,7 @@ namespace Abc\Job\Tests\Client;
 
 use Abc\Job\Client\CronJobHttpClient;
 use GuzzleHttp\ClientInterface;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -29,22 +30,50 @@ class CronJobHttpClientTest extends TestCase
         $this->subject = new CronJobHttpClient('http://domain.tld/cronjob/', $this->clientMock);
 
         $this->defaultHeaders = [
-            'base_uri' => 'http://domain.tld/cronjob',
+            'base_uri' => 'http://domain.tld/cronjob/',
             'http_errors' => false,
             'headers' => ['Content-Type' => 'application/json'],
         ];
+    }
+
+    public function testConstructFixesBaseUrl(): void
+    {
+        $this->clientMock = $this->createMock(ClientInterface::class);
+
+        $this->subject = new CronJobHttpClient('http://domain.tld/cronjob', $this->clientMock);
+
+        $fixBaseUrlCallback = function (array $options) {
+            Assert::assertEquals('http://domain.tld/cronjob/', $options['base_uri']);
+
+            return true;
+        };
+
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('get', 'cronjob/someId', $this->callback($fixBaseUrlCallback))
+            ->willReturn($this->createMock(ResponseInterface::class));
+        ;
+
+        $this->subject->find('someId');
     }
 
     public function testList()
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $expectedOptions = array_merge([
-            'some' => 'value',
-            'query' => ['filter' => 'value'],
-        ], $this->defaultHeaders);
+        $expectedOptions = array_merge(
+            [
+                'some' => 'value',
+                'query' => ['filter' => 'value'],
+            ],
+            $this->defaultHeaders
+        );
 
-        $this->clientMock->expects($this->once())->method('request')->with('get', 'cronjob', $expectedOptions)->willReturn($response);
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('get', 'cronjob', $expectedOptions)
+            ->willReturn($response)
+        ;
 
         $this->assertSame($response, $this->subject->list(['filter' => 'value'], ['some' => 'value']));
     }
@@ -53,11 +82,18 @@ class CronJobHttpClientTest extends TestCase
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $expectedOptions = array_merge([
-            'some' => 'value',
-        ], $this->defaultHeaders);
+        $expectedOptions = array_merge(
+            [
+                'some' => 'value',
+            ],
+            $this->defaultHeaders
+        );
 
-        $this->clientMock->expects($this->once())->method('request')->with('get', 'cronjob/someId', $expectedOptions)->willReturn($response);
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('get', 'cronjob/someId', $expectedOptions)
+            ->willReturn($response)
+        ;
 
         $this->assertSame($response, $this->subject->find('someId', ['some' => 'value']));
     }
@@ -66,12 +102,19 @@ class CronJobHttpClientTest extends TestCase
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $expectedOptions = array_merge([
-            'some' => 'value',
-            'body' => 'someJson',
-        ], $this->defaultHeaders);
+        $expectedOptions = array_merge(
+            [
+                'some' => 'value',
+                'body' => 'someJson',
+            ],
+            $this->defaultHeaders
+        );
 
-        $this->clientMock->expects($this->once())->method('request')->with('post', 'cronjob', $expectedOptions)->willReturn($response);
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('post', 'cronjob', $expectedOptions)
+            ->willReturn($response)
+        ;
 
         $this->assertSame($response, $this->subject->create('someJson', ['some' => 'value']));
     }
@@ -80,12 +123,19 @@ class CronJobHttpClientTest extends TestCase
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $expectedOptions = array_merge([
-            'some' => 'value',
-            'body' => 'someJson',
-        ], $this->defaultHeaders);
+        $expectedOptions = array_merge(
+            [
+                'some' => 'value',
+                'body' => 'someJson',
+            ],
+            $this->defaultHeaders
+        );
 
-        $this->clientMock->expects($this->once())->method('request')->with('put', 'cronjob/someId', $expectedOptions)->willReturn($response);
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('put', 'cronjob/someId', $expectedOptions)
+            ->willReturn($response)
+        ;
 
         $this->assertSame($response, $this->subject->update('someId', 'someJson', ['some' => 'value']));
     }
@@ -94,11 +144,18 @@ class CronJobHttpClientTest extends TestCase
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $expectedOptions = array_merge([
-            'some' => 'value',
-        ], $this->defaultHeaders);
+        $expectedOptions = array_merge(
+            [
+                'some' => 'value',
+            ],
+            $this->defaultHeaders
+        );
 
-        $this->clientMock->expects($this->once())->method('request')->with('delete', 'cronjob/someId', $expectedOptions)->willReturn($response);
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('delete', 'cronjob/someId', $expectedOptions)
+            ->willReturn($response)
+        ;
 
         $this->assertSame($response, $this->subject->delete('someId', ['some' => 'value']));
     }

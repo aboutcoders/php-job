@@ -5,7 +5,6 @@ namespace Abc\Job\Client;
 use Abc\ApiProblem\ApiProblem;
 use Abc\ApiProblem\ApiProblemException;
 use Abc\Job\Controller\AbstractController;
-use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractClient
@@ -27,10 +26,19 @@ abstract class AbstractClient
      */
     protected function throwApiProblemException(ResponseInterface $response)
     {
+        $requestBody = $response->getBody()
+            ->getContents()
+        ;
+
         try {
-            $apiProblem = ApiProblem::fromJson($response->getBody()->getContents());
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $apiProblem = new ApiProblem(AbstractController::TYPE_URL.'/'.'internal-error', 'Internal Server Error', 500, 'An internal server error occurred');
+            $apiProblem = ApiProblem::fromJson($requestBody);
+        } catch (\InvalidArgumentException $invalidArgumentException) {
+            $apiProblem = new ApiProblem(
+                AbstractController::TYPE_URL.'undefined',
+                $response->getReasonPhrase(),
+                $response->getStatusCode(),
+                $requestBody
+            );
         }
 
         throw new ApiProblemException($apiProblem);

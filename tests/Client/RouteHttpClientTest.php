@@ -4,6 +4,7 @@ namespace Abc\Job\Tests\Client;
 
 use Abc\Job\Client\RouteHttpClient;
 use GuzzleHttp\ClientInterface;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -29,10 +30,31 @@ class RouteHttpClientTest extends TestCase
         $this->subject = new RouteHttpClient('http://domain.tld/path/', $this->clientMock);
 
         $this->defaultHeaders = [
-            'base_uri' => 'http://domain.tld/path',
+            'base_uri' => 'http://domain.tld/path/',
             'http_errors' => false,
             'headers' => ['Content-Type' => 'application/json'],
         ];
+    }
+
+    public function testConstructFixesBaseUrl(): void
+    {
+        $this->clientMock = $this->createMock(ClientInterface::class);
+
+        $this->subject = new RouteHttpClient('http://domain.tld/cronjob', $this->clientMock);
+
+        $fixBaseUrlCallback = function (array $options) {
+            Assert::assertEquals('http://domain.tld/cronjob/', $options['base_uri']);
+
+            return true;
+        };
+
+        $this->clientMock->expects($this->once())
+            ->method('request')
+            ->with('get', 'route', $this->callback($fixBaseUrlCallback))
+            ->willReturn($this->createMock(ResponseInterface::class));
+        ;
+
+        $this->subject->all();
     }
 
     public function testAll()
