@@ -89,7 +89,13 @@ class JobConsumer implements Processor
         }
 
         if (! empty($this->jobNames) && ! in_array($jobName, $this->jobNames)) {
-            $this->logger->debug(sprintf('[JobConsumer] Requeue job "%s" because processing is limited to jobNames "%s"', $jobName, json_encode($this->jobNames)));
+            $this->logger->debug(
+                sprintf(
+                    '[JobConsumer] Requeue job "%s" because processing is limited to jobNames "%s"',
+                    $jobName,
+                    json_encode($this->jobNames)
+                )
+            );
 
             return self::REQUEUE;
         }
@@ -102,9 +108,18 @@ class JobConsumer implements Processor
 
             $replyQueue = $context->createQueue($message->getReplyTo());
 
-            $logger->info(sprintf('[JobConsumer] Send reply of job %s to queue %s: %s', $message->getCorrelationId(), $message->getReplyTo(), $replyMessage->getBody()));
+            $logger->info(
+                sprintf(
+                    '[JobConsumer] Send reply of job %s to queue %s: %s',
+                    $message->getCorrelationId(),
+                    $message->getReplyTo(),
+                    $replyMessage->getBody()
+                )
+            );
 
-            $context->createProducer()->send($replyQueue, $replyMessage);
+            $context->createProducer()
+                ->send($replyQueue, $replyMessage)
+            ;
         };
 
         $sendOutputCallback = function (string $output) use ($sendReplyCallback) {
@@ -120,12 +135,26 @@ class JobConsumer implements Processor
             return microtime(true) - $start;
         };
 
-        $this->logger->debug(sprintf('[JobConsumer] Route job %s to processor %s with input %s', $jobId, get_class($processor), $message->getBody()));
+        $this->logger->debug(
+            sprintf(
+                '[JobConsumer] Route job %s to processor %s with input %s',
+                $jobId,
+                get_class($processor),
+                $message->getBody()
+            )
+        );
 
         try {
             $result = $processor->process($message->getBody(), $processorContext);
         } catch (\Exception $e) {
-            $result = $this->onProcessorException($e, $sendReplyCallback, $processingTimeCallback(), $processor, $jobId, $jobName);
+            $result = $this->onProcessorException(
+                $e,
+                $sendReplyCallback,
+                $processingTimeCallback(),
+                $processor,
+                $jobId,
+                $jobName
+            );
         }
 
         $reply = $this->createReply($result, $processingTimeCallback());
@@ -147,7 +176,7 @@ class JobConsumer implements Processor
             return new Reply($result->getStatus(), $result->getOutput(), $processingTime);
         }
 
-        if (in_array((string) $result, [Result::COMPLETE, Result::FAILED])) {
+        if (in_array((string)$result, [Result::COMPLETE, Result::FAILED])) {
             return new Reply($result, null, $processingTime);
         }
 
@@ -162,7 +191,19 @@ class JobConsumer implements Processor
         string $jobId,
         string $jobName
     ): string {
-        $this->logger->error(sprintf('[JobConsumer] Exception thrown by processor %s while processing job "%s" with id %s: %s at line %s', get_class($processor), $jobName, $jobId, $exception->getMessage(), $exception->getLine()));
+
+        $this->logger->error(
+            sprintf(
+                '[JobConsumer] Exception thrown by processor %s when processing job "%s": %s [%s](code: %s) at %s line: %s',
+                get_class($processor),
+                $jobId,
+                $exception->getMessage(),
+                get_class($exception),
+                $exception->getCode(),
+                $exception->getFile(),
+                $exception->getLine()
+            )
+        );
 
         return Result::FAILED;
     }
