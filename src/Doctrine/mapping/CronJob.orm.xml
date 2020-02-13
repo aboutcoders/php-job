@@ -9,7 +9,7 @@
         </id>
         <field name="schedule" column="schedule" type="string" length="250" nullable="false"/>
         <field name="scheduledTime" column="scheduledTime" type="integer" nullable="true"/>
-        <field name="name" type="string" length="20" nullable="true"/>
+        <field name="name" type="string" length="25" nullable="true"/>
         <field name="jobJson" column="job_json" type="text" nullable="false"/>
         <field name="updatedAt" column="updated_at" type="datetime"/>
         <field name="createdAt" column="created_at" type="datetime"/>
