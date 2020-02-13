@@ -335,7 +335,7 @@ class ValidatorTest extends TestCase
             [
                 (object) [
                     'type' => (string) Type::JOB(),
-                    'name' => str_repeat('a', 21),
+                    'name' => str_repeat('a', 26),
                 ],
             ],
             #4
@@ -546,7 +546,7 @@ class ValidatorTest extends TestCase
                 (object) [
                     'schedule' => '* * * * *',
                     'type' => (string) Type::JOB(),
-                    'name' => str_repeat('a', 21),
+                    'name' => str_repeat('a', 26),
                 ],
             ],
             #5
@@ -671,17 +671,17 @@ class ValidatorTest extends TestCase
             ],
             [
                 (object) [
-                    'name' => str_repeat('a', 20),
-                    'queue' => str_repeat('a', 20),
-                    'replyTo' => str_repeat('a', 20),
+                    'name' => str_repeat('a', 25),
+                    'queue' => str_repeat('a', 50),
+                    'replyTo' => str_repeat('a', 50),
                 ],
             ],
             [
                 [
                     (object) [
-                        'name' => str_repeat('a', 20),
-                        'queue' => str_repeat('a', 20),
-                        'replyTo' => str_repeat('a', 20),
+                        'name' => str_repeat('a', 25),
+                        'queue' => str_repeat('a', 50),
+                        'replyTo' => str_repeat('a', 50),
                     ],
                 ],
             ],
@@ -747,9 +747,23 @@ class ValidatorTest extends TestCase
             ],
             [
                 (object) [
-                    'name' => str_repeat('a', 21),
-                    'queue' => str_repeat('a', 21),
-                    'replyTo' => str_repeat('a', 21),
+                    'name' => str_repeat('a', 26),
+                    'queue' => str_repeat('a', 50),
+                    'replyTo' => str_repeat('a', 50),
+                ],
+            ],
+            [
+                (object) [
+                    'name' => str_repeat('a', 20),
+                    'queue' => str_repeat('a', 51),
+                    'replyTo' => str_repeat('a', 50),
+                ],
+            ],
+            [
+                (object) [
+                    'name' => str_repeat('a', 20),
+                    'queue' => str_repeat('a', 50),
+                    'replyTo' => str_repeat('a', 51),
                 ],
             ],
             [

@@ -6,14 +6,14 @@
       "title": "The name of a job",
       "pattern": "^[a-zA-z0-9._-]+$",
       "minLength": 3,
-      "maxLength": 20
+      "maxLength": 25
     },
     "queue": {
       "type": "string",
       "title": "The name of a queue",
       "pattern": "^[a-z0-9._]+$",
       "minLength": 3,
-      "maxLength": 20
+      "maxLength": 50
     },
     "route": {
       "type": "object",

@@ -25,7 +25,7 @@
       "title": "The job name",
       "pattern": "^[a-zA-z0-9._-]+$",
       "minLength": 3,
-      "maxLength": 20
+      "maxLength": 25
     },
     "data": {
       "type": ["string", "null"],
@@ -93,7 +93,7 @@
           "title": "The job name",
           "pattern": "^[a-zA-z0-9._-]+$",
           "minLength": 3,
-          "maxLength": 20
+          "maxLength": 25
         },
         "input": {
           "$ref": "#/definitions/data"
