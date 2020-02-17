@@ -34,7 +34,7 @@ class ReplyConsumer implements Processor
 
         try {
             $reply = Reply::fromJson($message->getBody());
-            $this->replyProcessor->process($message->getCorrelationId(), $reply);
+            $this->replyProcessor->process($reply);
         } catch (NotFoundException $exception) {
             $this->logger->error(sprintf('[ReplyConsumer] %s', $exception->getMessage()));
             $this->logger->info(sprintf('[ReplyConsumer] Reject reply for job %s %s', $message->getCorrelationId(), $message->getBody()));

@@ -44,7 +44,7 @@ class ReplyProcessorTest extends TestCase
      */
     public function testProcess(Reply $reply, Job $job, Job $expectedJob)
     {
-        $this->entityManager->expects($this->once())->method('find')->with('jobId')->willReturn($job);
+        $this->entityManager->expects($this->once())->method('find')->with('someJobId')->willReturn($job);
 
         $this->entityManager->expects($this->once())->method('save')->with($this->equalTo($expectedJob));
 
@@ -53,7 +53,7 @@ class ReplyProcessorTest extends TestCase
             return new Result($job);
         });
         
-        $this->subject->process('jobId', $reply);
+        $this->subject->process($reply);
 
         /*echo "actual:";
         echo $this->printJob($job->getRoot());
@@ -69,25 +69,25 @@ class ReplyProcessorTest extends TestCase
         return [
             // 0 single job
             [
-                new Reply(Status::RUNNING, 'someOutput'),
+                new Reply('someJobId',Status::RUNNING, 'someOutput'),
                 self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null),
                 self::createJob(Type::JOB(), Status::RUNNING, 'someOutput', 0, null),
             ],
             // 1 single job
             [
-                new Reply(Status::COMPLETE, 'someOutput', 0.01, 10000),
+                new Reply('someJobId',Status::COMPLETE, 'someOutput', 0.01, 10000),
                 self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
                 self::createJob(Type::JOB(), Status::COMPLETE, 'someOutput', 0.01, new \DateTime('@10000')),
             ],
             // 2 single job
             [
-                new Reply(Status::FAILED, 'someOutput', 0.01, 10000),
+                new Reply('someJobId',Status::FAILED, 'someOutput', 0.01, 10000),
                 self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
                 self::createJob(Type::JOB(), Status::FAILED, 'someOutput', 0.01, new \DateTime('@10000')),
             ],
             // 3 Batch with single child job
             [
-                new Reply(Status::RUNNING, null, 0, 1000),
+                new Reply('someJobId',Status::RUNNING, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::SCHEDULED, null, 0, null),
                     self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null)
@@ -99,7 +99,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 4 Batch with single child job (allowFailure=false) that failed
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null)
@@ -111,7 +111,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 5 Batch with single child job (allowFailure=true) that failed
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true)
@@ -123,7 +123,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 6 Sequence with single child job
             [
-                new Reply(Status::RUNNING, null, 0, 1000),
+                new Reply('someJobId',Status::RUNNING, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::SCHEDULED, null, 0, null),
                     self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null)
@@ -135,7 +135,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 7 Sequence with single child job (allowFailure=false)
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null)
@@ -147,7 +147,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 8 Sequence with single child job (allowFailure=true)
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true)
@@ -159,7 +159,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 9 Sequence with child job with right neighbours
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -179,7 +179,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 10 Sequence with child job with right neighbours
             [
-                new Reply(Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -199,7 +199,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 11 Batch with child job with right neighbours
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -219,7 +219,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 12 Batch with child job with right neighbours
             [
-                new Reply(Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -239,7 +239,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 13 Batch with child job (allowFailure=true) with right neighbours
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true),
@@ -264,7 +264,7 @@ class ReplyProcessorTest extends TestCase
             // |
             // X
             [
-                new Reply(Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
@@ -295,7 +295,7 @@ class ReplyProcessorTest extends TestCase
             // |
             // X
             [
-                new Reply(Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
                 self::createChildJob(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
@@ -326,7 +326,7 @@ class ReplyProcessorTest extends TestCase
             //   |
             //   X
             [
-                new Reply(Status::FAILED, null, 0, 1000),
+                new Reply('someJobId',Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),

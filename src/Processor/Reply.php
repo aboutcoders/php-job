@@ -7,6 +7,11 @@ class Reply
     /**
      * @var string
      */
+    private $jobId;
+
+    /**
+     * @var string
+     */
     private $status;
 
     /**
@@ -25,15 +30,22 @@ class Reply
     private $createdTimestamp;
 
     public function __construct(
+        string $jobId,
         string $status,
-        string $output = null,
-        float $processingTime = 0.0,
-        int $createdTimestamp = null
+        ?string $output = null,
+        ?float $processingTime = null,
+        ?int $createdTimestamp = null
     ) {
-        $this->output = $output;
+        $this->jobId = $jobId;
         $this->status = $status;
+        $this->output = $output;
         $this->processingTime = $processingTime;
         $this->createdTimestamp = $createdTimestamp ?? time();
+    }
+
+    public function getJobId(): string
+    {
+        return $this->jobId;
     }
 
     public function getStatus(): string
@@ -41,7 +53,7 @@ class Reply
         return $this->status;
     }
 
-    public function getProcessingTime(): float
+    public function getProcessingTime(): ?float
     {
         return $this->processingTime;
     }
@@ -58,17 +70,18 @@ class Reply
 
     public static function fromArray($data): self
     {
-        return new static($data['status'], $data['output'] ?? null, $data['processingTime'] ?? 0.0, $data['createdTimestamp'] ?? null);
+        return new static(
+            $data['jobId'],
+            $data['status'],
+            $data['output'] ?? null,
+            $data['processingTime'] ?? null,
+            $data['createdTimestamp'] ?? null
+        );
     }
 
     public function toArray(): array
     {
-        return [
-            'status' => $this->getStatus(),
-            'output' => $this->getOutput(),
-            'processingTime' => $this->getProcessingTime(),
-            'createdTimestamp' => $this->getCreatedTimestamp(),
-        ];
+        return get_object_vars($this);
     }
 
     public static function fromJson(string $json): self

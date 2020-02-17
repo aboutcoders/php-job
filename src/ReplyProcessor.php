@@ -33,15 +33,14 @@ class ReplyProcessor
     }
 
     /**
-     * @param string $jobId
      * @param Reply $reply
      * @throws NotFoundException
      */
-    public function process(string $jobId, Reply $reply): void
+    public function process(Reply $reply): void
     {
-        $job = $this->jobManager->find($jobId);
+        $job = $this->jobManager->find($reply->getJobId());
         if (null == $job) {
-            throw new NotFoundException($jobId);
+            throw new NotFoundException($reply->getJobId());
         }
 
         $job->setOutput($reply->getOutput());
@@ -50,7 +49,7 @@ class ReplyProcessor
         $this->jobManager->save($job);
     }
 
-    private function updateJob(JobInterface $job, string $status, float $processingTime, ?int $timestamp): void
+    private function updateJob(JobInterface $job, string $status, ?float $processingTime, ?int $timestamp): void
     {
         if (Type::SEQUENCE() == $job->getType()) {
             $children = JobManager::sortByPosition($job->getChildren());
@@ -75,8 +74,9 @@ class ReplyProcessor
             }
         }
 
-        $job->addProcessingTime($processingTime);
         $job->setStatus($status);
+        $job->addProcessingTime($processingTime ?? 0);
+
         if (in_array($status, [Status::COMPLETE, Status::FAILED])) {
             $job->setCompletedAt(new \DateTime('@'.$timestamp));
         }

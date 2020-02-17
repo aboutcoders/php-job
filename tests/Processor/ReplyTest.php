@@ -31,20 +31,22 @@ class ReplyTest extends TestCase
     public static function getConstructorArgs(): array
     {
         return [
-            [[Status::COMPLETE], Status::COMPLETE, null, 0.0],
+            [['someJobId', Status::COMPLETE], Status::COMPLETE, null, null],
+            [['someJobId', Status::COMPLETE, 'someOutput', 1.0], Status::COMPLETE, 'someOutput', 1.0],
         ];
     }
 
     /**
      * @param string $json
+     * @param Reply $expectedReply
      * @dataProvider provideValidJson
      */
-    public function testFromJson(string $json, $status)
+    public function testFromJson(string $json, Reply $expectedReply)
     {
         $reply = Reply::fromJson($json);
 
         $this->assertInstanceOf(Reply::class, $reply);
-        $this->assertEquals($status, $reply->getStatus());
+        $this->assertEquals($expectedReply, $reply);
     }
 
     public static function provideValidJson(): array
@@ -52,10 +54,22 @@ class ReplyTest extends TestCase
         return [
             [
                 json_encode((object) [
+                    'jobId' => 'someId',
                     'status' => Status::RUNNING,
+                    'createdTimestamp' => 100
                 ]),
-                Status::RUNNING,
+                new Reply('someId', Status::RUNNING, null, null, 100)
             ],
+            [
+                json_encode((object) [
+                    'jobId' => 'someId',
+                    'status' => Status::RUNNING,
+                    'output' => 'someOutput',
+                    'processingTime' => 1.0,
+                    'createdTimestamp' => 100
+                ]),
+                new Reply('someId', Status::RUNNING, 'someOutput', 1.0, 100)
+            ]
         ];
     }
 

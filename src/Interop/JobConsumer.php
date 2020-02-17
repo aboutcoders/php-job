@@ -122,13 +122,13 @@ class JobConsumer implements Processor
             ;
         };
 
-        $sendOutputCallback = function (string $output) use ($sendReplyCallback) {
-            $sendReplyCallback(new Reply(Status::RUNNING, $output));
+        $sendOutputCallback = function (string $output) use ($jobId, $sendReplyCallback) {
+            $sendReplyCallback(new Reply($jobId, Status::RUNNING, $output));
         };
 
         $processorContext = $this->createContext($message, $sendOutputCallback);
 
-        $sendReplyCallback(new Reply(Status::RUNNING));
+        $sendReplyCallback(new Reply($jobId,Status::RUNNING));
 
         $start = microtime(true);
         $processingTimeCallback = function () use ($start) {
@@ -157,7 +157,7 @@ class JobConsumer implements Processor
             );
         }
 
-        $reply = $this->createReply($result, $processingTimeCallback());
+        $reply = $this->createReply($jobId, $result, $processingTimeCallback());
 
         $sendReplyCallback($reply);
 
@@ -169,15 +169,15 @@ class JobConsumer implements Processor
         return new JobContext($message->getCorrelationId(), $sendOutputCallback);
     }
 
-    private function createReply($result, float $processingTime): Reply
+    private function createReply(string $jobId, $result, float $processingTime): Reply
     {
         if (is_a($result, Result::class)) {
             /** @var Result $result */
-            return new Reply($result->getStatus(), $result->getOutput(), $processingTime);
+            return new Reply($jobId, $result->getStatus(), $result->getOutput(), $processingTime);
         }
 
         if (in_array((string)$result, [Result::COMPLETE, Result::FAILED])) {
-            return new Reply($result, null, $processingTime);
+            return new Reply($jobId, $result, null, $processingTime);
         }
 
         throw new \LogicException(sprintf('Status is not supported: %s', $result));
