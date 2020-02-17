@@ -51,7 +51,7 @@ class GenericDriverTest extends TestCase
         $this->routeRegistry->expects($this->once())->method('get')->with('jobName')->willReturn($route);
 
         $message = $this->createMock(Message::class);
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn('jobName');
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn('jobName');
         $message->expects($this->once())->method('setReplyTo')->with('replyTo');
 
         $queue = $this->createMock(Queue::class);
@@ -68,7 +68,7 @@ class GenericDriverTest extends TestCase
     public function testSendMessageWithoutRoute()
     {
         $message = $this->createMock(Message::class);
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn('undefined');
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn('undefined');
 
         $this->routeRegistry->expects($this->once())->method('get')->with('undefined')->willReturn(null);
 
@@ -81,7 +81,7 @@ class GenericDriverTest extends TestCase
     {
         $message = $this->createMock(Message::class);
 
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn(false);
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn(false);
 
         $this->expectException(\InvalidArgumentException::class);
 

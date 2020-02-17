@@ -45,7 +45,7 @@ abstract class GenericDriver implements DriverInterface
      */
     public function sendMessage(Message $message): void
     {
-        $jobName = $message->getHeader(Config::NAME, false);
+        $jobName = $message->getProperty(Config::NAME, false);
         if (false === $jobName) {
             throw new \InvalidArgumentException(sprintf('The job name must be set in the message header "%s"', Config::NAME));
         }

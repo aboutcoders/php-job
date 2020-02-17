@@ -55,7 +55,7 @@ class JobConsumerTest extends TestCase
     {
         $message = $this->createMock(Message::class);
         $message->expects($this->any())->method('getCorrelationId')->willReturn('someId');
-        $message->expects($this->atLeastOnce())->method('getHeader')->with(Config::NAME, false)->willReturn(false);
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn(false);
 
         $this->assertEquals(Processor::REJECT, $this->subject->process($message, $this->createMock(Context::class)));
     }
@@ -67,7 +67,7 @@ class JobConsumerTest extends TestCase
     {
         $message = $this->createMock(Message::class);
         $message->expects($this->any())->method('getCorrelationId')->willReturn('someId');
-        $message->expects($this->atLeastOnce())->method('getHeader')->with(Config::NAME, false)->willReturn('jobName');
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn('jobName');
 
         $this->registry->expects($this->atLeastOnce())->method('get')->with('jobName')->willReturn(null);
 
@@ -81,7 +81,7 @@ class JobConsumerTest extends TestCase
     {
         $message = $this->createMock(Message::class);
         $message->expects($this->any())->method('getCorrelationId')->willReturn('someId');
-        $message->expects($this->atLeastOnce())->method('getHeader')->with(Config::NAME, false)->willReturn('jobName');
+        $message->expects($this->atLeastOnce())->method('getProperty')->with(Config::NAME, false)->willReturn('jobName');
 
         $processor = $this->createMock(ProcessorInterface::class);
 
@@ -270,7 +270,7 @@ class JobConsumerTest extends TestCase
     {
         $message = $this->createMock(Message::class);
         $message->expects($this->any())->method('getCorrelationId')->willReturn($jobId);
-        $message->expects($this->any())->method('getHeader')->with(Config::NAME, false)->willReturn($jobName);
+        $message->expects($this->any())->method('getProperty')->with(Config::NAME, false)->willReturn($jobName);
         $message->expects($this->any())->method('getBody')->willReturn($body);
         $message->expects($this->any())->method('getReplyTo')->willReturn($replyQueue);
 

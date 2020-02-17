@@ -50,6 +50,6 @@ class ProducerTest extends TestCase
         $this->assertNotEmpty($message->getMessageId());
         $this->assertLessThanOrEqual(time(), $message->getTimestamp());
         $this->assertEquals($job->getId(), $message->getCorrelationId());
-        $this->assertEquals($job->getName(), $message->getHeader(Config::NAME));
+        $this->assertEquals($job->getName(), $message->getProperty(Config::NAME));
     }
 }

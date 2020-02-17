@@ -25,7 +25,7 @@ class Producer implements ProducerInterface
         $message->setMessageId(Uuid::uuid4());
         $message->setTimestamp(time());
         $message->setCorrelationId($job->getId());
-        $message->setHeader(Config::NAME, $job->getName());
+        $message->setProperty(Config::NAME, $job->getName());
 
         $this->driver->sendMessage($message);
     }

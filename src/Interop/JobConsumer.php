@@ -74,7 +74,7 @@ class JobConsumer implements Processor
             return self::REJECT;
         }
 
-        $jobName = $message->getHeader(Config::NAME, false);
+        $jobName = $message->getProperty(Config::NAME, false);
         if (false === $jobName) {
             $this->logger->warning(sprintf('[JobConsumer] Reject message due to missing header "%s"', Config::NAME));
 
