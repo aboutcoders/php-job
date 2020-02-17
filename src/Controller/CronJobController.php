@@ -2,6 +2,7 @@
 
 namespace Abc\Job\Controller;
 
+use Abc\ApiProblem\InvalidParameter;
 use Abc\Job\CronJob;
 use Abc\Job\CronJobFilter;
 use Abc\Job\CronJobManager;
@@ -10,6 +11,7 @@ use Abc\Job\JobServerInterface;
 use Abc\Job\Util\CronJobArray;
 use Abc\Job\Util\ResultArray;
 use Abc\Job\ValidatorInterface;
+use Cron\CronExpression;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -251,6 +253,10 @@ class CronJobController extends AbstractController
 
             $cronJob = \Abc\Job\Model\CronJob::fromJson($json);
 
+            if(!CronExpression::isValidExpression($cronJob->getSchedule())) {
+               return $this->createInvalidParamResponse([new InvalidParameter('schedule', 'Invalid cron job expression', $cronJob->getSchedule())], $requestUri);
+            }
+
             $managedCronJob = $this->cronJobManager->create($cronJob->getSchedule(), $cronJob->getJob());
 
             return new Response(201, static::$headers_ok, $managedCronJob->toJson());
@@ -317,6 +323,11 @@ class CronJobController extends AbstractController
             }
 
             $cronJob = \Abc\Job\Model\CronJob::fromJson($json);
+
+            if(!CronExpression::isValidExpression($cronJob->getSchedule())) {
+                return $this->createInvalidParamResponse([new InvalidParameter('schedule', 'Invalid cron job expression', $cronJob->getSchedule())], $requestUri);
+            }
+
             $managedCronJob->setSchedule($cronJob->getSchedule());
             $managedCronJob->setJob($cronJob->getJob());
 

@@ -3,6 +3,7 @@
 namespace Abc\Job\Tests\Controller;
 
 use Abc\Job\Controller\JobController;
+use Abc\Job\Model\CronJob;
 use Abc\Job\Result;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -64,6 +65,22 @@ abstract class AbstractControllerTestCase extends TestCase
         $this->assertEquals('name', $data['invalid-params'][0]['name']);
         $this->assertEquals('reason', $data['invalid-params'][0]['reason']);
         $this->assertEquals('value', $data['invalid-params'][0]['value']);
+    }
+
+    protected function assertInvalidCronExpressionResponse(ResponseInterface $response, CronJob $cronJob)
+    {
+        $this->assertStatusCode(400, $response);
+        $this->assertProblemJsonResponseHeader($response);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(JobController::TYPE_URL.'invalid-parameters', $data['type']);
+        $this->assertEquals('Your request parameters didn\'t validate.', $data['title']);
+        $this->assertEquals(400, $data['status']);
+        $this->assertEquals('One or more parameters are invalid.', $data['detail']);
+        $this->assertEquals('requestUri', $data['instance']);
+        $this->assertEquals('schedule', $data['invalid-params'][0]['name']);
+        $this->assertEquals('Invalid cron job expression', $data['invalid-params'][0]['reason']);
+        $this->assertEquals($cronJob->getSchedule(), $data['invalid-params'][0]['value']);
     }
 
     protected function assertNotFoundResponse(ResponseInterface $response, string $id)

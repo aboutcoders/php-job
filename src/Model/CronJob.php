@@ -71,7 +71,7 @@ class CronJob implements CronJobInterface
 
     public function getSchedule(): string
     {
-        if (null == $this->schedule) {
+        if (null === $this->schedule) {
             throw new \LogicException(sprintf('Expected the variable $schedule to be set. Either %s must call the parent constructor of %s or call setSchedule() right after instantiation.', get_class($this), self::class));
         }
 

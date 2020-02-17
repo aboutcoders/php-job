@@ -229,6 +229,22 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->assertInvalidJsonResponse($response, 'some message');
     }
 
+    public function testCreateWithInvalidCronExpression()
+    {
+        $cronJob = static::createCronJob();
+        $cronJob->setSchedule('');
+        $json = $cronJob->toJson();
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\CronJob::class)->willReturn([]);
+
+        $this->cronJobManagerMock->expects($this->never())->method('create');
+
+        $response = $this->subject->create($json, 'requestUri');
+
+        $this->assertInvalidCronExpressionResponse($response, $cronJob);
+
+    }
+
     public function testCreateWithServerException()
     {
         $cronJob = static::createCronJob();
@@ -247,7 +263,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
     {
         $managedCronJob = static::createManagedCronJob();
 
-        $updatedJob = $cronJob = new CronJob('updatedSchedule', new Job(Type::JOB(), 'anotherJobName'));
+        $updatedJob = $cronJob = new CronJob('* 10 * * *', new Job(Type::JOB(), 'anotherJobName'));
         $json = $updatedJob->toJson();
         $expectedJob = clone $managedCronJob;
         $expectedJob->setJob($updatedJob->getJob());
@@ -310,6 +326,27 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->update('someCronJobId', $json, 'requestUri');
 
         $this->assertInvalidJsonResponse($response, 'some message');
+    }
+
+    public function testUpdateWithInvalidCronExpression()
+    {
+        $managedCronJob = static::createManagedCronJob();
+
+        $updatedJob = $cronJob = new CronJob('updatedSchedule', new Job(Type::JOB(), 'anotherJobName'));
+        $updatedJob->setSchedule('');
+        $json = $updatedJob->toJson();
+        $expectedJob = clone $managedCronJob;
+        $expectedJob->setJob($updatedJob->getJob());
+        $expectedJob->setSchedule($updatedJob->getSchedule());
+
+        $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\CronJob::class)->willReturn([]);
+
+        $this->cronJobManagerMock->expects($this->once())->method('find')->with('cronJobId')->willReturn($managedCronJob);
+        $this->cronJobManagerMock->expects($this->never())->method('update');
+
+        $response = $this->subject->update('cronJobId', $json, 'requestUri');
+
+        $this->assertInvalidCronExpressionResponse($response, $updatedJob);
     }
 
     public function testUpdateWithServerException()
