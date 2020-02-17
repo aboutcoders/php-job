@@ -312,7 +312,7 @@ class ValidatorTest extends TestCase
     public static function provideInvalidJob(): array
     {
         return [
-            #0
+            #0 type and name are mandatory
             [
                 (object) [
                     'type' => (string) Type::JOB(),
@@ -324,30 +324,33 @@ class ValidatorTest extends TestCase
                     'name' => 'valid',
                 ],
             ],
-            #2
+            #2 type in (Job,Batch,Sequence)
+            [
+                (object) [
+                    'type' => 'InvalidType',
+                    'name' => 'valid'
+                ],
+            ],
+            #3 min 3 characters for job name
             [
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => str_repeat('a', 2),
                 ],
             ],
-            #3
+            #4 max 25 characters for job name
             [
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => str_repeat('a', 26),
                 ],
             ],
-            #4
+            #5 Job must not have children
             [
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
                     'children' => [
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
@@ -515,7 +518,7 @@ class ValidatorTest extends TestCase
     public static function provideInvalidCronJob(): array
     {
         return [
-            #0
+            #0 type and name are mandatory
             [
                 (object) [
                     'type' => (string) Type::JOB(),
@@ -533,7 +536,15 @@ class ValidatorTest extends TestCase
                     'schedule' => '* * * * *',
                 ],
             ],
-            #3
+            #3 supported types
+            [
+                (object) [
+                    'type' => 'InvalidType',
+                    'schedule' => '* * * * *',
+                    'name' => 'valid',
+                ],
+            ],
+            #4 min 3 characters for job name
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -541,7 +552,7 @@ class ValidatorTest extends TestCase
                     'name' => str_repeat('a', 2),
                 ],
             ],
-            #4
+            #5 max 25 characters for job name
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -549,14 +560,14 @@ class ValidatorTest extends TestCase
                     'name' => str_repeat('a', 26),
                 ],
             ],
-            #5
+            #6
             [
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
                 ],
             ],
-            #6
+            #7 empty Sequence
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -564,7 +575,7 @@ class ValidatorTest extends TestCase
                     'children' => [],
                 ],
             ],
-            #7
+            #8 empty Batch
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -572,7 +583,7 @@ class ValidatorTest extends TestCase
                     'children' => [],
                 ],
             ],
-            #8
+            #9 Job with children
             [
                 (object) [
                     'schedule' => '* * * * *',
@@ -583,21 +594,16 @@ class ValidatorTest extends TestCase
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                         ],
-                        (object) [
-                            'type' => (string) Type::JOB(),
-                            'name' => 'valid',
-                        ],
                     ],
                 ],
             ],
-
         ];
     }
 
     public static function provideValidFilter(): array
     {
         return [
-            /*['ids=00000000-0000-0000-0000-000000000000'],
+            ['ids=00000000-0000-0000-0000-000000000000'],
             [
                 'ids='.implode(',', [
                     '00000000-0000-0000-0000-000000000000',
@@ -610,10 +616,11 @@ class ValidatorTest extends TestCase
                     '00000000-0000-0000-0000-000000000000',
                     '00000000-1111-1111-1111-111111111111',
                 ]),
-            ],*/ ['names=valid'],
+            ],
+            ['names=valid'],
             ['names=validA,validB'],
-            #['status=failure'],
-            #['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled'])],
+            ['status=failure'],
+            ['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled'])],
         ];
     }
 

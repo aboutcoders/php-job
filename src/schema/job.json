@@ -43,7 +43,7 @@
       ],
       "properties": {
         "type": {
-          "const": "Job"
+          "$ref": "#/definitions/type"
         },
         "name": {
           "$ref": "#/definitions/name"
