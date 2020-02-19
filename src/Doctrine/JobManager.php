@@ -147,7 +147,14 @@ class JobManager extends BaseJobManager
 
             $query = $qb->getQuery();
             $query->setMaxResults(1);
-            $jobs[] = $query->getSingleResult($query::HYDRATE_OBJECT);
+
+            try {
+                $jobs[] = $query->getSingleResult($query::HYDRATE_OBJECT);
+            }
+            catch (NoResultException $e)
+            {
+                // nothing to do h
+            }
         }
 
         return $jobs;
