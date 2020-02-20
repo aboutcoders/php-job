@@ -25,10 +25,10 @@
       "enum": ["true", "false"]
     },
     "offset": {
-      "type": "integer"
+      "type": ["string", "number"]
     },
     "limit": {
-      "type": "integer"
+      "type": ["string", "number"]
     }
   },
   "additionalProperties": false
