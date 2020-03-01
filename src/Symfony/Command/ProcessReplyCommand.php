@@ -14,7 +14,7 @@ class ProcessReplyCommand extends BaseProcessCommand
 
     protected function configure(): void
     {
-        $this->setDescription('A worker that processes jobs replies from a broker'.'To use this worker you have to explicitly set the queues to consume from');
+        $this->setDescription('A worker that processes jobs replies from a broker. '.'To use this worker you have to explicitly set the queues to consume replies from.');
 
         $queuesArgument = $this->consumeCommand->getDefinition()->getArgument('queues');
 
