@@ -30,7 +30,6 @@ class ScheduleProcessor implements ProcessorInterface
         }
 
         $job = $cronJob->getJob();
-        $job->setExternalId($cronJob->getId());
 
         $this->jobServer->process($job);
     }

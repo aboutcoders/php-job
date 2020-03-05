@@ -8,12 +8,9 @@ use Abc\Job\CronJobFilter;
 use Abc\Job\CronJobManager;
 use Abc\Job\InvalidJsonException;
 use Abc\Job\Job;
-use Abc\Job\JobFilter;
-use Abc\Job\JobServerInterface;
 use Abc\Job\Model\CronJob;
 use Abc\Job\Model\CronJobInterface;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Result;
 use Abc\Job\Status;
 use Abc\Job\Type;
 use Abc\Job\ValidatorInterface;
@@ -27,12 +24,6 @@ class CronJobControllerTest extends AbstractControllerTestCase
      * @var CronJobManager|MockObject
      */
     private $cronJobManagerMock;
-
-    /**
-     * @var JobServerInterface
-     */
-    private $jobServerMock;
-
     /**
      * @var ValidatorInterface|MockObject
      */
@@ -46,9 +37,8 @@ class CronJobControllerTest extends AbstractControllerTestCase
     public function setUp(): void
     {
         $this->cronJobManagerMock = $this->createMock(CronJobManager::class);
-        $this->jobServerMock = $this->createMock(JobServerInterface::class);
         $this->validatorMock = $this->createMock(ValidatorInterface::class);
-        $this->subject = new CronJobController($this->cronJobManagerMock, $this->jobServerMock, $this->validatorMock, new NullLogger());
+        $this->subject = new CronJobController($this->cronJobManagerMock, $this->validatorMock, new NullLogger());
     }
 
     public function testList()
@@ -134,49 +124,6 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $this->cronJobManagerMock->expects($this->once())->method('find')->willThrowException(new \Exception());
 
         $response = $this->subject->find('cronJobId', 'requestUri');
-
-        $this->assertServerErrorResponse($response);
-    }
-
-    public function testResults()
-    {
-        $cronJob = $this->createManagedCronJob();
-        $result = new Result($this->createManagedJob($cronJob));
-
-        $expectedFilter = new JobFilter();
-        $expectedFilter->setExternalIds([$cronJob->getId()]);
-
-        $this->cronJobManagerMock->expects($this->once())->method('find')->with($cronJob->getId())->willReturn($cronJob);
-        $this->jobServerMock->expects($this->once())->method('list')->with($this->equalTo($expectedFilter))->willReturn([$result]);
-
-        $response = $this->subject->results($cronJob->getId(), 'requestUri');
-
-        $this->assertStatusCode(200, $response);
-        $this->assertStdJsonResponseHeader($response);
-
-        $json = $response->getBody()->getContents();
-
-        $data = json_decode($json, true);
-
-        $this->assertJsonResult($result, $data[0]);
-    }
-
-    public function testResultsWithCronJobNotFound()
-    {
-        $this->cronJobManagerMock->expects($this->once())->method('find')->with('cronJobId')->willReturn(null);
-
-        $response = $this->subject->results('cronJobId', 'requestUri');
-
-        $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'cronJobId');
-    }
-
-    public function testResultsWithServerError()
-    {
-        $this->cronJobManagerMock->expects($this->once())->method('find')->with('someId')->willThrowException(new \Exception('someException'));
-        $this->jobServerMock->expects($this->never())->method('list');
-
-        $response = $this->subject->results('someId', 'requestUri');
 
         $this->assertServerErrorResponse($response);
     }

@@ -44,12 +44,16 @@ class ScheduleProcessorTest extends TestCase
         $job = Job::fromArray([
             'type' => Type::JOB(),
             'name' => 'someName',
+            'externalId' => 'someExternalId'
         ]);
 
-        $cronJob = new CronJob('* * * * *', $job);
+        $cronJob = new CronJob('* * * * *', Job::fromArray($job->toArray()));
+        $cronJob->setId('someCronJobId');
 
         $this->jobServer->expects($this->once())->method('process')->with($this->equalTo($job));
 
         $this->subject->process($cronJob);
+
+        $this->assertNotSame($job, $cronJob->getJob());
     }
 }
