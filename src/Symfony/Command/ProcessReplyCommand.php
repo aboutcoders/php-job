@@ -28,7 +28,7 @@ class ProcessReplyCommand extends BaseProcessCommand
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $parameters = [
-
+            'processor' => 'job_reply',
             'queues' => ! is_array($input->getArgument('queues')) ? [$input->getArgument('queues')] : $input->getArgument('queues'),
         ];
 
