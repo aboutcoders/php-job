@@ -8,7 +8,6 @@ use Abc\Job\Broker\RouteCollection;
 use Abc\Job\Interop\DriverInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
 class BrokerTest extends TestCase
 {
@@ -26,7 +25,7 @@ class BrokerTest extends TestCase
     {
         $this->assertSame(
             'someName',
-            (new Broker('someName', $this->driver, new RouteCollection(), new NullLogger()))->getName()
+            (new Broker('someName', $this->driver, new RouteCollection()))->getName()
         );
     }
 
@@ -44,6 +43,13 @@ class BrokerTest extends TestCase
         $this->driver->expects($this->at(2))->method('declareQueue')->with('queueB');
         $this->driver->expects($this->at(3))->method('declareQueue')->with('replyToB');
 
-        (new Broker('someName', $this->driver, $routes, new NullLogger()))->setup();
+        (new Broker('someName', $this->driver, $routes))->setup();
+    }
+
+    public function testSetupNoRoutes()
+    {
+        $this->expectException(\LogicException::class);
+
+        (new Broker('someName', $this->driver, new RouteCollection()))->setup();
     }
 }

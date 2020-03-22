@@ -4,6 +4,7 @@ namespace Abc\Job\Broker;
 
 use Abc\Job\Interop\DriverInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Broker implements BrokerInterface
 {
@@ -22,21 +23,11 @@ class Broker implements BrokerInterface
      */
     private $routes;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(
-        string $name,
-        DriverInterface $driver,
-        RouteRegistryInterface $routes,
-        LoggerInterface $logger
-    ) {
+    public function __construct(string $name, DriverInterface $driver, RouteRegistryInterface $routes)
+    {
         $this->name = $name;
         $this->driver = $driver;
         $this->routes = $routes;
-        $this->logger = $logger;
     }
 
     public function getName(): string
@@ -51,12 +42,11 @@ class Broker implements BrokerInterface
 
     public function setup(LoggerInterface $logger = null): void
     {
-        $logger = $logger ?: $this->logger;
-
         if (empty($this->routes->all())) {
-            $logger->warning(sprintf('Failed to setup broker "%s" since no routes are registered ', $this->name));
+            throw new \LogicException('Failed to setup since no routes are registered');
         }
 
+        $logger = $logger ?: new NullLogger();
         $declaredQueues = [];
         foreach ($this->routes->all() as $route) {
             $this->declareQueueOnce($route->getQueue(), $declaredQueues, $logger);
