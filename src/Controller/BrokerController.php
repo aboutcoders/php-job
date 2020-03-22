@@ -2,6 +2,7 @@
 
 namespace Abc\Job\Controller;
 
+use Abc\ApiProblem\ApiProblem;
 use Abc\Job\Broker\RegistryInterface;
 use GuzzleHttp\Psr7\Response;
 use OpenApi\Annotations as OA;
@@ -40,24 +41,24 @@ class BrokerController extends AbstractController
      *         )
      *     ),
      *     @OA\Response(
-     *          response=200,
-     *          description="We'll see",
-     *          @OA\JsonContent(ref="#/components/schemas/Broker")
+     *         response=200,
+     *         description="In case of success",
+     *         @OA\JsonContent(ref="#/components/schemas/Broker")
      *     ),
      *     @OA\Response(
-     *          response=404,
-     *          description="In case a broker with the given name is not found",
-     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *         response="4XX",
+     *         description="In case of client errors",
+     *         @OA\JsonContent(ref="#/components/schemas/ApiProblem")
      *     ),
      *     @OA\Response(
-     *          response=500,
-     *          description="In case of an internal server error",
-     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *         response="5XX",
+     *         description="In case of server errors",
+     *         @OA\JsonContent(ref="#/components/schemas/ApiProblem")
      *     )
      * )
      *
      * @param string $name
-     * @param string $requestUri
+     * @param string $requestUrix
      * @return ResponseInterface
      */
     public function setup(string $name, string $requestUri): ResponseInterface
@@ -66,6 +67,18 @@ class BrokerController extends AbstractController
             function () use ($name, $requestUri) {
                 if (!$this->registry->exists($name)) {
                     return $this->createNotFoundResponse($name, $this::RESOURCE_NAME, $requestUri);
+                }
+
+                if (0 === (int)$this->registry->get($name)->getRoutes()) {
+                    return $this->createProblemResponse(
+                        new ApiProblem(
+                            self::buildTypeUrl('conflict'),
+                            'Conflict',
+                            409,
+                            sprintf('No routes registered'),
+                            $requestUri
+                        )
+                    );
                 }
 
                 $broker = $this->registry->get($name);

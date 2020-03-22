@@ -5,6 +5,7 @@ namespace Abc\Job\Client;
 use Abc\ApiProblem\ApiProblemException;
 use Abc\Job\Broker\BrokerInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class BoundBrokerClient implements BrokerInterface
 {
@@ -29,8 +30,20 @@ class BoundBrokerClient implements BrokerInterface
         return $this->name;
     }
 
+    public function getRoutes(): ?array
+    {
+        //fixme: not implemented yet (not needed yet)
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ApiProblemException
+     */
     public function setUp(LoggerInterface $logger = null): void
     {
+        $logger = $logger ?: new NullLogger();
+
         try {
             $this->client->setup($this->name);
 
@@ -38,11 +51,14 @@ class BoundBrokerClient implements BrokerInterface
         } catch (ApiProblemException $exception) {
             $logger->error(
                 sprintf(
-                    'Broker setup failed with error: %s code: %s',
+                    'Broker setup failed: %s %s: %s',
+                    $exception->getCode(),
+                    $exception->getApiProblem()->getTitle(),
                     $exception->getApiProblem()->getDetail(),
-                    $exception->getCode()
                 )
             );
+
+            throw $exception;
         }
     }
 }

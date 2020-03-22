@@ -27,8 +27,12 @@ class Broker implements BrokerInterface
      */
     private $logger;
 
-    public function __construct(string $name, DriverInterface $driver, RouteRegistryInterface $routes, LoggerInterface $logger)
-    {
+    public function __construct(
+        string $name,
+        DriverInterface $driver,
+        RouteRegistryInterface $routes,
+        LoggerInterface $logger
+    ) {
         $this->name = $name;
         $this->driver = $driver;
         $this->routes = $routes;
@@ -40,12 +44,23 @@ class Broker implements BrokerInterface
         return $this->name;
     }
 
+    public function getRoutes(): ?array
+    {
+        return $this->routes->all();
+    }
+
     public function setup(LoggerInterface $logger = null): void
     {
+        $logger = $logger ?: $this->logger;
+
+        if (empty($this->routes->all())) {
+            $logger->warning(sprintf('Failed to setup broker "%s" since no routes are registered ', $this->name));
+        }
+
         $declaredQueues = [];
         foreach ($this->routes->all() as $route) {
-            $this->declareQueueOnce($route->getQueue(), $declaredQueues, $logger ?? $this->logger);
-            $this->declareQueueOnce($route->getReplyTo(), $declaredQueues, $logger ?? $this->logger);
+            $this->declareQueueOnce($route->getQueue(), $declaredQueues, $logger);
+            $this->declareQueueOnce($route->getReplyTo(), $declaredQueues, $logger);
         }
     }
 

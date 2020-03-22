@@ -2,48 +2,48 @@
 
 namespace Abc\Job\Tests\Client;
 
+use Abc\ApiProblem\ApiProblem;
 use Abc\ApiProblem\ApiProblemException;
+use Abc\Job\Client\BoundBrokerClient;
 use Abc\Job\Client\BrokerClient;
-use Abc\Job\Client\BrokerHttpClient;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class BoundBrokerClientTest extends AbstractClientTestCase
 {
     /**
-     * @var BrokerHttpClient|MockObject
+     * @var BrokerClient|MockObject
      */
-    private $httpClientMock;
+    private $brokerClient;
 
     /**
-     * @var BrokerClient
+     * @var BoundBrokerClient
      */
     private $subject;
 
     public function setUp(): void
     {
-        $this->httpClientMock = $this->createMock(BrokerHttpClient::class);
+        $this->brokerClient = $this->createMock(BrokerClient::class);
 
-        $this->subject = new BrokerClient($this->httpClientMock);
+        $this->subject = new BoundBrokerClient('someName', $this->brokerClient);
     }
 
     public function testSetup()
     {
-        $response = new Response(200, []);
+        $this->brokerClient->expects($this->once())->method('setup')->with('someName');
 
-        $this->httpClientMock->expects($this->once())->method('setup')->with('someName')->willReturn($response);
-
-        $this->subject->setup('someName');
+        $this->subject->setup();
     }
 
-    public function testListWithHttpError()
+    public function testSetupApiProblemException()
     {
-        $this->httpClientMock->expects($this->once())->method('setup')->with('someName')->willReturn(
-            new Response(400, [], $this->createApiProblemJson())
+        $this->brokerClient->expects($this->once())->method('setup')->with('someName')->willThrowException(
+            new ApiProblemException(
+                new ApiProblem('type', 'title', 400, 'detail', 'instance')
+            )
         );
 
         $this->expectException(ApiProblemException::class);
 
-        $this->subject->setup('someName');
+        $this->subject->setup();
     }
 }

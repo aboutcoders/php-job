@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ProcessJobCommand extends BaseProcessCommand
 {
-    protected static $defaultName = 'abc:process:job';
+    protected static $defaultName = 'abc:job:process';
 
     /**
      * @var ProcessorRegistry
@@ -46,6 +46,8 @@ class ProcessJobCommand extends BaseProcessCommand
 
     protected function configure(): void
     {
+        $this->setAliases(['abc:process:job']);
+
         $this->setDescription('A worker that processes jobs from a broker. '.'To use this worker you have to explicitly set the jobs to process');
 
         $this->addArgument('jobs', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'A job to process');

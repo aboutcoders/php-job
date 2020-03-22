@@ -36,6 +36,44 @@ class RouteController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *     path="/route",
+     *     tags={"Route"},
+     *     description="Returns a list of route objects",
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Route")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *          response=500,
+     *          description="In case of an internal server error",
+     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
+     *     )
+     * )
+     * @param string $requestUri
+     * @return ResponseInterface
+     */
+    public function list(string $requestUri): ResponseInterface
+    {
+        return $this->handleExceptions(
+            function () use ($requestUri) {
+                $routes = [];
+                foreach ($this->registry->all() as $route) {
+                    $routes[] = (object)$route->toArray();
+                }
+
+                return new Response(200, static::$headers_ok, json_encode($routes));
+            },
+            $requestUri,
+            $this->logger
+        );
+    }
+
+    /**
      * @OA\Post(
      *     path="/route",
      *     tags={"Route"},
@@ -60,7 +98,7 @@ class RouteController extends AbstractController
      * @param string $requestUri
      * @return ResponseInterface
      */
-    public function create(string $json, string $requestUri): ResponseInterface
+    public function set(string $json, string $requestUri): ResponseInterface
     {
         return $this->handleExceptions(
             function () use ($json, $requestUri) {
@@ -80,44 +118,6 @@ class RouteController extends AbstractController
                 }
 
                 return new Response(201);
-            },
-            $requestUri,
-            $this->logger
-        );
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/route",
-     *     tags={"Route"},
-     *     description="Returns a list of route objects",
-     *     @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
-     *          @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Route")
-     *         ),
-     *     ),
-     *     @OA\Response(
-     *          response=500,
-     *          description="In case of an internal server error",
-     *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
-     *     )
-     * )
-     * @param string $requestUri
-     * @return ResponseInterface
-     */
-    public function all(string $requestUri): ResponseInterface
-    {
-        return $this->handleExceptions(
-            function () use ($requestUri) {
-                $routes = [];
-                foreach ($this->registry->all() as $route) {
-                    $routes[] = (object)$route->toArray();
-                }
-
-                return new Response(200, static::$headers_ok, json_encode($routes));
             },
             $requestUri,
             $this->logger

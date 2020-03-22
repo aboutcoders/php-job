@@ -22,6 +22,14 @@ class BrokerTest extends TestCase
         $this->driver = $this->createMock(DriverInterface::class);
     }
 
+    public function testGetName()
+    {
+        $this->assertSame(
+            'someName',
+            (new Broker('someName', $this->driver, new RouteCollection(), new NullLogger()))->getName()
+        );
+    }
+
     public function testSetup()
     {
         $routeA = new Route('jobA', 'queueA', 'replyToA');

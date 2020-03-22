@@ -20,5 +20,7 @@ interface BrokerInterface
 {
     public function getName(): string;
 
+    public function getRoutes(): ?array;
+
     public function setup(LoggerInterface $logger = null): void;
 }
