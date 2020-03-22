@@ -141,6 +141,7 @@ class JobServerTest extends TestCase
     {
         $managedJob = self::createManagedJob(Type::JOB());
         $resetJob = self::createResetJobFromJob($managedJob);
+        $resetJob->setRestarts(1);
 
         $this->jobManager->expects($this->once())->method('find')->willReturn($managedJob);
 
@@ -158,8 +159,10 @@ class JobServerTest extends TestCase
         $managedSequence->addChild($managedChild);
 
         $resetChild = static::createResetJobFromJob($managedChild);
+        $resetChild->setRestarts(1);
         $resetSequence = self::createResetJobFromJob($managedSequence);
         $resetSequence->addChild($resetChild);
+        $resetSequence->setRestarts(1);
 
         $this->jobManager->expects($this->once())->method('find')->willReturn($managedSequence);
         $this->jobManager->expects($this->once())->method('save')->with($this->equalTo($resetSequence));
@@ -178,10 +181,13 @@ class JobServerTest extends TestCase
         $managedBatch->addChild($managedChild_B);
 
         $resetChild_A = static::createResetJobFromJob($managedChild_A);
+        $resetChild_A->setRestarts(1);
         $resetChild_B = static::createResetJobFromJob($managedChild_B);
+        $resetChild_B->setRestarts(1);
         $resetBatch = self::createResetJobFromJob($managedBatch);
         $resetBatch->addChild($resetChild_A);
         $resetBatch->addChild($resetChild_B);
+        $resetBatch->setRestarts(1);
 
         $this->jobManager->expects($this->once())->method('find')->willReturn($managedBatch);
         $this->jobManager->expects($this->once())->method('save')->with($this->equalTo($resetBatch));

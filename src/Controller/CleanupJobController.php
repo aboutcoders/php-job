@@ -15,12 +15,11 @@ class CleanupJobController extends AbstractController
      */
     private $jobManager;
 
-    private $logger;
-
     public function __construct(JobManagerInterface $jobManager, LoggerInterface $logger)
     {
+        parent::__construct($logger);
+
         $this->jobManager = $jobManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -44,7 +43,7 @@ class CleanupJobController extends AbstractController
      */
     public function execute(string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($requestUri) {
+        return $this->handleExceptions(function () use ($requestUri) {
 
             $num = $this->jobManager->deleteAll();
 

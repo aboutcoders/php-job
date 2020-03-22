@@ -10,13 +10,10 @@ use Abc\Job\InvalidJsonException;
 use Abc\Job\Job;
 use Abc\Job\Model\CronJob;
 use Abc\Job\Model\CronJobInterface;
-use Abc\Job\Model\JobInterface;
-use Abc\Job\Status;
 use Abc\Job\Type;
 use Abc\Job\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
-use Ramsey\Uuid\Uuid;
 
 class CronJobControllerTest extends AbstractControllerTestCase
 {
@@ -116,7 +113,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->find('cronJobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'cronJobId');
+        $this->assertNotFoundResponse($response, 'CronJob','cronJobId');
     }
 
     public function testFindWithServerException()
@@ -244,7 +241,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->update('cronJobId', $json, 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'cronJobId');
+        $this->assertNotFoundResponse($response, 'CronJob', 'cronJobId');
     }
 
     public function testUpdateWithValidatorError()
@@ -331,7 +328,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->delete('cronJobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'cronJobId');
+        $this->assertNotFoundResponse($response, 'CronJob', 'cronJobId');
     }
 
     public function testDeleteWithServerException()
@@ -363,24 +360,6 @@ class CronJobControllerTest extends AbstractControllerTestCase
         $cronJob->setCreatedAt(new \DateTime("@1000"));
 
         return $cronJob;
-    }
-
-    private static function createManagedJob(CronJobInterface $cronJob): JobInterface
-    {
-        $job = new \Abc\Job\Model\Job();
-        $job->setId(Uuid::uuid4());
-        $job->setType($cronJob->getJob()->getType());
-        $job->setName($cronJob->getJob()->getName());
-        $job->setStatus(Status::COMPLETE);
-        $job->setInput($cronJob->getJob()->getInput());
-        $job->setOutput('someOutPut');
-        $job->setProcessingTime(0.123);
-        $job->setExternalId($cronJob->getJob()->getExternalId());
-        $job->setCompletedAt(new \DateTime("@10"));
-        $job->setUpdatedAt(new \DateTime("@100"));
-        $job->setCreatedAt(new \DateTime("@1000"));
-
-        return $job;
     }
 
     private function assertJsonManagedCronJob(CronJobInterface $managedCronJob, array $data): void

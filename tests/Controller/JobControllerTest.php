@@ -199,7 +199,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->restart('jobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'jobId');
+        $this->assertNotFoundResponse($response, 'Job', 'jobId');
     }
 
     public function testRestartWithServerException()
@@ -234,7 +234,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->result('jobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'jobId');
+        $this->assertNotFoundResponse($response, 'Job', 'jobId');
     }
 
     public function testResultWithServerException()
@@ -263,7 +263,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->cancel('jobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'jobId');
+        $this->assertNotFoundResponse($response, 'Job', 'jobId');
     }
 
     public function testCancelWithServerException()
@@ -308,7 +308,7 @@ class JobControllerTest extends AbstractControllerTestCase
         $response = $this->subject->delete('jobId', 'requestUri');
 
         $this->assertStatusCode(404, $response);
-        $this->assertNotFoundResponse($response, 'jobId');
+        $this->assertNotFoundResponse($response, 'Job', 'jobId');
     }
 
     public function testDeleteWithServerException()

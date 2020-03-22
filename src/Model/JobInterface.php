@@ -57,15 +57,19 @@ interface JobInterface extends Status
 
     public function setAllowFailure(bool $allowFailure): void;
 
+    public function getExternalId(): ?string;
+
+    public function setExternalId(?string $externalId): void;
+
+    public function setRestarts(int $number): void;
+
+    public function getRestarts(): int;
+
     public function getProcessingTime(): float;
 
     public function setProcessingTime(float $value): void;
 
     public function addProcessingTime(float $value): void;
-
-    public function getExternalId(): ?string;
-
-    public function setExternalId(?string $externalId): void;
 
     public function getCompletedAt(): ?DateTime;
 

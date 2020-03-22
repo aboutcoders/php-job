@@ -24,19 +24,15 @@ class RouteController extends AbstractController
      */
     private $validator;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
         RouteRegistryInterface $registry,
         ValidatorInterface $validator,
         LoggerInterface $logger
     ) {
+        parent::__construct($logger);
+
         $this->registry = $registry;
         $this->validator = $validator;
-        $this->logger = $logger;
     }
 
     /**
@@ -53,7 +49,7 @@ class RouteController extends AbstractController
      *         response=201,
      *         description="Successful operation")
      *     ),
-     *     @OA\Response(
+     * @OA\Response(
      *          response=500,
      *          description="In case of an internal server error",
      *          @OA\JsonContent(ref="#/components/schemas/ApiProblem")
@@ -66,25 +62,28 @@ class RouteController extends AbstractController
      */
     public function create(string $json, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($json, $requestUri) {
-
-            $invalidParams = $this->validator->validate($json, Route::class);
-            if (0 < count($invalidParams)) {
-                return $this->createInvalidParamResponse($invalidParams, $requestUri);
-            }
-
-            $rawRoute = json_decode($json, true);
-            if (isset($rawRoute['name'])) {
-                $this->registry->add(Route::fromArray($rawRoute));
-            } else {
-                $rawRoutes = $rawRoute;
-                foreach ($rawRoutes as $rawRoute) {
-                    $this->registry->add(Route::fromArray($rawRoute));
+        return $this->handleExceptions(
+            function () use ($json, $requestUri) {
+                $invalidParams = $this->validator->validate($json, Route::class);
+                if (0 < count($invalidParams)) {
+                    return $this->createInvalidParamResponse($invalidParams, $requestUri);
                 }
-            }
 
-            return new Response(201);
-        }, $requestUri, $this->logger);
+                $rawRoute = json_decode($json, true);
+                if (isset($rawRoute['name'])) {
+                    $this->registry->add(Route::fromArray($rawRoute));
+                } else {
+                    $rawRoutes = $rawRoute;
+                    foreach ($rawRoutes as $rawRoute) {
+                        $this->registry->add(Route::fromArray($rawRoute));
+                    }
+                }
+
+                return new Response(201);
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -111,14 +110,17 @@ class RouteController extends AbstractController
      */
     public function all(string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($requestUri) {
+        return $this->handleExceptions(
+            function () use ($requestUri) {
+                $routes = [];
+                foreach ($this->registry->all() as $route) {
+                    $routes[] = (object)$route->toArray();
+                }
 
-            $routes = [];
-            foreach ($this->registry->all() as $route) {
-                $routes[] = (object) $route->toArray();
-            }
-
-            return new Response(200, static::$headers_ok, json_encode($routes));
-        }, $requestUri, $this->logger);
+                return new Response(200, static::$headers_ok, json_encode($routes));
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 }

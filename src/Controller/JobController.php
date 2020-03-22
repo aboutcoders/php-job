@@ -19,6 +19,8 @@ use Psr\Log\LoggerInterface;
  */
 class JobController extends AbstractController
 {
+    private const RESOURCE_NAME = 'Job';
+
     /**
      * @var JobServerInterface
      */
@@ -29,16 +31,12 @@ class JobController extends AbstractController
      */
     private $validator;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(JobServerInterface $server, ValidatorInterface $validator, LoggerInterface $logger)
     {
+        parent::__construct($logger);
+
         $this->server = $server;
         $this->validator = $validator;
-        $this->logger = $logger;
     }
 
     /**
@@ -93,22 +91,25 @@ class JobController extends AbstractController
      */
     public function list(?string $queryString, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($queryString, $requestUri) {
+        return $this->handleExceptions(
+            function () use ($queryString, $requestUri) {
+                if (null != $queryString) {
+                    parse_str($queryString, $data);
+                    $json = json_encode((object)$data);
 
-            if (null != $queryString) {
-                parse_str($queryString, $data);
-                $json = json_encode((object) $data);
-
-                $invalidParams = $this->validator->validate($json, JobFilter::class);
-                if (0 < count($invalidParams)) {
-                    return $this->createInvalidParamResponse($invalidParams, $requestUri);
+                    $invalidParams = $this->validator->validate($json, JobFilter::class);
+                    if (0 < count($invalidParams)) {
+                        return $this->createInvalidParamResponse($invalidParams, $requestUri);
+                    }
                 }
-            }
 
-            $results = $this->server->list(JobFilter::fromQueryString($queryString));
+                $results = $this->server->list(JobFilter::fromQueryString($queryString));
 
-            return new Response(200, static::$headers_ok, ResultArray::toJson($results));
-        }, $requestUri, $this->logger);
+                return new Response(200, static::$headers_ok, ResultArray::toJson($results));
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -149,15 +150,19 @@ class JobController extends AbstractController
      */
     public function result(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($id, $requestUri) {
-            $result = $this->server->result($id);
+        return $this->handleExceptions(
+            function () use ($id, $requestUri) {
+                $result = $this->server->result($id);
 
-            if (null == $result) {
-                return $this->createNotFoundResponse($id, $requestUri);
-            }
+                if (null == $result) {
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
+                }
 
-            return new Response(200, static::$headers_ok, $result->toJson());
-        }, $requestUri, $this->logger);
+                return new Response(200, static::$headers_ok, $result->toJson());
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -193,25 +198,34 @@ class JobController extends AbstractController
      */
     public function process(string $json, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($json, $requestUri) {
+        return $this->handleExceptions(
+            function () use ($json, $requestUri) {
+                $invalidParams = $this->validator->validate($json, Job::class);
+                if (0 < count($invalidParams)) {
+                    return $this->createInvalidParamResponse($invalidParams, $requestUri);
+                }
 
-            $invalidParams = $this->validator->validate($json, Job::class);
-            if (0 < count($invalidParams)) {
-                return $this->createInvalidParamResponse($invalidParams, $requestUri);
-            }
+                $job = Job::fromJson($json);
 
-            $job = Job::fromJson($json);
+                try {
+                    $result = $this->server->process($job);
+                } catch (NoRouteException $e) {
+                    $apiProblem = new ApiProblem(
+                        static::buildTypeUrl('no-route'),
+                        'No Route Found',
+                        400,
+                        sprintf('No route found for job "%s"', $job->getName()),
+                        $requestUri
+                    );
 
-            try {
-                $result = $this->server->process($job);
-            } catch (NoRouteException $e) {
-                $apiProblem = new ApiProblem(static::buildTypeUrl('no-route'), 'No Route Found', 400, sprintf('No route found for job "%s"', $job->getName()), $requestUri);
+                    return $this->createProblemResponse($apiProblem);
+                }
 
-                return $this->createProblemResponse($apiProblem);
-            }
-
-            return new Response(201, static::$headers_ok, $result->toJson());
-        }, $requestUri, $this->logger);
+                return new Response(201, static::$headers_ok, $result->toJson());
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -252,15 +266,19 @@ class JobController extends AbstractController
      */
     public function restart(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($id, $requestUri) {
-            $result = $this->server->restart($id);
+        return $this->handleExceptions(
+            function () use ($id, $requestUri) {
+                $result = $this->server->restart($id);
 
-            if (null == $result) {
-                return $this->createNotFoundResponse($id, $requestUri);
-            }
+                if (null == $result) {
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
+                }
 
-            return new Response(200, static::$headers_ok, $result->toJson());
-        }, $requestUri, $this->logger);
+                return new Response(200, static::$headers_ok, $result->toJson());
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -305,21 +323,31 @@ class JobController extends AbstractController
      */
     public function cancel(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($id, $requestUri) {
-            $success = $this->server->cancel($id);
+        return $this->handleExceptions(
+            function () use ($id, $requestUri) {
+                $success = $this->server->cancel($id);
 
-            if (null === $success) {
-                return $this->createNotFoundResponse($id, $requestUri);
-            }
+                if (null === $success) {
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
+                }
 
-            if (false === $success) {
-                $apiProblem = new ApiProblem(static::buildTypeUrl('cancellation-failed'), 'Job Cancellation Failed', 406, sprintf('Cancellation of job "%s" failed', $id), $requestUri);
+                if (false === $success) {
+                    $apiProblem = new ApiProblem(
+                        static::buildTypeUrl('cancellation-failed'),
+                        'Job Cancellation Failed',
+                        406,
+                        sprintf('Cancellation of job "%s" failed', $id),
+                        $requestUri
+                    );
 
-                return $this->createProblemResponse($apiProblem);
-            }
+                    return $this->createProblemResponse($apiProblem);
+                }
 
-            return new Response(204, static::$headers_ok);
-        }, $requestUri, $this->logger);
+                return new Response(204, static::$headers_ok);
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 
     /**
@@ -359,13 +387,17 @@ class JobController extends AbstractController
      */
     public function delete(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($id, $requestUri) {
-            $success = $this->server->delete($id);
-            if (null == $success) {
-                return $this->createNotFoundResponse($id, $requestUri);
-            };
+        return $this->handleExceptions(
+            function () use ($id, $requestUri) {
+                $success = $this->server->delete($id);
+                if (null == $success) {
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
+                };
 
-            return new Response(204, static::$headers_ok);
-        }, $requestUri, $this->logger);
+                return new Response(204, static::$headers_ok);
+            },
+            $requestUri,
+            $this->logger
+        );
     }
 }

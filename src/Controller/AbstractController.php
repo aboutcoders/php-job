@@ -17,6 +17,16 @@ abstract class AbstractController
     protected static $headers_problem = ['Content-Type' => 'application/problem+json'];
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
      * Handles exceptions thrown by a given function.
      *
      * @param \Closure $function
@@ -24,16 +34,32 @@ abstract class AbstractController
      * @param LoggerInterface $logger
      * @return mixed
      */
-    protected function call(\Closure $function, string $requestUri, LoggerInterface $logger)
+    protected function handleExceptions(\Closure $function, string $requestUri, LoggerInterface $logger)
     {
         try {
             return $function();
         } catch (InvalidJsonException $exception) {
             return $this->createInvalidJsonResponse($exception, $requestUri);
         } catch (\Exception $exception) {
-            $logger->error(sprintf('[%s] %s [%s](code: %s) at %s line: %s', get_class($this), $exception->getMessage(), get_class($exception), $exception->getCode(), $exception->getFile(), $exception->getLine()));
+            $logger->error(
+                sprintf(
+                    '[%s] %s [%s](code: %s) at %s line: %s',
+                    get_class($this),
+                    $exception->getMessage(),
+                    get_class($exception),
+                    $exception->getCode(),
+                    $exception->getFile(),
+                    $exception->getLine()
+                )
+            );
 
-            $apiProblem = new ApiProblem(self::buildTypeUrl('internal-error'), 'Internal Server Error', 500, 'An internal server error occurred', $requestUri);
+            $apiProblem = new ApiProblem(
+                self::buildTypeUrl('internal-error'),
+                'Internal Server Error',
+                500,
+                'An internal server error occurred',
+                $requestUri
+            );
 
             return $this->createProblemResponse($apiProblem);
         }
@@ -43,22 +69,40 @@ abstract class AbstractController
         InvalidJsonException $invalidJsonException,
         string $requestUri
     ): ResponseInterface {
-        $apiProblem = new ApiProblem(self::buildTypeUrl('invalid-request-body'), 'The request body didn\'t validate.', 400, $invalidJsonException->getMessage(), $requestUri);
+        $apiProblem = new ApiProblem(
+            self::buildTypeUrl('invalid-request-body'),
+            'The request body didn\'t validate.',
+            400,
+            $invalidJsonException->getMessage(),
+            $requestUri
+        );
 
         return $this->createProblemResponse($apiProblem);
     }
 
     protected function createInvalidParamResponse(array $invalidParameters, $requestUri): ResponseInterface
     {
-        $apiProblem = new ApiProblem(self::buildTypeUrl('invalid-parameters'), 'Your request parameters didn\'t validate.', 400, 'One or more parameters are invalid.', $requestUri);
+        $apiProblem = new ApiProblem(
+            self::buildTypeUrl('invalid-parameters'),
+            'Your request parameters didn\'t validate.',
+            400,
+            'One or more parameters are invalid.',
+            $requestUri
+        );
         $apiProblem->setInvalidParams($invalidParameters);
 
         return $this->createProblemResponse($apiProblem);
     }
 
-    protected function createNotFoundResponse($id, $requestUri): ResponseInterface
+    protected function createNotFoundResponse(string $id, string $resourceName, $requestUri): ResponseInterface
     {
-        $apiProblem = new ApiProblem(self::buildTypeUrl('resource-not-found'), 'Resource Not Found', 404, sprintf('Job with id "%s" not found', $id), $requestUri);
+        $apiProblem = new ApiProblem(
+            self::buildTypeUrl('resource-not-found'),
+            'Resource Not Found',
+            404,
+            sprintf('%s with id "%s" not found', $resourceName, $id),
+            $requestUri
+        );
 
         return $this->createProblemResponse($apiProblem);
     }
@@ -70,6 +114,6 @@ abstract class AbstractController
 
     protected static function buildTypeUrl(string $problem): string
     {
-        return self::TYPE_URL.$problem;
+        return self::TYPE_URL . $problem;
     }
 }

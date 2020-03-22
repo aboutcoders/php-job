@@ -59,14 +59,19 @@ class Job implements JobInterface
     protected $allowFailure;
 
     /**
-     * @var float
-     */
-    protected $processingTime;
-
-    /**
      * @var string|null
      */
     protected $externalId;
+
+    /**
+     * @var int
+     */
+    protected $restarts;
+
+    /**
+     * @var float
+     */
+    protected $processingTime;
 
     /**
      * @var DateTime
@@ -87,8 +92,9 @@ class Job implements JobInterface
     {
         $this->processingTime = 0.0;
         $this->status = static::WAITING;
-        $this->children = new ArrayCollection();
         $this->allowFailure = false;
+        $this->restarts = 0;
+        $this->children = new ArrayCollection();
     }
 
     public static function create(): JobInterface
@@ -113,7 +119,7 @@ class Job implements JobInterface
 
     public function setType(Type $type): void
     {
-        $this->type = (string) $type;
+        $this->type = (string)$type;
     }
 
     public function getRoot(): JobInterface
@@ -224,6 +230,26 @@ class Job implements JobInterface
         $this->allowFailure = $allowFailure;
     }
 
+    public function getExternalId(): ?string
+    {
+        return $this->externalId;
+    }
+
+    public function setExternalId(?string $externalId): void
+    {
+        $this->externalId = $externalId;
+    }
+
+    public function setRestarts(int $number): void
+    {
+        $this->restarts = $number;
+    }
+
+    public function getRestarts(): int
+    {
+        return $this->restarts;
+    }
+
     public function getProcessingTime(): float
     {
         return $this->processingTime;
@@ -237,16 +263,6 @@ class Job implements JobInterface
     public function addProcessingTime(float $value): void
     {
         $this->processingTime += $value;
-    }
-
-    public function getExternalId(): ?string
-    {
-        return $this->externalId;
-    }
-
-    public function setExternalId(?string $externalId): void
-    {
-        $this->externalId = $externalId;
     }
 
     public function getCompletedAt(): ?DateTime

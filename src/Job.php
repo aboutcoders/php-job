@@ -90,8 +90,10 @@ class Job
         }
 
         foreach ($children as $child) {
-            if (! is_object($child) || ! is_a($child, self::class)) {
-                throw new \InvalidArgumentException(sprintf('Expected %s got %s', self::class, is_object($child) ? gettype($child) : get_class($child)));
+            if (!is_object($child) || !is_a($child, self::class)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Expected %s got %s', self::class, is_object($child) ? gettype($child) : get_class($child))
+                );
             }
             $this->children[] = $child;
         }
@@ -123,12 +125,9 @@ class Job
         $this->input = $input;
     }
 
-    /**
-     * @return Job[]
-     */
-    public function getChildren(): array
+    public function setAllowFailure(bool $value)
     {
-        return $this->children;
+        $this->allowFailure = $value;
     }
 
     public function isAllowFailure(): bool
@@ -146,27 +145,38 @@ class Job
         $this->externalId = $externalId;
     }
 
+    /**
+     * @return Job[]
+     */
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
     public function toArray(): array
     {
         return [
-            'type' => (string) $this->getType(),
+            'type' => (string)$this->getType(),
             'name' => $this->getName(),
             'input' => $this->getInput(),
             'allowFailure' => $this->isAllowFailure(),
             'externalId' => $this->getExternalId(),
-            'children' => array_map(function (Job $child) {
-                return $child->toArray();
-            }, $this->getChildren()),
+            'children' => array_map(
+                function (Job $child) {
+                    return $child->toArray();
+                },
+                $this->getChildren()
+            ),
         ];
     }
 
     public static function fromArray(array $data): Job
     {
-        if (! isset($data['type'])) {
+        if (!isset($data['type'])) {
             throw new \InvalidArgumentException(sprintf('The property "%s" must be set', 'type'));
         }
 
-        if ((string) Type::JOB() === $data['type'] && ! isset($data['name'])) {
+        if ((string)Type::JOB() === $data['type'] && !isset($data['name'])) {
             throw new \InvalidArgumentException(sprintf('The property "%s" must be set', 'name'));
         }
 
@@ -177,12 +187,19 @@ class Job
             }
         }
 
-        return new static(new Type($data['type']), $data['name'] ?? null, $data['input'] ?? null, $children, $data['allowFailure'] ?? false, $data['externalId'] ?? null);
+        return new static(
+            new Type($data['type']),
+            $data['name'] ?? null,
+            $data['input'] ?? null,
+            $children,
+            $data['allowFailure'] ?? false,
+            $data['externalId'] ?? null
+        );
     }
 
     public function toJson(): string
     {
-        return json_encode((object) $this->toArray());
+        return json_encode((object)$this->toArray());
     }
 
     public static function fromJson(string $json)

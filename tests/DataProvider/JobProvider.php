@@ -19,6 +19,7 @@ class JobProvider
         $job->setOutput('someOutput');
         $job->setProcessingTime(0.5);
         $job->setExternalId($externalId);
+        $job->setRestarts(10);
         $job->setCreatedAt(new \DateTime('@10'));
         $job->setUpdatedAt(new \DateTime('@100'));
         $job->setCompletedAt(new \DateTime('@1000'));
@@ -35,6 +36,7 @@ class JobProvider
         $sequence->setStatus(Status::COMPLETE);
         $sequence->setProcessingTime(1.0);
         $sequence->setExternalId($externalId);
+        $sequence->setRestarts(10);
         $sequence->setCreatedAt(new \DateTime('@10'));
         $sequence->setUpdatedAt(new \DateTime('@100'));
         $sequence->setCompletedAt(new \DateTime('@1000'));
