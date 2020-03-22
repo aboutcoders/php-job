@@ -18,7 +18,7 @@ class Broker implements BrokerInterface
     private $driver;
 
     /**
-     * @var RouteCollection
+     * @var RouteRegistryInterface
      */
     private $routes;
 
@@ -27,7 +27,7 @@ class Broker implements BrokerInterface
      */
     private $logger;
 
-    public function __construct(string $name, DriverInterface $driver, RouteCollection $routes, LoggerInterface $logger)
+    public function __construct(string $name, DriverInterface $driver, RouteRegistryInterface $routes, LoggerInterface $logger)
     {
         $this->name = $name;
         $this->driver = $driver;
