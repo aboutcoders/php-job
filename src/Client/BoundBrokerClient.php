@@ -54,7 +54,7 @@ class BoundBrokerClient implements BrokerInterface
                     'Broker setup failed: %s %s: %s',
                     $exception->getCode(),
                     $exception->getApiProblem()->getTitle(),
-                    $exception->getApiProblem()->getDetail(),
+                    $exception->getApiProblem()->getDetail()
                 )
             );
 
