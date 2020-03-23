@@ -1,5 +1,6 @@
-/build/
+/.phpunit.*.cache
+/api-doc.json
 /composer.lock
 /phpunit.xml
+/build/
 /vendor/
-/.phpunit.*.cache

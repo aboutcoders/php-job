@@ -33,17 +33,19 @@ class JobTest extends TestCase
     /**
      * @dataProvider provideInvalidCollection
      */
-    public function testThrowsExceptionOnInvalidCollection($type, $children)
+    public function testFromArrayThrowsExceptionOnInvalidCollection($type, $children)
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        Job::fromArray([
-            'type' => $type,
-            'children' => $children,
-        ]);
+        Job::fromArray(
+            [
+                'type' => $type,
+                'children' => $children,
+            ]
+        );
     }
 
-    public function testThrowsExceptionIfTypeJobAndNameNull()
+    public function testConstructThrowsExceptionIfTypeJobAndNameNull()
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -83,23 +85,25 @@ class JobTest extends TestCase
 
     public function testConversion()
     {
-        $job = Job::fromArray([
-            'type' => Type::SEQUENCE(),
-            'name' => 'mySequence',
-            'input' => 'someInput',
-            'children' => [
-                [
-                    'type' => Type::JOB(),
-                    'name' => 'myJob1',
-                    'input' => 'someInput',
+        $job = Job::fromArray(
+            [
+                'type' => Type::SEQUENCE(),
+                'name' => 'mySequence',
+                'input' => 'someInput',
+                'children' => [
+                    [
+                        'type' => Type::JOB(),
+                        'name' => 'myJob1',
+                        'input' => 'someInput',
+                    ],
+                    [
+                        'type' => Type::JOB(),
+                        'name' => 'myJob2',
+                        'input' => 'someInput',
+                    ],
                 ],
-                [
-                    'type' => Type::JOB(),
-                    'name' => 'myJob2',
-                    'input' => 'someInput',
-                ],
-            ],
-        ]);
+            ]
+        );
 
         $json = $job->toJson();
 

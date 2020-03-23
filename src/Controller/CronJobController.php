@@ -16,6 +16,8 @@ use OpenApi\Annotations as OA;
 
 class CronJobController extends AbstractController
 {
+    private const RESOURCE_NAME = 'CronJob';
+
     /**
      * @var CronJobManager
      */
@@ -26,16 +28,12 @@ class CronJobController extends AbstractController
      */
     private $validator;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(CronJobManager $cronJobManager, ValidatorInterface $validator, LoggerInterface $logger)
     {
-        $this->cronJobManager = $cronJobManager;
+        parent::__construct($logger);
+
         $this->validator = $validator;
-        $this->logger = $logger;
+        $this->cronJobManager = $cronJobManager;
     }
 
     /**
@@ -69,7 +67,7 @@ class CronJobController extends AbstractController
      */
     public function list(?string $queryString, string $requestUri): ResponseInterface
     {
-        return $this->call(
+        return $this->handleExceptions(
             function () use ($queryString, $requestUri) {
                 if (null != $queryString) {
                     parse_str($queryString, $data);
@@ -134,11 +132,11 @@ class CronJobController extends AbstractController
      */
     public function find(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(
+        return $this->handleExceptions(
             function () use ($id, $requestUri) {
                 $managedCronJob = $this->cronJobManager->find($id);
                 if (null === $managedCronJob) {
-                    return $this->createNotFoundResponse($id, $requestUri);
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
                 }
 
                 return new Response(200, static::$headers_ok, $managedCronJob->toJson());
@@ -181,7 +179,7 @@ class CronJobController extends AbstractController
      */
     public function create(string $json, string $requestUri): ResponseInterface
     {
-        return $this->call(
+        return $this->handleExceptions(
             function () use ($json, $requestUri) {
                 $invalidParams = $this->validator->validate($json, CronJob::class);
                 if (0 < count($invalidParams)) {
@@ -190,7 +188,7 @@ class CronJobController extends AbstractController
 
                 $cronJob = \Abc\Job\Model\CronJob::fromJson($json);
 
-                if (! CronExpression::isValidExpression($cronJob->getSchedule())) {
+                if (!CronExpression::isValidExpression($cronJob->getSchedule())) {
                     return $this->createInvalidParamResponse(
                         [new InvalidParameter('schedule', 'Invalid cron job expression', $cronJob->getSchedule())],
                         $requestUri
@@ -253,7 +251,7 @@ class CronJobController extends AbstractController
      */
     public function update(string $id, string $json, string $requestUri): ResponseInterface
     {
-        return $this->call(
+        return $this->handleExceptions(
             function () use ($id, $json, $requestUri) {
                 $invalidParams = $this->validator->validate($json, CronJob::class);
                 if (0 < count($invalidParams)) {
@@ -262,12 +260,12 @@ class CronJobController extends AbstractController
 
                 $managedCronJob = $this->cronJobManager->find($id);
                 if (null === $managedCronJob) {
-                    return $this->createNotFoundResponse($id, $requestUri);
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
                 }
 
                 $cronJob = \Abc\Job\Model\CronJob::fromJson($json);
 
-                if (! CronExpression::isValidExpression($cronJob->getSchedule())) {
+                if (!CronExpression::isValidExpression($cronJob->getSchedule())) {
                     return $this->createInvalidParamResponse(
                         [new InvalidParameter('schedule', 'Invalid cron job expression', $cronJob->getSchedule())],
                         $requestUri
@@ -322,11 +320,11 @@ class CronJobController extends AbstractController
      */
     public function delete(string $id, string $requestUri): ResponseInterface
     {
-        return $this->call(
+        return $this->handleExceptions(
             function () use ($id, $requestUri) {
                 $managedCronJob = $this->cronJobManager->find($id);
                 if (null === $managedCronJob) {
-                    return $this->createNotFoundResponse($id, $requestUri);
+                    return $this->createNotFoundResponse($id, $this::RESOURCE_NAME, $requestUri);
                 }
 
                 $this->cronJobManager->delete($managedCronJob);

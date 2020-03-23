@@ -10,10 +10,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ProcessReplyCommand extends BaseProcessCommand
 {
-    protected static $defaultName = 'abc:process:reply';
+    protected static $defaultName = 'abc:reply:process';
 
     protected function configure(): void
     {
+        $this->setAliases(['abc:process:reply']);
+
         $this->setDescription('A worker that processes jobs replies from a broker. '.'To use this worker you have to explicitly set the queues to consume replies from.');
 
         $queuesArgument = $this->consumeCommand->getDefinition()->getArgument('queues');

@@ -15,12 +15,11 @@ class CleanupCronJobController extends AbstractController
      */
     private $cronJobManager;
 
-    private $logger;
-
     public function __construct(CronJobManager $cronJobManager, LoggerInterface $logger)
     {
+        parent::__construct($logger);
+
         $this->cronJobManager = $cronJobManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -44,7 +43,7 @@ class CleanupCronJobController extends AbstractController
      */
     public function execute(string $requestUri): ResponseInterface
     {
-        return $this->call(function () use ($requestUri) {
+        return $this->handleExceptions(function () use ($requestUri) {
 
             $num = $this->cronJobManager->deleteAll();
 

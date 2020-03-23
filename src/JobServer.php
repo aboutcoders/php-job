@@ -48,7 +48,14 @@ class JobServer implements JobServerInterface
 
         $this->entityManager->save($managedJob);
 
-        $this->logger->info(sprintf('[JobServer] Process %s %s with input %s', $managedJob->getType(), $managedJob->getId(), $managedJob->getInput()));
+        $this->logger->info(
+            sprintf(
+                '[JobServer] Process %s %s with input %s',
+                $managedJob->getType(),
+                $managedJob->getId(),
+                $managedJob->getInput()
+            )
+        );
 
         $this->schedule($managedJob);
 
@@ -70,7 +77,7 @@ class JobServer implements JobServerInterface
 
         $this->logger->info(sprintf('[JobServer] Restart %s %s', $job->getType(), $job->getId()));
 
-        $this->resetJob($job);
+        $this->restartJob($job);
 
         $this->schedule($job);
 
@@ -143,7 +150,7 @@ class JobServer implements JobServerInterface
         return new Result($job);
     }
 
-    private function resetJob(JobInterface $job): void
+    private function restartJob(JobInterface $job): void
     {
         $this->logger->debug(sprintf('[JobServer] Reset %s %s', $job->getType(), $job->getId()));
 
@@ -151,9 +158,10 @@ class JobServer implements JobServerInterface
         $job->setProcessingTime(0.0);
         $job->setOutput(null);
         $job->setCompletedAt(null);
+        $job->setRestarts($job->getRestarts() + 1);
 
         foreach ($job->getChildren() as $child) {
-            $this->resetJob($child);
+            $this->restartJob($child);
         }
     }
 

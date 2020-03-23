@@ -58,6 +58,7 @@ class ProcessJobCommandTest extends TestCase
 
     public function testGetName()
     {
-        $this->assertSame('abc:process:job', $this->subject->getName());
+        $this->assertSame('abc:job:process', $this->subject->getName());
+        $this->assertContains('abc:process:job', $this->subject->getAliases());
     }
 }

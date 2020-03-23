@@ -58,6 +58,7 @@ abstract class JobManager implements JobManagerInterface
         $job->setOutput($data['output'] ?? null);
         $job->setAllowFailure($data['allowFailure'] ?? false);
         $job->setProcessingTime($data['processingTime'] ?? 0);
+        $job->setRestarts($data['restarts'] ?? 0);
         $job->setExternalId($data['externalId'] ?? null);
         $job->setCreatedAt(! isset($data['created']) ? null : DateUtil::createDate(strtotime($data['created'])));
         $job->setCompletedAt(! isset($data['completed']) ? null : DateUtil::createDate(strtotime($data['completed'])));

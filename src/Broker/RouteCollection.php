@@ -2,7 +2,7 @@
 
 namespace Abc\Job\Broker;
 
-class RouteCollection
+class RouteCollection implements RouteRegistryInterface
 {
     /**
      * @var Route[]

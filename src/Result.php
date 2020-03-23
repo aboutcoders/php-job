@@ -98,6 +98,11 @@ class Result
     private $externalId;
 
     /**
+     * @var int
+     */
+    protected $restarts;
+
+    /**
      * @OA\Property(
      *     type="array",
      *         @OA\Items(ref="#/components/schemas/Result")
@@ -149,6 +154,7 @@ class Result
         $this->allowFailure = $job->isAllowFailure();
         $this->processingTime = $job->getProcessingTime();
         $this->externalId = $job->getExternalId();
+        $this->restarts = $job->getRestarts();
         $this->completed = $job->getCompletedAt();
         $this->updated = $job->getUpdatedAt();
         $this->created = $job->getCreatedAt();
@@ -211,6 +217,11 @@ class Result
         return $this->externalId;
     }
 
+    public function getRestarts(): int
+    {
+        return $this->restarts;
+    }
+
     public function getCompleted(): ?DateTime
     {
         return $this->completed;
@@ -238,6 +249,7 @@ class Result
             'allowFailure' => $this->isAllowFailure(),
             'processingTime' => $this->getProcessingTime(),
             'externalId' => $this->getExternalId(),
+            'restarts' => $this->getRestarts(),
             'completed' => null == $this->getCompleted() ? null : $this->getCompleted()->format('c'),
             'updated' => null == $this->getUpdated() ? null : $this->getUpdated()->format('c'),
             'created' => null == $this->getCreated() ? null : $this->getCreated()->format('c'),

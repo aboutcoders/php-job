@@ -15,6 +15,11 @@
         <field name="output" column="output" type="text" nullable="true"/>
         <field name="allowFailure" column="allow_failure" type="boolean"/>
         <field name="processingTime" column="processing_time" type="float"/>
+        <field name="restarts" type="smallint">
+            <options>
+                <option name="default">0</option>
+            </options>
+        </field>
         <field name="externalId" column="external_id" type="string" length="36" nullable="true"/>
         <field name="completedAt" column="completed_at" type="datetime" nullable="true"/>
         <field name="updatedAt" column="updated_at" type="datetime"/>

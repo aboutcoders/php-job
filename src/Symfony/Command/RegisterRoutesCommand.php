@@ -25,10 +25,10 @@ class RegisterRoutesCommand extends Command
 
     public function __construct(RouteClient $routeClient, RouteCollection $routeCollection)
     {
+        parent::__construct(static::$defaultName);
+
         $this->routeClient = $routeClient;
         $this->routeCollection = $routeCollection;
-
-        parent::__construct(static::$defaultName);
     }
 
     protected function configure(): void

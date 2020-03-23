@@ -41,7 +41,7 @@ class RouteControllerTest extends AbstractControllerTestCase
 
         $this->routeRegistry->expects($this->once())->method('all')->with()->willReturn([$route]);
 
-        $response = $this->subject->all('requestUri');
+        $response = $this->subject->list('requestUri');
 
         $this->assertStatusCode(200, $response);
         $this->assertStdJsonResponseHeader($response);
@@ -53,7 +53,7 @@ class RouteControllerTest extends AbstractControllerTestCase
     {
         $this->routeRegistry->expects($this->once())->method('all')->with()->willThrowException(new \Exception('someExceptionMessage'));
 
-        $response = $this->subject->all('requestUri');
+        $response = $this->subject->list('requestUri');
 
         $this->assertServerErrorResponse($response);
     }
@@ -67,7 +67,7 @@ class RouteControllerTest extends AbstractControllerTestCase
 
         $this->routeRegistry->expects($this->once())->method('add')->with($this->equalTo($route));
 
-        $response = $this->subject->create($json, 'requestUri');
+        $response = $this->subject->set($json, 'requestUri');
 
         $this->assertStatusCode(201, $response);
     }
@@ -81,7 +81,7 @@ class RouteControllerTest extends AbstractControllerTestCase
 
         $this->routeRegistry->expects($this->once())->method('add')->with($this->equalTo($route));
 
-        $response = $this->subject->create($json, 'requestUri');
+        $response = $this->subject->set($json, 'requestUri');
 
         $this->assertStatusCode(201, $response);
     }
@@ -97,7 +97,7 @@ class RouteControllerTest extends AbstractControllerTestCase
 
         $this->routeRegistry->expects($this->never())->method('add');
 
-        $response = $this->subject->create($json, 'requestUri');
+        $response = $this->subject->set($json, 'requestUri');
 
         $this->assertInvalidParameterResponse($response);
     }
@@ -111,7 +111,7 @@ class RouteControllerTest extends AbstractControllerTestCase
 
         $this->routeRegistry->expects($this->never())->method('add');
 
-        $response = $this->subject->create($json, 'requestUri');
+        $response = $this->subject->set($json, 'requestUri');
 
         $this->assertInvalidJsonResponse($response, 'some error');
     }
@@ -120,7 +120,7 @@ class RouteControllerTest extends AbstractControllerTestCase
     {
         $this->validatorMock->expects($this->once())->method('validate')->willThrowException(new \Exception('someExceptionMessage'));
 
-        $response = $this->subject->create('someJson', 'requestUri');
+        $response = $this->subject->set('someJson', 'requestUri');
 
         $this->assertServerErrorResponse($response);
     }
