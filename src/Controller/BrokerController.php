@@ -26,9 +26,9 @@ class BrokerController extends AbstractController
     }
 
     /**
-     * @OA\Put(
+     * @OA\Post(
      *     path="/broker/{name}/setup",
-     *     tags={"Job"},
+     *     tags={"Broker"},
      *     description="Sets up a broker by creating the queues for all defined routes.",
      *     summary="Setup a broker",
      *     @OA\Parameter(
