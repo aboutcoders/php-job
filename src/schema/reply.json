@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://aboutcoders.com/schema/reply.json",
+  "title": "Reply Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {
+      "type": "string",
+      "title": "The job id",
+      "description": "The unique id of the job of this reply",
+      "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "complete",
+        "failure",
+        "cancelled"
+      ]
+    },
+    "output": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "The job output"
+    }
+  }
+}

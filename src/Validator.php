@@ -4,6 +4,7 @@ namespace Abc\Job;
 
 use Abc\ApiProblem\InvalidParameter;
 use Abc\Job\Broker\Route;
+use Abc\Job\Processor\Reply;
 use JsonSchema\Exception\JsonDecodingException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
@@ -25,6 +26,7 @@ class Validator implements ValidatorInterface
         JobFilter::class => 'jobFilter.json',
         Route::class => 'route.json',
         CronJob::class => 'cronJob.json',
+        Reply::class => 'reply.json'
     ];
 
     public function __construct()
@@ -41,7 +43,7 @@ class Validator implements ValidatorInterface
      */
     public function validate(string $json, string $class): array
     {
-        if (! array_key_exists($class, static::$schemas)) {
+        if (!array_key_exists($class, static::$schemas)) {
             throw new \InvalidArgumentException(sprintf('The class %s is not supported', $class));
         }
 
@@ -60,10 +62,17 @@ class Validator implements ValidatorInterface
             throw new InvalidJsonException($decodingException->getMessage(), $decodingException->getCode());
         }
 
-        $this->validator->validate($data, (object) ['$ref' => 'file://'.realpath(__DIR__.'/schema/'.static::$schemas[$class])]);
+        $this->validator->validate(
+            $data,
+            (object)[
+                '$ref' => 'file://' . realpath(
+                        __DIR__ . '/schema/' . static::$schemas[$class]
+                    )
+            ]
+        );
 
         $invalidParameters = [];
-        if (! $this->validator->isValid()) {
+        if (!$this->validator->isValid()) {
             foreach ($this->validator->getErrors() as $error) {
                 $invalidParameters[] = $this->createInvalidParam($data, $error);
             }
@@ -76,7 +85,10 @@ class Validator implements ValidatorInterface
     {
         $value = null;
         if (null != $error['property']) {
-            $value = $this->propertyAccessor->isReadable($data, $error['property']) ? $this->propertyAccessor->getValue($data, $error['property']) : null;
+            $value = $this->propertyAccessor->isReadable($data, $error['property']) ? $this->propertyAccessor->getValue(
+                $data,
+                $error['property']
+            ) : null;
 
             if (is_object($value) || is_array($value)) {
                 $value = json_encode($value);

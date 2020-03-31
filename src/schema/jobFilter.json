@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://aboutcoders.com/schema/job.json",
-  "title": "JSON schema of a job",
+  "$id": "http://aboutcoders.com/schema/job-filter.json",
+  "title": "JobFilter Schema",
   "type": "object",
   "properties": {
     "ids": {
