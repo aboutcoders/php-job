@@ -16,7 +16,7 @@
       "enum": [
         "running",
         "complete",
-        "failure",
+        "failed",
         "cancelled"
       ]
     },

@@ -619,8 +619,8 @@ class ValidatorTest extends TestCase
             ],
             ['names=valid'],
             ['names=validA,validB'],
-            ['status=failure'],
-            ['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failure', 'cancelled'])],
+            ['status=failed'],
+            ['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failed', 'cancelled'])],
         ];
     }
 

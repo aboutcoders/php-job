@@ -10,7 +10,7 @@
     },
     "status": {
       "type": "string",
-      "pattern": "^(waiting|scheduled|running|complete|failure|cancelled)(,(waiting|scheduled|running|complete|failure|cancelled))*$"
+      "pattern": "^(waiting|scheduled|running|complete|failed|cancelled)(,(waiting|scheduled|running|complete|failed|cancelled))*$"
     },
     "names": {
       "type": "string",
