@@ -56,10 +56,10 @@ class JobFilter extends AbstractFilter
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->ids = [];
-        $this->names = [];
         $this->status = [];
-        $this->externalIds = [];
     }
 
     public function getIds(): array

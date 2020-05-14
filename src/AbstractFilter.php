@@ -76,6 +76,12 @@ class AbstractFilter
      */
     protected $limit;
 
+    public function __construct()
+    {
+        $this->names = [];
+        $this->externalIds = [];
+    }
+
     public function getOffset(): ?int
     {
         return $this->offset;
