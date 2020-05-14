@@ -6,7 +6,7 @@ class AbstractFilter
 {
     /**
      * @OA\Parameter(
-     *     description="The names of the job to get",
+     *     description="The name of the job",
      *     in="query",
      *     name="names",
      *     required=false,
@@ -26,7 +26,7 @@ class AbstractFilter
 
     /**
      * @OA\Parameter(
-     *     description="The externalIds of the job to get",
+     *     description="The external id of the job",
      *     in="query",
      *     name="externalIds",
      *     required=false,

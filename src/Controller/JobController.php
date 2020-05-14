@@ -45,7 +45,7 @@ class JobController extends AbstractController
      *     tags={"Job"},
      *     description="Returns a list of job results",
      *     @OA\Parameter(
-     *         description="The id of the job to get",
+     *         description="The id of the job",
      *         in="query",
      *         name="ids",
      *         required=false,

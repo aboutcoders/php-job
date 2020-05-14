@@ -4,11 +4,6 @@ namespace Abc\Job;
 
 use OpenApi\Annotations as OA;
 
-/**
- * @OA\Schema(
- *     description="The filter of results"
- * )
- */
 class JobFilter extends AbstractFilter
 {
     /**
@@ -20,7 +15,7 @@ class JobFilter extends AbstractFilter
 
     /**
      * @OA\Parameter(
-     *     description="The status of the job to get",
+     *     description="The status of the job",
      *     in="query",
      *     name="status",
      *     required=false,
@@ -41,7 +36,7 @@ class JobFilter extends AbstractFilter
 
     /**
      * @OA\Parameter(
-     *     description="If true, the endpoint only returns the latest job",
+     *     description="If true, only the latest job is returned",
      *     in="query",
      *     name="latest",
      *     required=false,

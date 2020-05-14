@@ -5,27 +5,9 @@ namespace Abc\Job;
 class CronJobFilter extends AbstractFilter
 {
     /**
-     * @OA\Parameter(
-     *     parameter="cronjob-ids"
-     *     description="The id of the cronjob to get",
-     *     in="query",
-     *     name="ids",
-     *     required=false,
-     *     style="simple",
-     *     explode="false",
-     *     @OA\Schema(
-     *         type="array",
-     *         @OA\Items(
-     *             type="string",
-     *             format="uuid"
-     *         )
-     *     )
-     * )
-     *
      * @var string[]
      */
     private $ids;
-
 
     public function __construct()
     {
