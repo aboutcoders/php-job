@@ -45,7 +45,19 @@ class JobController extends AbstractController
      *     tags={"Job"},
      *     description="Returns a list of job results",
      *     @OA\Parameter(
-     *         ref="#/components/parameters/ids"
+     *         description="The id of the job to get",
+     *         in="query",
+     *         name="ids",
+     *         required=false,
+     *         style="simple",
+     *         explode="false",
+     *         @OA\Schema(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="string",
+     *                 format="uuid"
+     *             )
+     *         )
      *     ),
      *     @OA\Parameter(
      *         ref="#/components/parameters/names"

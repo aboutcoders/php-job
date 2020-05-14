@@ -43,7 +43,7 @@ class CronJobManagerTest extends TestCase
      */
     public function testSave($andFlush)
     {
-        $cronJob = $this->subject->create('* * * * *', new Job(Type::JOB(), 'someJob'));
+        $cronJob = $this->subject->create('* * * * *', new Job(Type::JOB(), 'someJob', null, [], false, 'someExternalId'));
 
         $callback = function (CronJobInterface $param) use ($cronJob) {
             Assert::assertSame($cronJob, $param);
@@ -51,6 +51,7 @@ class CronJobManagerTest extends TestCase
             Assert::assertInstanceOf(\DateTime::class, $param->getUpdatedAt());
             Assert::assertEquals($cronJob->getJob()->toJson(), $cronJob->getJobJson());
             Assert::assertEquals($cronJob->getJob()->getName(), $cronJob->getName());
+            Assert::assertEquals($cronJob->getJob()->getExternalId(), $cronJob->getExternalId());
 
             return true;
         };

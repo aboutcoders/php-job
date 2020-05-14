@@ -1,6 +1,6 @@
 <?php
 
-namespace Abc\Job\Tests\Validator;
+namespace Abc\Job\Tests;
 
 use Abc\Job\Broker\Route;
 use Abc\Job\CronJob;
@@ -87,9 +87,9 @@ class ValidatorTest extends TestCase
 
     /**
      * @param string $queryString
-     * @dataProvider provideValidFilter
+     * @dataProvider provideValidJobFilter
      */
-    public function testValidFilter(string $queryString)
+    public function testValidJobFilter(string $queryString)
     {
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
@@ -100,9 +100,35 @@ class ValidatorTest extends TestCase
 
     /**
      * @param string $queryString
-     * @dataProvider provideInvalidFilter
+     * @dataProvider provideInvalidJobFilter
      */
-    public function testInvalidFilter(string $queryString)
+    public function testInvalidJobFilter(string $queryString)
+    {
+        parse_str($queryString, $data);
+        $json = json_encode((object) $data);
+
+        $errors = $this->subject->validate($json, JobFilter::class);
+        $this->assertNotEmpty($errors);
+    }
+
+    /**
+     * @param string $queryString
+     * @dataProvider provideValidCronJobFilter
+     */
+    public function testValidCronJobFilter(string $queryString)
+    {
+        parse_str($queryString, $data);
+        $json = json_encode((object) $data);
+
+        $errors = $this->subject->validate($json, JobFilter::class);
+        $this->assertEmpty($errors);
+    }
+
+    /**
+     * @param string $queryString
+     * @dataProvider provideInvalidCronJobFilter
+     */
+    public function testInvalidCronJobFilter(string $queryString)
     {
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
@@ -600,7 +626,7 @@ class ValidatorTest extends TestCase
         ];
     }
 
-    public static function provideValidFilter(): array
+    public static function provideValidJobFilter(): array
     {
         return [
             ['ids=00000000-0000-0000-0000-000000000000'],
@@ -624,7 +650,7 @@ class ValidatorTest extends TestCase
         ];
     }
 
-    public static function provideInvalidFilter(): array
+    public static function provideInvalidJobFilter(): array
     {
         return [
             ['id=000'],
@@ -635,6 +661,40 @@ class ValidatorTest extends TestCase
             [http_build_query(['name' => ['aa', 'bb']])],
             ['status=undefined'],
             [http_build_query(['status' => ['undefined']])],
+        ];
+    }
+
+    public static function provideValidCronJobFilter(): array
+    {
+        return [
+            ['ids=00000000-0000-0000-0000-000000000000'],
+            [
+                'ids='.implode(',', [
+                    '00000000-0000-0000-0000-000000000000',
+                    '00000000-1111-1111-1111-111111111111',
+                ]),
+            ],
+            ['externalIds=00000000-0000-0000-0000-000000000000'],
+            [
+                'externalIds='.implode(',', [
+                    '00000000-0000-0000-0000-000000000000',
+                    '00000000-1111-1111-1111-111111111111',
+                ]),
+            ],
+            ['names=valid'],
+            ['names=validA,validB'],
+        ];
+    }
+
+    public static function provideInvalidCronJobFilter(): array
+    {
+        return [
+            ['id=000'],
+            [http_build_query(['id' => ['000', '111']])],
+            ['externalId=000'],
+            [http_build_query(['externalId' => ['000', '11a']])],
+            ['name=aa'],
+            [http_build_query(['name' => ['aa', 'bb']])],
         ];
     }
 

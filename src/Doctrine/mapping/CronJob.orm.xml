@@ -11,6 +11,7 @@
         <field name="scheduledTime" column="scheduledTime" type="integer" nullable="true"/>
         <field name="name" type="string" length="25" nullable="true"/>
         <field name="jobJson" column="job_json" type="text" nullable="false"/>
+        <field name="externalId" column="external_id" type="string" length="36" nullable="true"/>
         <field name="updatedAt" column="updated_at" type="datetime"/>
         <field name="createdAt" column="created_at" type="datetime"/>
     </entity>

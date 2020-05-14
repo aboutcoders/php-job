@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://aboutcoders.com/schema/cronjob-filter.json",
+  "title": "CronJobFilter Schema",
+  "type": "object",
+  "properties": {
+    "ids": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
+    },
+    "names": {
+      "type": "string",
+      "pattern": "^([a-zA-Z0-9._-]{3,20})(,([a-zA-Z0-9._-]{3,20}))*$"
+    },
+    "externalIds": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(,([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))*$"
+    },
+    "offset": {
+      "type": ["string", "number"]
+    },
+    "limit": {
+      "type": ["string", "number"]
+    }
+  },
+  "additionalProperties": false
+}

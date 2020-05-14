@@ -26,6 +26,7 @@ class Validator implements ValidatorInterface
         JobFilter::class => 'jobFilter.json',
         Route::class => 'route.json',
         CronJob::class => 'cronJob.json',
+        CronJobFilter::class => 'cronJobFilter.json',
         Reply::class => 'reply.json'
     ];
 

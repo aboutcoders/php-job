@@ -10,6 +10,10 @@ interface CronJobInterface extends \Abc\Job\CronJob, ScheduleInterface
 
     public function setName(?string $name): void;
 
+    public function getExternalId(): ?string;
+
+    public function setExternalId(?string $externalId): void;
+
     public function getJobJson(): ?string;
 
     public function setJobJson(?string $json): void;

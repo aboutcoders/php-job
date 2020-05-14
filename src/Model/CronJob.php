@@ -39,6 +39,11 @@ class CronJob implements CronJobInterface
     protected $name;
 
     /**
+     * @var string|null
+     */
+    protected $externalId;
+
+    /**
      * @var DateTime|null
      */
     protected $createdAt;
@@ -133,6 +138,16 @@ class CronJob implements CronJobInterface
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getExternalId(): ?string
+    {
+        return $this->externalId;
+    }
+
+    public function setExternalId(?string $externalId): void
+    {
+        $this->externalId = $externalId;
     }
 
     public function getCreatedAt(): ?DateTime

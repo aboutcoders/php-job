@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 
 class CronJobManager extends BaseCronJobManager
 {
@@ -19,6 +20,11 @@ class CronJobManager extends BaseCronJobManager
     protected $entityManager;
 
     /**
+     * @var string
+     */
+    protected $class;
+
+    /**
      * @var EntityRepository
      */
     protected $repository;
@@ -26,7 +32,7 @@ class CronJobManager extends BaseCronJobManager
     public function __construct(EntityManager $em, string $class)
     {
         $this->entityManager = $em;
-
+        $this->class = $class;
         $this->repository = $em->getRepository($class);
 
         parent::__construct($class);
@@ -36,6 +42,7 @@ class CronJobManager extends BaseCronJobManager
     {
         $cronJob->setJobJson($cronJob->getJob()->toJson());
         $cronJob->setName($cronJob->getJob()->getName());
+        $cronJob->setExternalId($cronJob->getJob()->getExternalId());
 
         $this->setDates($cronJob);
         $this->entityManager->persist($cronJob);
@@ -82,7 +89,41 @@ class CronJobManager extends BaseCronJobManager
         int $limit = null,
         int $offset = null
     ): array {
-        return $this->repository->findBy([], [], $limit, $offset);
+        $qb = $this->createQueryBuilder();
+
+        if (null !== $filter) {
+
+            if (!empty($filter->getIds())) {
+                $qb->andWhere($qb->expr()->in('cj.id', '?1'));
+                $qb->setParameter(1, $filter->getIds());
+            }
+
+            if (!empty($filter->getNames())) {
+                $qb->andWhere($qb->expr()->in('cj.name', '?2'));
+                $qb->setParameter(2, $filter->getNames());
+            }
+
+            if (!empty($filter->getExternalIds())) {
+                $qb->andWhere($qb->expr()->in('cj.externalId', '?4'));
+                $qb->setParameter(4, $filter->getExternalIds());
+            }
+        }
+
+        $query = $qb->getQuery();
+        $query->setFirstResult(null === $filter ? null : $filter->getOffset());
+        $query->setMaxResults(null === $filter ? null : $filter->getLimit());
+
+        return $query->getResult();
+    }
+
+    private function createQueryBuilder(): QueryBuilder
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('cj');
+        $qb->from($this->class, 'cj');
+        $qb->orderBy('cj.createdAt', 'DESC');
+
+        return $qb;
     }
 
     private function setDates(CronJobInterface $schedule): void

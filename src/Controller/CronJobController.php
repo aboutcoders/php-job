@@ -41,6 +41,33 @@ class CronJobController extends AbstractController
      *     path="/cronjob",
      *     tags={"CronJob"},
      *     description="Returns a list of cronjobs",
+     *     @OA\Parameter(
+     *         description="The ids of the cronjob",
+     *         in="query",
+     *         name="ids",
+     *         required=false,
+     *         style="simple",
+     *         explode="false",
+     *         @OA\Schema(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="string",
+     *                 format="uuid"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/names"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/externalIds"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/offset"
+     *     ),
+     *     @OA\Parameter(
+     *         ref="#/components/parameters/limit"
+     *     ),
      *     @OA\Response(
      *          response=200,
      *          description="Successful operation",
