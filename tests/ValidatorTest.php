@@ -4,6 +4,7 @@ namespace Abc\Job\Tests;
 
 use Abc\Job\Broker\Route;
 use Abc\Job\CronJob;
+use Abc\Job\CronJobFilter;
 use Abc\Job\InvalidJsonException;
 use Abc\Job\JobFilter;
 use Abc\Job\Job;
@@ -120,7 +121,7 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, JobFilter::class);
+        $errors = $this->subject->validate($json, CronJobFilter::class);
         $this->assertEmpty($errors);
     }
 
@@ -133,7 +134,7 @@ class ValidatorTest extends TestCase
         parse_str($queryString, $data);
         $json = json_encode((object) $data);
 
-        $errors = $this->subject->validate($json, JobFilter::class);
+        $errors = $this->subject->validate($json, CronJobFilter::class);
         $this->assertNotEmpty($errors);
     }
 

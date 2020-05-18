@@ -49,9 +49,10 @@ class Validator implements ValidatorInterface
         }
 
         switch ($class) {
-            case JobFilter::class:
-            case Job::class:
             case CronJob::class:
+            case CronJobFilter::class:
+            case Job::class:
+            case JobFilter::class:
             case Route::class:
                 $data = json_decode($json);
                 break;
