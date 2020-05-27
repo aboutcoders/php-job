@@ -14,5 +14,11 @@
         <field name="externalId" column="external_id" type="string" length="36" nullable="true"/>
         <field name="updatedAt" column="updated_at" type="datetime"/>
         <field name="createdAt" column="created_at" type="datetime"/>
+
+        <indexes>
+            <index columns="name"/>
+            <index columns="external_id"/>
+        </indexes>
+
     </entity>
 </doctrine-mapping>

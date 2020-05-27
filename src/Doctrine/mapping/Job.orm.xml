@@ -32,5 +32,11 @@
         </one-to-many>
         <many-to-one field="parent" target-entity="Abc\Job\Model\Job" inversed-by="children"/>
 
+        <indexes>
+            <index columns="name"/>
+            <index columns="status"/>
+            <index columns="external_id"/>
+        </indexes>
+
     </entity>
 </doctrine-mapping>
