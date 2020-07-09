@@ -14,9 +14,6 @@ use OpenApi\Annotations as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * @OA\Info(title="Job API", version="0.1")
- */
 class JobController extends AbstractController
 {
     private const RESOURCE_NAME = 'Job';
