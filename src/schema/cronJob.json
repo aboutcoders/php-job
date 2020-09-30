@@ -35,6 +35,14 @@
       "type": "boolean",
       "default": "false"
     },
+    "concurrencyPolicy": {
+      "type": "string",
+      "title": "The concurrency policy",
+      "enum": [
+        "Allow",
+        "Forbid"
+      ]
+    },
     "CronJob": {
       "type": "object",
       "additionalProperties": false,
@@ -59,6 +67,9 @@
         },
         "allowFailure": {
           "$ref": "#/definitions/allowFailure"
+        },
+        "concurrencyPolicy": {
+          "$ref": "#/definitions/concurrencyPolicy"
         },
         "externalId": {
           "$ref": "#/definitions/externalId"

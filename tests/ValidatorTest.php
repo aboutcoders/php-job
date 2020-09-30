@@ -10,6 +10,7 @@ use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Type;
 use Abc\Job\Validator;
+use Abc\Scheduler\ConcurrencyPolicy;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -418,6 +419,15 @@ class ValidatorTest extends TestCase
                     'externalId' => null,
                 ],
             ],
+            #2 cronjob with concurrency policy
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'concurrencyPolicy' => ConcurrencyPolicy::FORBID(),
+                ],
+            ],
             #3 job with empty children array
             [
                 (object) [
@@ -592,6 +602,15 @@ class ValidatorTest extends TestCase
                 (object) [
                     'type' => (string) Type::JOB(),
                     'name' => 'valid',
+                ],
+            ],
+            #
+            [
+                (object) [
+                    'schedule' => '* * * * *',
+                    'type' => (string) Type::JOB(),
+                    'name' => 'valid',
+                    'concurrencyPolicy' => 'invalid'
                 ],
             ],
             #7 empty Sequence
