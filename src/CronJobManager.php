@@ -3,6 +3,7 @@
 namespace Abc\Job;
 
 use Abc\Job\Model\CronJobManagerInterface;
+use Abc\Scheduler\ConcurrencyPolicy;
 
 class CronJobManager
 {
@@ -17,10 +18,10 @@ class CronJobManager
     }
 
     /**
-     * @param CronJobFilter|null $filter
-     * @param OrderBy|null $orderBy
-     * @param int|null $limit
-     * @param int|null $offset
+     * @param  CronJobFilter|null  $filter
+     * @param  OrderBy|null  $orderBy
+     * @param  int|null  $limit
+     * @param  int|null  $offset
      * @return CronJob[]
      */
     public function list(
@@ -37,9 +38,13 @@ class CronJobManager
         return $this->entityManager->find($id);
     }
 
-    public function create(string $schedule, Job $job): CronJob
+    public function create(string $schedule, Job $job, ConcurrencyPolicy $policy = null): CronJob
     {
         $cronJob = $this->entityManager->create($schedule, $job);
+
+        if (null !== $policy) {
+            $cronJob->setConcurrencyPolicy($policy);
+        }
 
         $this->entityManager->save($cronJob);
 
@@ -66,7 +71,7 @@ class CronJobManager
     private function validateInstance(CronJob $cronJob)
     {
         $class = $this->entityManager->getClass();
-        if (! $cronJob instanceof $class) {
+        if (!$cronJob instanceof $class) {
             throw new \InvalidArgumentException(sprintf('%s is not an instance of %s', get_class($cronJob), $class));
         }
     }

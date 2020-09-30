@@ -8,6 +8,7 @@ use Abc\Job\Job;
 use Abc\Job\Model\CronJobInterface;
 use Abc\Job\Model\CronJobManagerInterface;
 use Abc\Job\Type;
+use Abc\Scheduler\ConcurrencyPolicy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -59,6 +60,21 @@ class CronJobManagerTest extends TestCase
         $this->entityManager->expects($this->once())->method('save')->with($managedCronJob);
 
         $this->assertSame($managedCronJob, $this->subject->create('someSchedule', $job));
+    }
+
+    public function testCreateWithConcurrencyPolicy()
+    {
+        $job = new Job(Type::JOB(), 'someJob');
+
+        $managedCronJob = $this->createMock(CronJobInterface::class);
+
+        $this->entityManager->expects($this->once())->method('create')->with('someSchedule', $job)->willReturn($managedCronJob);
+
+        $managedCronJob->expects($this->once())->method('setConcurrencyPolicy')->with($this->equalTo(ConcurrencyPolicy::FORBID()));
+
+        $this->entityManager->expects($this->once())->method('save')->with($managedCronJob);
+
+        $this->assertSame($managedCronJob, $this->subject->create('someSchedule', $job, ConcurrencyPolicy::FORBID()));
     }
 
     public function testUpdate()

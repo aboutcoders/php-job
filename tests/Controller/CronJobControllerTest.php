@@ -133,7 +133,7 @@ class CronJobControllerTest extends AbstractControllerTestCase
 
         $this->validatorMock->expects($this->once())->method('validate')->with($json, \Abc\Job\CronJob::class)->willReturn([]);
 
-        $this->cronJobManagerMock->expects($this->once())->method('create')->with($cronJob->getSchedule(), $this->equalTo($cronJob->getJob()))->willReturn($managedCronJob);
+        $this->cronJobManagerMock->expects($this->once())->method('create')->with($cronJob->getSchedule(), $this->equalTo($cronJob->getJob()), $cronJob->getConcurrencyPolicy())->willReturn($managedCronJob);
 
         $response = $this->subject->create($json, 'requestUri');
 

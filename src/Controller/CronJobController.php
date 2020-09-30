@@ -222,7 +222,7 @@ class CronJobController extends AbstractController
                     );
                 }
 
-                $managedCronJob = $this->cronJobManager->create($cronJob->getSchedule(), $cronJob->getJob());
+                $managedCronJob = $this->cronJobManager->create($cronJob->getSchedule(), $cronJob->getJob(), $cronJob->getConcurrencyPolicy());
 
                 return new Response(201, static::$headers_ok, $managedCronJob->toJson());
             },
