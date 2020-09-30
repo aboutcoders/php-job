@@ -4,6 +4,7 @@ namespace Abc\Job\Model;
 
 use Abc\Job\Job;
 use Abc\Job\Util\DateUtil;
+use Abc\Scheduler\ConcurrencyPolicy;
 use DateTime;
 
 class CronJob implements CronJobInterface
@@ -22,6 +23,11 @@ class CronJob implements CronJobInterface
      * @var int|null
      */
     protected $scheduledTime;
+
+    /**
+     * @var string
+     */
+    protected $concurrencyPolicy;
 
     /**
      * @var \Abc\Job\Job|null
@@ -57,6 +63,7 @@ class CronJob implements CronJobInterface
     {
         $this->schedule = $schedule;
         $this->job = $job;
+        $this->concurrencyPolicy = (string) ConcurrencyPolicy::ALLOW();
     }
 
     public static function create(string $schedule, Job $job): CronJobInterface
@@ -77,7 +84,8 @@ class CronJob implements CronJobInterface
     public function getSchedule(): string
     {
         if (null === $this->schedule) {
-            throw new \LogicException(sprintf('Expected the variable $schedule to be set. Either %s must call the parent constructor of %s or call setSchedule() right after instantiation.', get_class($this), self::class));
+            throw new \LogicException(sprintf('Expected the variable $schedule to be set. Either %s must call the parent constructor of %s or call setSchedule() right after instantiation.',
+                get_class($this), self::class));
         }
 
         return $this->schedule;
@@ -98,11 +106,22 @@ class CronJob implements CronJobInterface
         return $this->scheduledTime;
     }
 
+    public function getConcurrencyPolicy(): ConcurrencyPolicy
+    {
+        return new ConcurrencyPolicy($this->concurrencyPolicy);
+    }
+
+    public function setConcurrencyPolicy(ConcurrencyPolicy $policy): void
+    {
+        $this->concurrencyPolicy = (string) $policy;
+    }
+
     public function getJob(): Job
     {
         if (null === $this->job) {
             if (null === $this->jobJson) {
-                throw new \LogicException(sprintf('Expected the variable $jobJson to be set. Either %s must call the parent constructor of %s or call setJobJson() right after instantiation.', get_class($this), self::class));
+                throw new \LogicException(sprintf('Expected the variable $jobJson to be set. Either %s must call the parent constructor of %s or call setJobJson() right after instantiation.',
+                    get_class($this), self::class));
             }
 
             $this->job = Job::fromJson($this->jobJson);
@@ -181,7 +200,7 @@ class CronJob implements CronJobInterface
     }
 
     /**
-     * @param string $json
+     * @param  string  $json
      * @return self
      * @throws \InvalidArgumentException
      */
@@ -203,17 +222,25 @@ class CronJob implements CronJobInterface
 
     public static function fromArray(array $data): CronJobInterface
     {
-        if (! isset($data['schedule'])) {
+        if (!isset($data['schedule'])) {
             throw new \InvalidArgumentException('The property "schedule" must be set');
         }
 
         $schedule = $data['schedule'];
         unset($data['schedule']);
 
+        if (isset($data['concurrencyPolicy']) && !in_array($data['concurrencyPolicy'], ConcurrencyPolicy::values())) {
+            throw new \InvalidArgumentException(sprintf('The value "%s" for "concurrencyPolicy"is not valid',
+                $data['concurrencyPolicy']));
+        }
+        $concurrencyPolicy = isset($data['concurrencyPolicy']) ? new ConcurrencyPolicy($data['concurrencyPolicy']) : ConcurrencyPolicy::ALLOW();
+        unset($data['concurrencyPolicy']);
+
         $cronJob = static::create($schedule, Job::fromArray($data));
         $cronJob->setId($data['id'] ?? null);
-        $cronJob->setCreatedAt(! isset($data['created']) ? null : DateUtil::createDate(strtotime($data['created'])));
-        $cronJob->setUpdatedAt(! isset($data['updated']) ? null : DateUtil::createDate(strtotime($data['updated'])));
+        $cronJob->setConcurrencyPolicy($concurrencyPolicy);
+        $cronJob->setCreatedAt(!isset($data['created']) ? null : DateUtil::createDate(strtotime($data['created'])));
+        $cronJob->setUpdatedAt(!isset($data['updated']) ? null : DateUtil::createDate(strtotime($data['updated'])));
 
         return $cronJob;
     }
@@ -223,6 +250,7 @@ class CronJob implements CronJobInterface
         $data = [
             'id' => $this->getId(),
             'schedule' => $this->getSchedule(),
+            'concurrencyPolicy' => (string) $this->getConcurrencyPolicy(),
             'updated' => null == $this->getUpdated() ? null : $this->getUpdated()->format('c'),
             'created' => null == $this->getCreated() ? null : $this->getCreated()->format('c'),
         ];
@@ -230,6 +258,7 @@ class CronJob implements CronJobInterface
         $data = array_merge(array_flip([
             'id',
             'schedule',
+            'concurrencyPolicy',
             'type',
             'name',
             'input',

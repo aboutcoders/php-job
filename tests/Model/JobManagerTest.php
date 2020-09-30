@@ -14,15 +14,18 @@ class JobManagerTest extends TestCase
     public function testCreate()
     {
         /** @var JobManager|MockObject $subject */
-        $subject = $this->getMockBuilder(JobManager::class)->setMethods([
-            'getClass',
-            'delete',
-            'deleteAll',
-            'refresh',
-            'save',
-            'find',
-            'findBy',
-        ])->getMock();
+        $subject = $this->getMockBuilder(JobManager::class)->setMethods(
+            [
+                'getClass',
+                'delete',
+                'deleteAll',
+                'refresh',
+                'save',
+                'find',
+                'findBy',
+                'existsConcurrent'
+            ]
+        )->getMock();
 
         $subject->expects($this->any())->method('getClass')->willReturn(\Abc\Job\Model\Job::class);
 
@@ -37,15 +40,18 @@ class JobManagerTest extends TestCase
     public function testCreateWithInvalidClass()
     {
         /** @var JobManager|MockObject $subject */
-        $subject = $this->getMockBuilder(JobManager::class)->setMethods([
-            'getClass',
-            'delete',
-            'deleteAll',
-            'refresh',
-            'save',
-            'find',
-            'findBy',
-        ])->getMock();
+        $subject = $this->getMockBuilder(JobManager::class)->setMethods(
+            [
+                'getClass',
+                'delete',
+                'deleteAll',
+                'refresh',
+                'save',
+                'find',
+                'findBy',
+                'existsConcurrent'
+            ]
+        )->getMock();
 
         $subject->expects($this->any())->method('getClass')->willReturn(\stdClass::class);
 

@@ -9,6 +9,11 @@
         </id>
         <field name="schedule" column="schedule" type="string" length="250" nullable="false"/>
         <field name="scheduledTime" column="scheduledTime" type="integer" nullable="true"/>
+        <field name="concurrencyPolicy" column="concurrency_policy" type="string" length="25">
+            <options>
+                <option name="default">Allow</option>
+            </options>
+        </field>
         <field name="name" type="string" length="25" nullable="true"/>
         <field name="jobJson" column="job_json" type="text" nullable="false"/>
         <field name="externalId" column="external_id" type="string" length="36" nullable="true"/>
