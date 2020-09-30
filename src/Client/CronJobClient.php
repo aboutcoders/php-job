@@ -7,6 +7,7 @@ use Abc\Job\CronJob;
 use Abc\Job\CronJobFilter;
 use Abc\Job\Job;
 use Abc\Job\Util\CronJobArray;
+use Abc\Scheduler\ConcurrencyPolicy;
 
 class CronJobClient extends AbstractClient
 {
@@ -21,7 +22,7 @@ class CronJobClient extends AbstractClient
     }
 
     /**
-     * @param CronJobFilter|null $filter
+     * @param  CronJobFilter|null  $filter
      * @return array
      * @throws ApiProblemException
      */
@@ -35,7 +36,7 @@ class CronJobClient extends AbstractClient
     }
 
     /**
-     * @param string $id
+     * @param  string  $id
      * @return CronJob|null
      * @throws ApiProblemException
      */
@@ -53,17 +54,22 @@ class CronJobClient extends AbstractClient
     }
 
     /**
-     * @param string $scheduleExpression
-     * @param Job $job
+     * @param  string  $scheduleExpression
+     * @param  Job  $job
+     * @param  ConcurrencyPolicy|null $policy Default is ConcurrencyPolicy::ALLOW()
      * @return CronJob The managed cron job
      * @throws ApiProblemException
      */
-    public function create(string $scheduleExpression, Job $job): CronJob
+    public function create(string $scheduleExpression, Job $job, ConcurrencyPolicy $policy = null): CronJob
     {
         $data = $job->toArray();
         $data['schedule'] = $scheduleExpression;
 
-        $response = $this->client->create(json_encode((object) $data));
+        if (null !== $policy) {
+            $data['concurrencyPolicy'] = (string)$policy;
+        }
+
+        $response = $this->client->create(json_encode((object)$data));
 
         $this->validateResponse($response);
 
@@ -75,7 +81,7 @@ class CronJobClient extends AbstractClient
         $data = $job->toArray();
         $data['schedule'] = $scheduleExpression;
 
-        $response = $this->client->update($id, json_encode((object) $data));
+        $response = $this->client->update($id, json_encode((object)$data));
 
         $this->validateResponse($response);
 
@@ -83,7 +89,7 @@ class CronJobClient extends AbstractClient
     }
 
     /**
-     * @param string $id
+     * @param  string  $id
      * @return bool|null True if successful, null if no job with the given id exists
      * @throws ApiProblemException
      */

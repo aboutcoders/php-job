@@ -7,6 +7,7 @@ use Abc\Job\Client\CronJobClient;
 use Abc\Job\Client\CronJobHttpClient;
 use Abc\Job\Job;
 use Abc\Job\Type;
+use Abc\Scheduler\ConcurrencyPolicy;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -105,6 +106,29 @@ class CronJobClientTest extends AbstractClientTestCase
         $this->httpClientMock->expects($this->once())->method('create')->with($this->callback($callback))->willReturn(new Response(201, [], $cronJob->toJson()));
 
         $this->assertEquals($cronJob, $this->subject->create('* * * * *', $job));
+    }
+
+    public function testCreateWithConcurrencyPolicy()
+    {
+        $job = new Job(Type::JOB(), 'jobName');
+
+        $cronJob = new \Abc\Job\Model\CronJob('* * * * *', $job);
+        $cronJob->setId('someId');
+
+        $callback = function ($json) {
+            $cronJob = \Abc\Job\Model\CronJob::fromJson($json);
+
+            Assert::assertEquals('* * * * *', $cronJob->getSchedule());
+            Assert::assertEquals(Type::JOB(), $cronJob->getJob()->getType());
+            Assert::assertEquals('jobName', $cronJob->getJob()->getName());
+            Assert::assertEquals(ConcurrencyPolicy::FORBID(), $cronJob->getConcurrencyPolicy());
+
+            return true;
+        };
+
+        $this->httpClientMock->expects($this->once())->method('create')->with($this->callback($callback))->willReturn(new Response(201, [], $cronJob->toJson()));
+
+        $this->assertEquals($cronJob, $this->subject->create('* * * * *', $job, ConcurrencyPolicy::FORBID()));
     }
 
     public function testCreateWithHttpError()
