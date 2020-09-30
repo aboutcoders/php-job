@@ -147,19 +147,26 @@ class JobManager extends BaseJobManager
         $qb->andWhere($qb->expr()->eq('j.name', '?2'));
         $qb->setParameter(2, $job->getName());
 
-        $qb->andWhere($qb->expr()->eq('j.input', '?3'));
-        $qb->setParameter(3, $job->getInput());
+        if(null === $job->getInput()) {
+            $qb->andWhere($qb->expr()->isNull('j.input'));
+        }else {
+            $qb->andWhere($qb->expr()->eq('j.input', '?3'));
+            $qb->setParameter(3, $job->getInput());
+        }
 
-        $qb->andWhere($qb->expr()->eq('j.externalId', '?4'));
-        $qb->setParameter(4, $job->getExternalId());
-
-        $qb->andWhere($qb->expr()->in('j.status', '?5'));
-        $qb->setParameter(5, [Status::WAITING, Status::SCHEDULED, Status::RUNNING]);
+        if(null === $job->getExternalId()) {
+            $qb->andWhere($qb->expr()->isNull('j.externalId'));
+        }else {
+            $qb->andWhere($qb->expr()->eq('j.externalId', '?4'));
+            $qb->setParameter(4, $job->getExternalId());
+        }
 
         $query = $qb->getQuery();
         $query->setMaxResults(1);
 
-        return null !== $query->getSingleResult($query::HYDRATE_OBJECT);
+        $jobs = $query->getResult($query::HYDRATE_OBJECT);
+
+        return 0 !== count($jobs) && in_array($jobs[0]->getStatus(), [Status::WAITING, Status::SCHEDULED, Status::RUNNING]);
     }
 
     private function findByLatest(JobFilter $filter): array

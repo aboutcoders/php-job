@@ -4,7 +4,7 @@ namespace Abc\Job\Doctrine;
 
 use Abc\Job\Broker\Route;
 use Abc\Job\Model\RouteManagerInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class RouteManager implements RouteManagerInterface
 {
