@@ -2,6 +2,7 @@
 
 namespace Abc\Job;
 
+use Abc\Scheduler\ConcurrencyPolicy;
 use OpenApi\Annotations as OA;
 
 /**
@@ -19,6 +20,12 @@ use OpenApi\Annotations as OA;
  *             property="schedule",
  *             type="string",
  *             description="The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron."
+ *         ),
+ *         @OA\Property(
+ *             property="concurrencyPolicy",
+ *             type="string",
+ *             enum={"Allow","Forbid"}
+ *             description="The concurrency policy."
  *         ),
  *         @OA\Property(
  *             property="type",
@@ -64,6 +71,10 @@ interface CronJob
     public function getSchedule(): string;
 
     public function setSchedule(string $expression): void;
+
+    public function getConcurrencyPolicy(): ConcurrencyPolicy;
+
+    public function setConcurrencyPolicy(ConcurrencyPolicy $policy): void;
 
     public function getJob(): Job;
 

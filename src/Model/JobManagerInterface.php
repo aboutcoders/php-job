@@ -22,4 +22,12 @@ interface JobManagerInterface
     public function findBy(JobFilter $filter = null) : array;
 
     public static function fromArray(JobInterface $job, array $data): JobInterface;
+
+    /**
+     * Indicates whether an equal job exists that is currently waiting, scheduled or running.
+     *
+     * @param  Job  $job
+     * @return bool
+     */
+    public function existsConcurrent(Job $job): bool;
 }

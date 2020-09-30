@@ -2,9 +2,11 @@
 
 namespace Abc\Job\Doctrine;
 
+use Abc\Job\Job;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager as BaseJobManager;
+use Abc\Job\Status;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -133,6 +135,31 @@ class JobManager extends BaseJobManager
         $query->setMaxResults(null === $filter ? null : $filter->getLimit());
 
         return $query->getResult();
+    }
+
+    public function existsConcurrent(Job $job): bool
+    {
+        $qb = $this->createQueryBuilder();
+
+        $qb->andWhere($qb->expr()->eq('j.type', '?1'));
+        $qb->setParameter(1, (string)$job->getType());
+
+        $qb->andWhere($qb->expr()->eq('j.name', '?2'));
+        $qb->setParameter(2, $job->getName());
+
+        $qb->andWhere($qb->expr()->eq('j.input', '?3'));
+        $qb->setParameter(3, $job->getInput());
+
+        $qb->andWhere($qb->expr()->eq('j.externalId', '?4'));
+        $qb->setParameter(4, $job->getExternalId());
+
+        $qb->andWhere($qb->expr()->in('j.status', '?5'));
+        $qb->setParameter(5, [Status::WAITING, Status::SCHEDULED, Status::RUNNING]);
+
+        $query = $qb->getQuery();
+        $query->setMaxResults(1);
+
+        return null !== $query->getSingleResult($query::HYDRATE_OBJECT);
     }
 
     private function findByLatest(JobFilter $filter): array

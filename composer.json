@@ -34,7 +34,7 @@
     "doctrine/orm": "^2.6",
     "enqueue/amqp-bunny": "^0.10",
     "enqueue/enqueue": "^0.10",
-    "abc/scheduler": "dev-master",
+    "abc/scheduler": "dev-feature/cronjob-concurrency-policy",
     "zircote/swagger-php": "^3.0"
   },
   "autoload": {
