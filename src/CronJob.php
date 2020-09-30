@@ -24,7 +24,7 @@ use OpenApi\Annotations as OA;
  *         @OA\Property(
  *             property="concurrencyPolicy",
  *             type="string",
- *             enum={"Allow","Forbid"}
+ *             enum={"Allow","Forbid"},
  *             description="The concurrency policy."
  *         ),
  *         @OA\Property(
