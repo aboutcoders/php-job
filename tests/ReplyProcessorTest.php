@@ -8,6 +8,7 @@ use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Processor\Reply;
 use Abc\Job\ReplyProcessor;
+use Abc\Job\ReplyReceivedExtensionInterface;
 use Abc\Job\Result;
 use Abc\Job\Status;
 use Abc\Job\Type;
@@ -28,6 +29,11 @@ class ReplyProcessorTest extends TestCase
     private $entityManager;
 
     /**
+     * @var ReplyReceivedExtensionInterface|MockObject
+     */
+    private $replyReceivedExtension;
+
+    /**
      * @var ReplyProcessor
      */
     private $subject;
@@ -36,7 +42,8 @@ class ReplyProcessorTest extends TestCase
     {
         $this->jobServer = $this->createMock(JobServer::class);
         $this->entityManager = $this->createMock(JobManagerInterface::class);
-        $this->subject = new ReplyProcessor($this->jobServer, $this->entityManager, new NullLogger());
+        $this->replyReceivedExtension = $this->createMock(ReplyReceivedExtensionInterface::class);
+        $this->subject = new ReplyProcessor($this->jobServer, $this->entityManager, new NullLogger(), $this->replyReceivedExtension);
     }
 
     /**
@@ -48,11 +55,26 @@ class ReplyProcessorTest extends TestCase
 
         $this->entityManager->expects($this->once())->method('save')->with($this->equalTo($expectedJob));
 
-        $this->jobServer->expects($this->any())->method('trigger')->willReturnCallback(function(JobInterface $job) {
-            $job->setStatus(Status::SCHEDULED);
-            return new Result($job);
-        });
-        
+        $this->jobServer->expects($this->any())->method('trigger')->willReturnCallback(
+            function (JobInterface $job) {
+                $job->setStatus(Status::SCHEDULED);
+                return new Result($job);
+            }
+        );
+
+        $this->replyReceivedExtension->expects($this->once())->method('onReplyReceived')->with(
+            $this->callback(
+                function (Result $result) use ($expectedJob){
+                    $this->assertInstanceOf(Result::class, $result);
+                    $this->assertEquals($expectedJob->getStatus(), $result->getStatus());
+                    $this->assertEquals($expectedJob->getOutput(), $result->getOutput());
+                    $this->assertEquals($expectedJob->getProcessingTime(), $result->getProcessingTime());
+                    $this->assertEquals($expectedJob->getCompletedAt(), $result->getCompleted());
+                    return true;
+                }
+            )
+        );
+
         $this->subject->process($reply);
 
         /*echo "actual:";
@@ -69,25 +91,25 @@ class ReplyProcessorTest extends TestCase
         return [
             // 0 single job
             [
-                new Reply('someJobId',Status::RUNNING, 'someOutput'),
+                new Reply('someJobId', Status::RUNNING, 'someOutput'),
                 self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null),
                 self::createJob(Type::JOB(), Status::RUNNING, 'someOutput', 0, null),
             ],
             // 1 single job
             [
-                new Reply('someJobId',Status::COMPLETE, 'someOutput', 0.01, 10000),
+                new Reply('someJobId', Status::COMPLETE, 'someOutput', 0.01, 10000),
                 self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
                 self::createJob(Type::JOB(), Status::COMPLETE, 'someOutput', 0.01, new \DateTime('@10000')),
             ],
             // 2 single job
             [
-                new Reply('someJobId',Status::FAILED, 'someOutput', 0.01, 10000),
+                new Reply('someJobId', Status::FAILED, 'someOutput', 0.01, 10000),
                 self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
                 self::createJob(Type::JOB(), Status::FAILED, 'someOutput', 0.01, new \DateTime('@10000')),
             ],
             // 3 Batch with single child job
             [
-                new Reply('someJobId',Status::RUNNING, null, 0, 1000),
+                new Reply('someJobId', Status::RUNNING, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::SCHEDULED, null, 0, null),
                     self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null)
@@ -99,7 +121,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 4 Batch with single child job (allowFailure=false) that failed
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null)
@@ -111,7 +133,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 5 Batch with single child job (allowFailure=true) that failed
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true)
@@ -123,7 +145,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 6 Sequence with single child job
             [
-                new Reply('someJobId',Status::RUNNING, null, 0, 1000),
+                new Reply('someJobId', Status::RUNNING, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::SCHEDULED, null, 0, null),
                     self::createJob(Type::JOB(), Status::SCHEDULED, null, 0, null)
@@ -135,7 +157,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 7 Sequence with single child job (allowFailure=false)
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null)
@@ -147,7 +169,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 8 Sequence with single child job (allowFailure=true)
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true)
@@ -159,27 +181,27 @@ class ReplyProcessorTest extends TestCase
             ],
             // 9 Sequence with child job with right neighbours
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
-                        [],
-                        [
-                            self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
-                        ]
+                    [],
+                    [
+                        self::createJob(Type::JOB(), Status::WAITING, null, 0, null),
+                    ]
                 ),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::SEQUENCE(), Status::FAILED, null, 0, new \DateTime('@1000')),
                     self::createJob(Type::JOB(), Status::FAILED, null, 0, new \DateTime('@1000')),
-                        [],
-                        [
-                            self::createJob(Type::JOB(), Status::CANCELLED, null, 0, null),
-                        ]
+                    [],
+                    [
+                        self::createJob(Type::JOB(), Status::CANCELLED, null, 0, null),
+                    ]
                 ),
             ],
             // 10 Sequence with child job with right neighbours
             [
-                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId', Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -199,7 +221,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 11 Batch with child job with right neighbours
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -219,7 +241,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 12 Batch with child job with right neighbours
             [
-                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId', Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null),
@@ -239,7 +261,7 @@ class ReplyProcessorTest extends TestCase
             ],
             // 13 Batch with child job (allowFailure=true) with right neighbours
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createJob(Type::BATCH(), Status::RUNNING, null, 0, null),
                     self::createJob(Type::JOB(), Status::RUNNING, null, 0, null, true),
@@ -264,7 +286,7 @@ class ReplyProcessorTest extends TestCase
             // |
             // X
             [
-                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId', Status::COMPLETE, null, 0, 1000),
                 self::createChildJobWithNeighbours(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
@@ -295,7 +317,7 @@ class ReplyProcessorTest extends TestCase
             // |
             // X
             [
-                new Reply('someJobId',Status::COMPLETE, null, 0, 1000),
+                new Reply('someJobId', Status::COMPLETE, null, 0, 1000),
                 self::createChildJob(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
@@ -326,7 +348,7 @@ class ReplyProcessorTest extends TestCase
             //   |
             //   X
             [
-                new Reply('someJobId',Status::FAILED, null, 0, 1000),
+                new Reply('someJobId', Status::FAILED, null, 0, 1000),
                 self::createChildJob(
                     self::createChildJobWithNeighbours(
                         self::createJob(Type::SEQUENCE(), Status::RUNNING, null, 0, null),
@@ -405,7 +427,14 @@ class ReplyProcessorTest extends TestCase
 
     private function printJob(JobInterface $job, &$output = '', $indent = 0)
     {
-        $output.= "\n".sprintf('%s%s %s %s', 0 == $indent ? '' : str_repeat(' ', $indent * 4), null != $job->hasParent() && Type::SEQUENCE() == $job->getParent()->getType() ? $job->getPosition().'.' : '' ,$job->getType().':', $job->getStatus());
+        $output .= "\n".sprintf(
+                '%s%s %s %s',
+                0 == $indent ? '' : str_repeat(' ', $indent * 4),
+                null != $job->hasParent() && Type::SEQUENCE() == $job->getParent()->getType() ? $job->getPosition(
+                    ).'.' : '',
+                $job->getType().':',
+                $job->getStatus()
+            );
         $indent++;
         foreach ($job->getChildren() as $child) {
             $this->printJob($child, $output, $indent);

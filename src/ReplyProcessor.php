@@ -6,6 +6,7 @@ use Abc\Job\Model\JobInterface;
 use Abc\Job\Model\JobManager;
 use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Processor\Reply;
+use Abc\Job\ReplyReceivedExtension\ChainExtension;
 use Psr\Log\LoggerInterface;
 
 class ReplyProcessor
@@ -25,15 +26,25 @@ class ReplyProcessor
      */
     private $logger;
 
-    public function __construct(JobServer $jobServer, JobManagerInterface $jobManager, LoggerInterface $logger)
-    {
+    /**
+     * @var ReplyReceivedExtensionInterface
+     */
+    private $replyReceivedExtension;
+
+    public function __construct(
+        JobServer $jobServer,
+        JobManagerInterface $jobManager,
+        LoggerInterface $logger,
+        ReplyReceivedExtensionInterface $extension = null
+    ) {
         $this->jobServer = $jobServer;
         $this->jobManager = $jobManager;
         $this->logger = $logger;
+        $this->replyReceivedExtension = $extension ?: new ChainExtension([]);
     }
 
     /**
-     * @param Reply $reply
+     * @param  Reply  $reply
      * @throws NotFoundException
      */
     public function process(Reply $reply): void
@@ -47,6 +58,8 @@ class ReplyProcessor
         $this->updateJob($job, $reply->getStatus(), $reply->getProcessingTime(), $reply->getCreatedTimestamp());
 
         $this->jobManager->save($job);
+
+        $this->replyReceivedExtension->onReplyReceived(new Result($job));
     }
 
     private function updateJob(JobInterface $job, string $status, ?float $processingTime, ?int $timestamp): void
@@ -82,7 +95,8 @@ class ReplyProcessor
         }
 
         if ($job->hasParent()) {
-            if (Status::FAILED != $job->getParent()->getStatus() && Status::FAILED == $job->getStatus() && $job->isAllowFailure()) {
+            if (Status::FAILED != $job->getParent()->getStatus() && Status::FAILED == $job->getStatus(
+                ) && $job->isAllowFailure()) {
                 $status = Status::COMPLETE;
             }
 
@@ -99,7 +113,7 @@ class ReplyProcessor
     }
 
     /**
-     * @param JobInterface[] $orderedChildren
+     * @param  JobInterface[]  $orderedChildren
      */
     private function cancelSequence(array $orderedChildren): void
     {
