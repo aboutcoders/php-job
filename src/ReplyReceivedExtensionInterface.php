@@ -4,5 +4,5 @@ namespace Abc\Job;
 
 interface ReplyReceivedExtensionInterface
 {
-    public function onReplyReceived(Result $result);
+    public function onReplyReceived(Result $result): void;
 }

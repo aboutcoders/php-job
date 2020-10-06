@@ -33,7 +33,7 @@ class ChainExtension implements ReplyReceivedExtensionInterface
         );
     }
 
-    public function onReplyReceived(Result $result)
+    public function onReplyReceived(Result $result): void
     {
         foreach ($this->replyReceivedExtensions as $extension) {
             $extension->onReplyReceived($result);
