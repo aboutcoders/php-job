@@ -1,14 +1,13 @@
 <?php
 
-namespace Abc\Job\ReplyReceivedExtension;
+namespace Abc\Job\PreSaveExtension;
 
-use Abc\Job\ReplyReceivedExtensionInterface;
-use Abc\Job\Result;
+use Abc\Job\Model\JobInterface;
 
-class ChainExtension implements ReplyReceivedExtensionInterface
+class ChainExtension implements PreSaveExtensionInterface
 {
     /**
-     * @var ReplyReceivedExtensionInterface[]
+     * @var PreSaveExtensionInterface[]
      */
     private $replyReceivedExtensions;
 
@@ -20,7 +19,7 @@ class ChainExtension implements ReplyReceivedExtensionInterface
             $extensions,
             function ($extension) {
                 $extensionValid = false;
-                if ($extension instanceof ReplyReceivedExtensionInterface) {
+                if ($extension instanceof PreSaveExtensionInterface) {
                     $this->replyReceivedExtensions[] = $extension;
 
                     $extensionValid = true;
@@ -33,10 +32,10 @@ class ChainExtension implements ReplyReceivedExtensionInterface
         );
     }
 
-    public function onReplyReceived(Result $result): void
+    public function onPreSave(JobInterface $job): void
     {
         foreach ($this->replyReceivedExtensions as $extension) {
-            $extension->onReplyReceived($result);
+            $extension->onPreSave($job);
         }
     }
 }

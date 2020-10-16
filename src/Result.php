@@ -145,7 +145,7 @@ class Result
 
     public function __construct(JobInterface $job)
     {
-        $this->type = (string) $job->getType();
+        $this->type = (string)$job->getType();
         $this->id = $job->getId();
         $this->name = $job->getName();
         $this->status = $job->getStatus();
@@ -240,7 +240,7 @@ class Result
     public function toArray(): array
     {
         $array = [
-            'type' => (string) $this->getType(),
+            'type' => (string)$this->getType(),
             'id' => $this->getId(),
             'name' => $this->getName(),
             'status' => $this->getStatus(),
@@ -253,9 +253,12 @@ class Result
             'completed' => null == $this->getCompleted() ? null : $this->getCompleted()->format('c'),
             'updated' => null == $this->getUpdated() ? null : $this->getUpdated()->format('c'),
             'created' => null == $this->getCreated() ? null : $this->getCreated()->format('c'),
-            'children' => array_map(function (Result $child) {
-                return $child->toArray();
-            }, $this->getChildren()),
+            'children' => array_map(
+                function (Result $child) {
+                    return $child->toArray();
+                },
+                $this->getChildren()
+            ),
         ];
 
         return $array;
@@ -268,7 +271,7 @@ class Result
 
     public function toJson(): string
     {
-        return json_encode((object) $this->toArray());
+        return json_encode((object)$this->toArray());
     }
 
     public static function fromJson(string $json): Result
