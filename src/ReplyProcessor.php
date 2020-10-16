@@ -3,8 +3,6 @@
 namespace Abc\Job;
 
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManager;
-use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Processor\Reply;
 use Psr\Log\LoggerInterface;
 
@@ -16,7 +14,7 @@ class ReplyProcessor
     private $jobServer;
 
     /**
-     * @var  JobManagerInterface
+     * @var  JobManager
      */
     private $jobManager;
 
@@ -25,7 +23,7 @@ class ReplyProcessor
      */
     private $logger;
 
-    public function __construct(JobServer $jobServer, JobManagerInterface $jobManager, LoggerInterface $logger)
+    public function __construct(JobServer $jobServer, JobManager $jobManager, LoggerInterface $logger)
     {
         $this->jobServer = $jobServer;
         $this->jobManager = $jobManager;

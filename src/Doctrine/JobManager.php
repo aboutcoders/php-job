@@ -5,7 +5,7 @@ namespace Abc\Job\Doctrine;
 use Abc\Job\Job;
 use Abc\Job\JobFilter;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManager as BaseJobManager;
+use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Status;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
@@ -13,7 +13,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
-class JobManager extends BaseJobManager
+class JobManager implements JobManagerInterface
 {
     /**
      * @var EntityManager
@@ -39,9 +39,9 @@ class JobManager extends BaseJobManager
         $this->class = $metadata->getName();
     }
 
-    public function getClass(): string
+    public function create(): JobInterface
     {
-        return $this->class;
+        return new $this->class();
     }
 
     public function save(JobInterface $job, bool $andFlush = true): void

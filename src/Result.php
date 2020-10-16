@@ -4,7 +4,6 @@ namespace Abc\Job;
 
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManager;
 use DateTime;
 use OpenApi\Annotations as OA;
 

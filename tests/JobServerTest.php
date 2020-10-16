@@ -3,13 +3,12 @@
 namespace Abc\Job\Tests;
 
 use Abc\Job\Broker\ProducerInterface;
-use Abc\Job\Doctrine\JobManager;
+use Abc\Job\JobManager;
 use Abc\Job\JobFilter;
 use Abc\Job\Job;
 use Abc\Job\Result;
 use Abc\Job\JobServer;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Status;
 use Abc\Job\Type;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -19,12 +18,12 @@ use Psr\Log\NullLogger;
 class JobServerTest extends TestCase
 {
     /**
-     * @var  ProducerInterface|MockObject
+     * @var ProducerInterface|MockObject
      */
     private $producer;
 
     /**
-     * @var JobManagerInterface|MockObject
+     * @var JobManager|MockObject
      */
     private $jobManager;
 
@@ -36,13 +35,15 @@ class JobServerTest extends TestCase
     public function setUp(): void
     {
         $this->producer = $this->createMock(ProducerInterface::class);
-        $this->jobManager = $this->createMock(JobManagerInterface::class);
+        $this->jobManager = $this->createMock(JobManager::class);
         $this->subject = new JobServer($this->producer, $this->jobManager, new NullLogger());
     }
 
     public function testListWithoutFilter()
     {
-        $this->jobManager->expects($this->once())->method('findBy')->with()->willReturn([$this->createMock(JobInterface::class)]);
+        $this->jobManager->expects($this->once())->method('findBy')->with()->willReturn(
+            [$this->createMock(JobInterface::class)]
+        );
 
         $results = $this->subject->list();
 
@@ -54,7 +55,9 @@ class JobServerTest extends TestCase
     {
         $filter = new JobFilter();
 
-        $this->jobManager->expects($this->once())->method('findBy')->with($filter)->willReturn([$this->createMock(JobInterface::class)]);
+        $this->jobManager->expects($this->once())->method('findBy')->with($filter)->willReturn(
+            [$this->createMock(JobInterface::class)]
+        );
 
         $results = $this->subject->list($filter);
 
@@ -68,13 +71,31 @@ class JobServerTest extends TestCase
 
         $managedJob = JobManager::fromArray(new \Abc\Job\Model\Job(), $job->toArray());
 
-        $this->jobManager->expects($this->at(0))->method('create')->with($job)->willReturn($managedJob);
-
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedJob);
-
         $this->producer->expects($this->once())->method('sendMessage')->with($managedJob);
+        $this->jobManager->expects($this->once())->method('create')->with($job)->willReturn($managedJob);
+        $this->jobManager->method('save')
+            ->withConsecutive(
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedJob) {
+                            $this->assertEquals(Status::WAITING, $job->getStatus());
+                            $this->assertSame($managedJob, $job);
 
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedJob);
+                            return true;
+                        }
+                    )
+                ],
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedJob) {
+                            $this->assertEquals(Status::SCHEDULED, $job->getStatus());
+                            $this->assertSame($managedJob, $job);
+
+                            return true;
+                        }
+                    )
+                ]
+            );
 
         $this->subject->process($job);
 
@@ -91,13 +112,33 @@ class JobServerTest extends TestCase
         $managedChild_A = $this->findChild('child_A', $managedSequence);
         $managedChild_B = $this->findChild('child_B', $managedSequence);
 
-        $this->jobManager->expects($this->at(0))->method('create')->with($sequence)->willReturn($managedSequence);
-
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedSequence);
+        $this->jobManager->expects($this->once())->method('create')->with($sequence)->willReturn($managedSequence);
 
         $this->producer->expects($this->once())->method('sendMessage')->with($managedChild_A);
 
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedSequence);
+        $this->jobManager->method('save')
+            ->withConsecutive(
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedSequence) {
+                            $this->assertEquals(Status::WAITING, $job->getStatus());
+                            $this->assertSame($managedSequence, $job);
+
+                            return true;
+                        }
+                    )
+                ],
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedSequence) {
+                            $this->assertEquals(Status::SCHEDULED, $job->getStatus());
+                            $this->assertSame($managedSequence, $job);
+
+                            return true;
+                        }
+                    )
+                ]
+            );
 
         $this->subject->process($sequence);
 
@@ -115,14 +156,37 @@ class JobServerTest extends TestCase
         $managedChild_A = $this->findChild('child_A', $managedBatch);
         $managedChild_B = $this->findChild('child_B', $managedBatch);
 
-        $this->jobManager->expects($this->at(0))->method('create')->with($batch)->willReturn($managedBatch);
+        $this->jobManager->expects($this->once())->method('create')->with($batch)->willReturn($managedBatch);
 
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedBatch);
+        $this->producer->method('sendMessage')
+            ->withConsecutive(
+                [$managedChild_A],
+                [$managedChild_B]
+            );
 
-        $this->producer->expects($this->at(0))->method('sendMessage')->with($managedChild_A);
-        $this->producer->expects($this->at(1))->method('sendMessage')->with($managedChild_B);
+        $this->jobManager->method('save')
+            ->withConsecutive(
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedBatch) {
+                            $this->assertEquals(Status::WAITING, $job->getStatus());
+                            $this->assertSame($managedBatch, $job);
 
-        $this->jobManager->expects($this->at(1))->method('save')->with($managedBatch);
+                            return true;
+                        }
+                    )
+                ],
+                [
+                    $this->callback(
+                        function (JobInterface $job) use ($managedBatch) {
+                            $this->assertEquals(Status::SCHEDULED, $job->getStatus());
+                            $this->assertSame($managedBatch, $job);
+
+                            return true;
+                        }
+                    )
+                ]
+            );
 
         $this->subject->process($batch);
 
