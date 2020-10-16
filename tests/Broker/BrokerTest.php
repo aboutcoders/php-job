@@ -38,10 +38,14 @@ class BrokerTest extends TestCase
         $routes = new RouteCollection([$routeA, $routeB, $routeC]);
 
         $this->driver->expects($this->exactly(4))->method('declareQueue');
-        $this->driver->expects($this->at(0))->method('declareQueue')->with('queueA');
-        $this->driver->expects($this->at(1))->method('declareQueue')->with('replyToA');
-        $this->driver->expects($this->at(2))->method('declareQueue')->with('queueB');
-        $this->driver->expects($this->at(3))->method('declareQueue')->with('replyToB');
+
+        $this->driver->method('declareQueue')
+            ->withConsecutive(
+                ['queueA'],
+                ['replyToA'],
+                ['queueB'],
+                ['replyToB']
+            );
 
         (new Broker('someName', $this->driver, $routes))->setup();
     }

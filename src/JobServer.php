@@ -3,9 +3,7 @@
 namespace Abc\Job;
 
 use Abc\Job\Broker\ProducerInterface;
-use Abc\Job\Doctrine\JobManager;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class JobServer implements JobServerInterface
@@ -16,26 +14,26 @@ class JobServer implements JobServerInterface
     private $producer;
 
     /**
-     * @var JobManagerInterface
+     * @var JobManager
      */
-    private $entityManager;
+    private $jobManager;
 
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(ProducerInterface $producer, JobManagerInterface $jobManager, LoggerInterface $logger)
+    public function __construct(ProducerInterface $producer, JobManager $jobManager, LoggerInterface $logger)
     {
         $this->producer = $producer;
-        $this->entityManager = $jobManager;
+        $this->jobManager = $jobManager;
         $this->logger = $logger;
     }
 
     public function list(JobFilter $filter = null): array
     {
         $results = [];
-        foreach ($this->entityManager->findBy($filter) as $job) {
+        foreach ($this->jobManager->findBy($filter) as $job) {
             $results[] = new Result($job);
         }
 
@@ -44,9 +42,9 @@ class JobServer implements JobServerInterface
 
     public function process(Job $job): Result
     {
-        $managedJob = $this->entityManager->create($job);
+        $managedJob = $this->jobManager->create($job);
 
-        $this->entityManager->save($managedJob);
+        $this->jobManager->save($managedJob);
 
         $this->logger->info(
             sprintf(
@@ -59,7 +57,7 @@ class JobServer implements JobServerInterface
 
         $this->schedule($managedJob);
 
-        $this->entityManager->save($managedJob);
+        $this->jobManager->save($managedJob);
 
         return new Result($managedJob);
     }
@@ -70,7 +68,7 @@ class JobServer implements JobServerInterface
      */
     public function restart(string $id): ?Result
     {
-        $job = $this->entityManager->find($id);
+        $job = $this->jobManager->find($id);
         if (null == $job) {
             return null;
         }
@@ -81,14 +79,14 @@ class JobServer implements JobServerInterface
 
         $this->schedule($job);
 
-        $this->entityManager->save($job);
+        $this->jobManager->save($job);
 
         return new Result($job);
     }
 
     public function cancel(string $id): ?bool
     {
-        $job = $this->entityManager->find($id);
+        $job = $this->jobManager->find($id);
         if (null == $job) {
             return null;
         }
@@ -113,14 +111,14 @@ class JobServer implements JobServerInterface
             } while ($next != null);
         }
 
-        $this->entityManager->save($job);
+        $this->jobManager->save($job);
 
         return $success;
     }
 
     public function result(string $id): ?Result
     {
-        $job = $this->entityManager->find($id);
+        $job = $this->jobManager->find($id);
         if (null == $job) {
             return null;
         }
@@ -130,12 +128,12 @@ class JobServer implements JobServerInterface
 
     public function delete(string $id): ?bool
     {
-        $job = $this->entityManager->find($id);
+        $job = $this->jobManager->find($id);
         if (null == $job) {
             return null;
         }
 
-        $this->entityManager->delete($job);
+        $this->jobManager->delete($job);
 
         return true;
     }
@@ -145,7 +143,7 @@ class JobServer implements JobServerInterface
         $this->logger->info(sprintf('[JobServer] Trigger %s %s', $job->getType(), $job->getId()));
 
         $this->schedule($job);
-        $this->entityManager->save($job);
+        $this->jobManager->save($job);
 
         return new Result($job);
     }

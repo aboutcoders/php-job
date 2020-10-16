@@ -7,7 +7,7 @@ use Abc\Job\JobFilter;
 
 interface JobManagerInterface
 {
-    public function create(Job $job): JobInterface;
+    public function create(): JobInterface;
 
     public function delete(JobInterface $job): void;
 
@@ -20,8 +20,6 @@ interface JobManagerInterface
     public function find(string $id): ?JobInterface;
 
     public function findBy(JobFilter $filter = null) : array;
-
-    public static function fromArray(JobInterface $job, array $data): JobInterface;
 
     /**
      * Indicates whether an equal job exists that is currently waiting, scheduled or running.

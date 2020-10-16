@@ -78,15 +78,15 @@ class Job
         string $externalId = null
     ) {
         if (Type::JOB() == $type && null == $name) {
-            throw new \InvalidArgumentException(sprintf('Type %s expects argument $name', $type));
+            throw new \InvalidArgumentException(sprintf('A job of type "%s" must have a $name', $type));
         }
 
         if (Type::JOB() == $type && 0 < count($children)) {
-            throw new \InvalidArgumentException(sprintf('Type %s cannot have children', $type));
+            throw new \InvalidArgumentException(sprintf('A job of type "%s" must not have children', $type));
         }
 
         if (Type::JOB() != $type && empty($children)) {
-            throw new \InvalidArgumentException(sprintf('Type %s expects at least one child', $type));
+            throw new \InvalidArgumentException(sprintf('A job of type "%s" expects at least one child', $type));
         }
 
         foreach ($children as $child) {

@@ -2,13 +2,12 @@
 
 namespace Abc\Job\Tests;
 
+use Abc\Job\JobManager;
 use Abc\Job\JobServer;
 use Abc\Job\Model\Job;
 use Abc\Job\Model\JobInterface;
-use Abc\Job\Model\JobManagerInterface;
 use Abc\Job\Processor\Reply;
 use Abc\Job\ReplyProcessor;
-use Abc\Job\ReplyReceivedExtensionInterface;
 use Abc\Job\Result;
 use Abc\Job\Status;
 use Abc\Job\Type;
@@ -24,14 +23,9 @@ class ReplyProcessorTest extends TestCase
     private $jobServer;
 
     /**
-     * @var  JobManagerInterface|MockObject
+     * @var  JobManager|MockObject
      */
-    private $entityManager;
-
-    /**
-     * @var ReplyReceivedExtensionInterface|MockObject
-     */
-    private $replyReceivedExtension;
+    private $jobManager;
 
     /**
      * @var ReplyProcessor
@@ -41,9 +35,8 @@ class ReplyProcessorTest extends TestCase
     public function setUp(): void
     {
         $this->jobServer = $this->createMock(JobServer::class);
-        $this->entityManager = $this->createMock(JobManagerInterface::class);
-        $this->replyReceivedExtension = $this->createMock(ReplyReceivedExtensionInterface::class);
-        $this->subject = new ReplyProcessor($this->jobServer, $this->entityManager, new NullLogger(), $this->replyReceivedExtension);
+        $this->jobManager = $this->createMock(JobManager::class);
+        $this->subject = new ReplyProcessor($this->jobServer, $this->jobManager, new NullLogger());
     }
 
     /**
@@ -51,29 +44,14 @@ class ReplyProcessorTest extends TestCase
      */
     public function testProcess(Reply $reply, Job $job, Job $expectedJob)
     {
-        $this->entityManager->expects($this->once())->method('find')->with('someJobId')->willReturn($job);
+        $this->jobManager->expects($this->once())->method('find')->with('someJobId')->willReturn($job);
 
-        $this->entityManager->expects($this->once())->method('save')->with($this->equalTo($expectedJob));
+        $this->jobManager->expects($this->once())->method('save')->with($this->equalTo($expectedJob));
 
-        $this->jobServer->expects($this->any())->method('trigger')->willReturnCallback(
-            function (JobInterface $job) {
-                $job->setStatus(Status::SCHEDULED);
-                return new Result($job);
-            }
-        );
-
-        $this->replyReceivedExtension->expects($this->once())->method('onReplyReceived')->with(
-            $this->callback(
-                function (Result $result) use ($expectedJob){
-                    $this->assertInstanceOf(Result::class, $result);
-                    $this->assertEquals($expectedJob->getStatus(), $result->getStatus());
-                    $this->assertEquals($expectedJob->getOutput(), $result->getOutput());
-                    $this->assertEquals($expectedJob->getProcessingTime(), $result->getProcessingTime());
-                    $this->assertEquals($expectedJob->getCompletedAt(), $result->getCompleted());
-                    return true;
-                }
-            )
-        );
+        $this->jobServer->expects($this->any())->method('trigger')->willReturnCallback(function(JobInterface $job) {
+            $job->setStatus(Status::SCHEDULED);
+            return new Result($job);
+        });
 
         $this->subject->process($reply);
 
