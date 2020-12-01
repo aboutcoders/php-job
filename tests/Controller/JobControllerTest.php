@@ -16,7 +16,7 @@ use Abc\Job\Type;
 use Abc\Job\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 class JobControllerTest extends AbstractControllerTestCase
 {
@@ -328,7 +328,7 @@ class JobControllerTest extends AbstractControllerTestCase
     private static function createManagedJob(): JobInterface
     {
         $job = new Job();
-        $job->setId(Uuid::uuid4());
+        $job->setId(Uuid::v4());
         $job->setType(Type::JOB());
         $job->setName('jobName');
         $job->setStatus(Status::COMPLETE);

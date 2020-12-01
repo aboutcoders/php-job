@@ -12,7 +12,7 @@ use Abc\Job\Type;
 use Abc\Job\Validator;
 use Abc\Scheduler\ConcurrencyPolicy;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 class ValidatorTest extends TestCase
 {
@@ -243,7 +243,7 @@ class ValidatorTest extends TestCase
                     'name' => 'valid',
                     'input' => 'someInput',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [],
                 ],
             ],
@@ -253,21 +253,21 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::SEQUENCE(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                     ],
                 ],
@@ -278,21 +278,21 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::BATCH(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                     ],
                 ],
@@ -303,7 +303,7 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::BATCH(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::SEQUENCE(),
@@ -444,14 +444,14 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::SEQUENCE(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                     ],
                 ],
@@ -463,21 +463,21 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::BATCH(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                         (object) [
                             'type' => (string) Type::JOB(),
                             'name' => 'valid',
                             'input' => 'valid',
                             'allowFailure' => false,
-                            'externalId' => Uuid::uuid4(),
+                            'externalId' => Uuid::v4(),
                         ],
                     ],
                 ],
@@ -518,7 +518,7 @@ class ValidatorTest extends TestCase
                     'type' => (string) Type::BATCH(),
                     'input' => 'valid',
                     'allowFailure' => false,
-                    'externalId' => Uuid::uuid4(),
+                    'externalId' => Uuid::v4(),
                     'children' => [
                         (object) [
                             'type' => (string) Type::SEQUENCE(),

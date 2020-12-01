@@ -13,7 +13,7 @@ use Interop\Queue\Context;
 use Interop\Queue\Message;
 use Interop\Queue\Processor;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * fixme: needs refactoring, broker specific logic should go somewhere else
@@ -102,7 +102,7 @@ class JobConsumer implements Processor
 
         $sendReplyCallback = function (Reply $reply) use ($message, $context, $logger) {
             $replyMessage = $context->createMessage($reply->toJson());
-            $replyMessage->setMessageId(Uuid::uuid4());
+            $replyMessage->setMessageId(Uuid::v4());
             $replyMessage->setCorrelationId($message->getCorrelationId());
             $replyMessage->setTimestamp(time());
 
