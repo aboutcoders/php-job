@@ -8,7 +8,7 @@ namespace Abc\Job;
 interface JobServerInterface
 {
     /**
-     * @param JobFilter $filter
+     * @param JobFilter|null $filter
      * @return Result[]
      */
     public function list(JobFilter $filter = null): array;

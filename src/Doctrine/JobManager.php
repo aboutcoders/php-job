@@ -197,9 +197,9 @@ class JobManager implements JobManagerInterface
     private function createQueryBuilder(): QueryBuilder
     {
         $qb = $this->entityManager->createQueryBuilder();
+
         $qb->select('j');
         $qb->from($this->class, 'j');
-        $qb->where($qb->expr()->isNull('j.parent'));
         $qb->orderBy('j.createdAt', 'DESC');
 
         return $qb;

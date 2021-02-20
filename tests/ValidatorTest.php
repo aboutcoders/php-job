@@ -370,7 +370,7 @@ class ValidatorTest extends TestCase
             [
                 (object) [
                     'type' => (string) Type::JOB(),
-                    'name' => str_repeat('a', 26),
+                    'name' => str_repeat('a', 51),
                 ],
             ],
             #5 Job must not have children
@@ -663,8 +663,8 @@ class ValidatorTest extends TestCase
                     '00000000-1111-1111-1111-111111111111',
                 ]),
             ],
-            ['names=valid'],
-            ['names=validA,validB'],
+            [sprintf('names=%s', str_repeat('1', 50))],
+            [sprintf('names=%s,%s', str_repeat('1', 50), str_repeat('1', 50))],
             ['status=failed'],
             ['status='.implode(',', ['waiting', 'scheduled', 'running', 'complete', 'failed', 'cancelled'])],
         ];
@@ -678,6 +678,7 @@ class ValidatorTest extends TestCase
             ['externalId=000'],
             [http_build_query(['externalId' => ['000', '11a']])],
             ['name=aa'],
+            [sprintf('names=%s', str_repeat('1', 51))],
             [http_build_query(['name' => ['aa', 'bb']])],
             ['status=undefined'],
             [http_build_query(['status' => ['undefined']])],

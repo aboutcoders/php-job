@@ -9,7 +9,7 @@
         </id>
         <field name="type" type="string" length="25"/>
         <field name="position" type="smallint" nullable="true"/>
-        <field name="name" type="string" length="25" nullable="true"/>
+        <field name="name" type="string" length="50" nullable="true"/>
         <field name="status" type="string" length="20"/>
         <field name="input" column="input" type="text" nullable="true"/>
         <field name="output" column="output" type="text" nullable="true"/>

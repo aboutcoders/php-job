@@ -77,15 +77,15 @@ class Job
         bool $allowFailure = false,
         string $externalId = null
     ) {
-        if (Type::JOB() == $type && null == $name) {
+        if (Type::JOB()->equals($type) && null == $name) {
             throw new \InvalidArgumentException(sprintf('A job of type "%s" must have a $name', $type));
         }
 
-        if (Type::JOB() == $type && 0 < count($children)) {
+        if (Type::JOB()->equals($type) && 0 < count($children)) {
             throw new \InvalidArgumentException(sprintf('A job of type "%s" must not have children', $type));
         }
 
-        if (Type::JOB() != $type && empty($children)) {
+        if (!Type::JOB()->equals($type) && empty($children)) {
             throw new \InvalidArgumentException(sprintf('A job of type "%s" expects at least one child', $type));
         }
 

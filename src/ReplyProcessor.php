@@ -49,9 +49,9 @@ class ReplyProcessor
 
     private function updateJob(JobInterface $job, string $status, ?float $processingTime, ?int $timestamp): void
     {
-        if (Type::SEQUENCE() == $job->getType()) {
+        if (Type::SEQUENCE()->equals($job->getType())) {
             $children = JobManager::sortByPosition($job->getChildren());
-            if (null != $next = JobManager::findNext($children, true)) {
+            if (null !== $next = JobManager::findNext($children, true)) {
                 if (Status::COMPLETE == $status) {
                     $this->jobServer->trigger($next);
                     $status = Status::RUNNING;
@@ -63,7 +63,7 @@ class ReplyProcessor
             }
         }
 
-        if (Type::BATCH() == $job->getType() && Status::RUNNING == $job->getStatus() && Status::COMPLETE == $status) {
+        if (Type::BATCH()->equals($job->getType()) && Status::RUNNING == $job->getStatus() && Status::COMPLETE == $status) {
             foreach ($job->getChildren() as $child) {
                 if (Status::RUNNING == $child->getStatus()) {
                     $status = Status::RUNNING;

@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 class JobServer implements JobServerInterface
 {
     /**
-     * @var  ProducerInterface
+     * @var ProducerInterface
      */
     private $producer;
 

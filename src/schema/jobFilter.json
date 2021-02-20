@@ -14,7 +14,7 @@
     },
     "names": {
       "type": "string",
-      "pattern": "^([a-zA-Z0-9._-]{3,20})(,([a-zA-Z0-9._-]{3,20}))*$"
+      "pattern": "^([a-zA-Z0-9._-]{3,50})(,([a-zA-Z0-9._-]{3,50}))*$"
     },
     "externalIds": {
       "type": "string",
